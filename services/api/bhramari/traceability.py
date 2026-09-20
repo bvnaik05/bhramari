@@ -6,8 +6,8 @@ from .access import ancestor_ids, assert_org, owned_lot, safety_status
 from .auth import current_user, require_roles
 from .db import get_db
 from .events import emit
-from .models import Custody, Evidence, Hive, Lot, LotEdge, Record, User, uid
-from .schemas import HarvestInput, HiveInput, InspectionInput, OperationInput
+from .models import Custody, DomainEvent, Evidence, Hive, Lot, LotEdge, Record, User, uid
+from .schemas import CorrectionInput, HarvestInput, HiveInput, InspectionInput, OperationInput
 
 router = APIRouter(tags=["Hives and traceability"])
 operators = require_roles("beekeeper", "fpo", "processor", "admin")
@@ -143,3 +143,26 @@ def lineage(lot_id: str, user: User = Depends(current_user), db: Session = Depen
     ids = ancestor_ids(db, lot_id)
     evidence = db.scalars(select(Evidence).where(Evidence.lot_id.in_(ids))).all()
     return {"lot": {**row_view(lot), "status": safety_status(db, lot)}, "ancestors": [row_view(row) for row in db.scalars(select(Lot).where(Lot.id.in_(ids - {lot_id})))], "edges": [row_view(row) for row in db.scalars(select(LotEdge).where(LotEdge.child_id.in_(ids)))], "evidence": [{key: value for key, value in row_view(row).items() if key != "object_path"} for row in evidence], "custody": [row_view(row) for row in db.scalars(select(Custody).where(Custody.lot_id.in_(ids)))]}
+
+
+@router.post("/events/{event_id}/corrections", status_code=201)
+def correct_event(event_id: str, body: CorrectionInput, user: User = Depends(current_user), db: Session = Depends(get_db)):
+    original = db.get(DomainEvent, event_id)
+    if not original:
+        raise HTTPException(404, "Event not found")
+    assert_org(user, original.org_id)
+    payload = {"original_event_id": original.id, "reason": body.reason, "changes": body.changes}
+    correction = emit(db, user, "event.corrected", original.subject_id, payload)
+    db.add(Record(kind="correction", org_id=user.org_id, data={**payload, "correction_event_id": correction.id}))
+    return {"id": correction.id, "original_event_id": original.id, "subject_id": original.subject_id,
+            "hash": correction.hash, "created_at": correction.created_at}
+
+
+@router.get("/events/{event_id}/corrections")
+def corrections(event_id: str, user: User = Depends(current_user), db: Session = Depends(get_db)):
+    original = db.get(DomainEvent, event_id)
+    if not original:
+        raise HTTPException(404, "Event not found")
+    assert_org(user, original.org_id)
+    rows = db.scalars(select(Record).where(Record.kind == "correction", Record.org_id == original.org_id).order_by(Record.created_at))
+    return [row_view(row) for row in rows if row.data.get("original_event_id") == event_id]

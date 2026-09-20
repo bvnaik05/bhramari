@@ -7,10 +7,11 @@ from uuid import UUID
 
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+from sqlalchemy import select
 
 from bhramari.db import SessionLocal
 from bhramari.events import canonical, digest
-from bhramari.models import Evidence, now
+from bhramari.models import DomainEvent, Evidence, now
 from bhramari.quality import scan_content
 
 
@@ -36,6 +37,26 @@ def test_role_and_organisation_boundaries(client, auth):
     assert denied.status_code == 403
     hidden = client.get("/api/v1/hives/HIVE-MH-001/inspections", headers=auth("fpo"))
     assert hidden.status_code == 403
+
+
+def test_corrections_append_new_proof_without_rewriting_history(client, auth):
+    headers = auth("beekeeper")
+    lot = harvest(client, headers, 321)
+    with SessionLocal() as db:
+        original = db.scalar(select(DomainEvent).where(DomainEvent.subject_id == lot["id"], DomainEvent.event_type == "lot.harvested"))
+        event_id, original_hash = original.id, original.hash
+
+    corrected = client.post(f"/api/v1/events/{event_id}/corrections", headers=headers, json={
+        "reason": "The field note used an incorrect container reference.",
+        "changes": {"notes": "Container BHR-C-17"},
+    })
+
+    assert corrected.status_code == 201
+    with SessionLocal() as db:
+        assert db.get(DomainEvent, event_id).hash == original_hash
+        assert db.get(DomainEvent, corrected.json()["id"]).event_type == "event.corrected"
+    rows = client.get(f"/api/v1/events/{event_id}/corrections", headers=headers).json()
+    assert rows[-1]["data"]["changes"] == {"notes": "Container BHR-C-17"}
 
 
 def test_mass_balance_prevents_double_consumption_and_recall_reaches_children(client, auth):

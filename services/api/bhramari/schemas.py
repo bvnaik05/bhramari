@@ -115,3 +115,18 @@ class Envelope(Input):
 
 class SyncInput(Input):
     events: list[Envelope] = Field(min_length=1, max_length=100)
+
+
+class CorrectionInput(Input):
+    reason: str = Field(min_length=10, max_length=1000)
+    changes: dict[str, str | int | float | bool | None] = Field(min_length=1, max_length=30)
+
+    @field_validator("changes")
+    @classmethod
+    def safe_changes(cls, value):
+        blocked = {"password", "token", "secret", "private_key"}
+        if any(len(key) > 80 or key.casefold() in blocked for key in value):
+            raise ValueError("Correction fields are invalid or sensitive")
+        if any(isinstance(item, str) and len(item) > 2000 for item in value.values()):
+            raise ValueError("Correction values must be 2,000 characters or fewer")
+        return value
