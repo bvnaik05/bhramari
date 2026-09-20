@@ -1,0 +1,21 @@
+from bhramari.languages import language, manifest, translate
+
+
+def test_language_manifest_exposes_all_sarvam_indian_languages():
+    capabilities = manifest()
+    codes = {item["code"] for item in capabilities["languages"]}
+    assert len(codes) == 23
+    assert {"as-IN", "brx-IN", "doi-IN", "kok-IN", "ks-IN", "mai-IN", "mni-IN", "sa-IN", "sat-IN", "ur-IN"} <= codes
+    assert all(item["text"] and item["stt"] for item in capabilities["languages"])
+
+
+def test_voice_provider_is_declared_only_when_supported():
+    assert "sarvam" in language("od-IN")["tts"]
+    assert "elevenlabs" in language("as-IN")["tts"]
+    assert language("brx-IN")["tts"] == []
+
+
+def test_unconfigured_provider_returns_explicit_english_fallback():
+    text, provider = translate("Hive needs attention", "brx-IN")
+    assert text == "Hive needs attention"
+    assert provider == "english_fallback"

@@ -10,7 +10,7 @@ from typing import Literal
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -19,6 +19,7 @@ from .community import add_record, list_records, owned_record, record_view
 from .config import settings
 from .db import get_db
 from .events import canonical, emit
+from .languages import language
 from .models import Device, Hive, Record, User
 from .schemas import HarvestInput
 
@@ -39,10 +40,16 @@ class AssistanceRequest(BaseModel):
     farmer_name: str = Field(min_length=2, max_length=120)
     farmer_id: str | None = None
     phone_last4: str = Field(pattern=r"^\d{4}$")
-    language: Literal["en", "hi", "mr"] = "en"
+    language: str = "en-IN"
     request_type: Literal["harvest", "mentor", "buyer"]
     quantity_g: int | None = Field(default=None, gt=0, le=10_000_000, strict=True)
     hive_id: str | None = None
+
+    @field_validator("language")
+    @classmethod
+    def supported_language(cls, value):
+        language(value)
+        return value
 
 
 class Confirmation(BaseModel):

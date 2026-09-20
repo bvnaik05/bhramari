@@ -1,0 +1,29 @@
+{
+  "source": "Sarvam model capability tables, reviewed 2026-09-20",
+  "default": "en-IN",
+  "languages": [
+    {"code":"as-IN","name":"Assamese","native_name":"অসমীয়া","text":true,"stt":["sarvam"],"tts":["elevenlabs"]},
+    {"code":"bn-IN","name":"Bengali","native_name":"বাংলা","text":true,"stt":["sarvam"],"tts":["sarvam","elevenlabs"]},
+    {"code":"brx-IN","name":"Bodo","native_name":"बड़ो","text":true,"stt":["sarvam"],"tts":[]},
+    {"code":"doi-IN","name":"Dogri","native_name":"डोगरी","text":true,"stt":["sarvam"],"tts":[]},
+    {"code":"en-IN","name":"English (India)","native_name":"English","text":true,"stt":["sarvam","elevenlabs"],"tts":["sarvam","elevenlabs"]},
+    {"code":"gu-IN","name":"Gujarati","native_name":"ગુજરાતી","text":true,"stt":["sarvam"],"tts":["sarvam","elevenlabs"]},
+    {"code":"hi-IN","name":"Hindi","native_name":"हिन्दी","text":true,"stt":["sarvam","elevenlabs"],"tts":["sarvam","elevenlabs"]},
+    {"code":"kn-IN","name":"Kannada","native_name":"ಕನ್ನಡ","text":true,"stt":["sarvam","elevenlabs"],"tts":["sarvam","elevenlabs"]},
+    {"code":"kok-IN","name":"Konkani","native_name":"कोंकणी","text":true,"stt":["sarvam"],"tts":[]},
+    {"code":"ks-IN","name":"Kashmiri","native_name":"کٲشُر","text":true,"stt":["sarvam"],"tts":[]},
+    {"code":"mai-IN","name":"Maithili","native_name":"मैथिली","text":true,"stt":["sarvam"],"tts":[]},
+    {"code":"ml-IN","name":"Malayalam","native_name":"മലയാളം","text":true,"stt":["sarvam","elevenlabs"],"tts":["sarvam","elevenlabs"]},
+    {"code":"mni-IN","name":"Manipuri","native_name":"মৈতৈলোন্","text":true,"stt":["sarvam"],"tts":[]},
+    {"code":"mr-IN","name":"Marathi","native_name":"मराठी","text":true,"stt":["sarvam","elevenlabs"],"tts":["sarvam","elevenlabs"]},
+    {"code":"ne-IN","name":"Nepali","native_name":"नेपाली","text":true,"stt":["sarvam","elevenlabs"],"tts":["elevenlabs"]},
+    {"code":"od-IN","name":"Odia","native_name":"ଓଡ଼ିଆ","text":true,"stt":["sarvam","elevenlabs"],"tts":["sarvam"]},
+    {"code":"pa-IN","name":"Punjabi","native_name":"ਪੰਜਾਬੀ","text":true,"stt":["sarvam","elevenlabs"],"tts":["sarvam","elevenlabs"]},
+    {"code":"sa-IN","name":"Sanskrit","native_name":"संस्कृतम्","text":true,"stt":["sarvam"],"tts":[]},
+    {"code":"sat-IN","name":"Santali","native_name":"ᱥᱟᱱᱛᱟᱲᱤ","text":true,"stt":["sarvam"],"tts":[]},
+    {"code":"sd-IN","name":"Sindhi","native_name":"سنڌي","text":true,"stt":["sarvam","elevenlabs"],"tts":["elevenlabs"]},
+    {"code":"ta-IN","name":"Tamil","native_name":"தமிழ்","text":true,"stt":["sarvam","elevenlabs"],"tts":["sarvam","elevenlabs"]},
+    {"code":"te-IN","name":"Telugu","native_name":"తెలుగు","text":true,"stt":["sarvam","elevenlabs"],"tts":["sarvam","elevenlabs"]},
+    {"code":"ur-IN","name":"Urdu","native_name":"اردو","text":true,"stt":["sarvam","elevenlabs"],"tts":["elevenlabs"]}
+  ]
+}

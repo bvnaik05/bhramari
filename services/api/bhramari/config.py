@@ -18,6 +18,12 @@ class Settings(BaseSettings):
     evidence_key: str = ""
     passport_private_key: str = ""
     public_url: str = "http://localhost:3000"
+    language_manifest: Path = Path(__file__).parent / "data" / "languages.json"
+    sarvam_api_key: str = ""
+    sarvam_api_url: str = "https://api.sarvam.ai"
+    elevenlabs_api_key: str = ""
+    elevenlabs_api_url: str = "https://api.elevenlabs.io"
+    elevenlabs_voice_id: str = ""
 
 
 @lru_cache
