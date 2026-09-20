@@ -11,6 +11,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from bhramari.db import SessionLocal
 from bhramari.events import canonical, digest
 from bhramari.models import Evidence, now
+from bhramari.quality import scan_content
 
 
 def harvest(client, headers, grams=1_000):
@@ -121,3 +122,22 @@ def test_public_passport_excludes_private_identity_fields(client):
     assert "@bhramari.local" not in serialized
     assert "user-beekeeper" not in serialized
     assert set(body["origin"]) == {"region", "floral", "producer", "source_lots"}
+
+
+def test_malware_verdict_rejects_evidence(monkeypatch):
+    from types import SimpleNamespace
+    from bhramari import quality
+
+    class Scanner:
+        def __enter__(self): return self
+        def __exit__(self, *_): pass
+        def sendall(self, _): pass
+        def recv(self, _): return b"stream: Eicar-Test-Signature FOUND\0"
+
+    monkeypatch.setattr(quality, "settings", lambda: SimpleNamespace(demo=False, malware_scanner_host="scanner", malware_scanner_port=3310))
+    monkeypatch.setattr(quality.socket, "create_connection", lambda *args, **kwargs: Scanner())
+    try:
+        scan_content(b"untrusted evidence")
+        assert False, "malware verdict must reject the upload"
+    except Exception as exc:
+        assert getattr(exc, "status_code", None) == 422

@@ -1,6 +1,8 @@
 import base64
 import hashlib
 import json
+import socket
+import struct
 from datetime import date
 from functools import lru_cache
 
@@ -58,6 +60,7 @@ def add_evidence(body: EvidenceInput, user: User = Depends(require_roles("lab", 
     if body.expires_at < now().date():
         raise HTTPException(422, "New evidence cannot already be expired")
     content = validate_content(body)
+    scan_content(content)
     identifier = uid()
     directory = settings().data_dir / "evidence"
     directory.mkdir(parents=True, exist_ok=True)
@@ -91,6 +94,28 @@ def validate_content(body):
         return content
     except (ValueError, UnicodeDecodeError) as exc:
         raise HTTPException(422, str(exc)) from exc
+
+
+def scan_content(content):
+    config = settings()
+    if not config.malware_scanner_host:
+        if config.demo:
+            return
+        raise HTTPException(503, "Malware scanner must be configured for evidence uploads")
+    try:
+        with socket.create_connection((config.malware_scanner_host, config.malware_scanner_port), timeout=10) as scanner:
+            scanner.sendall(b"zINSTREAM\0")
+            for start in range(0, len(content), 64 * 1024):
+                chunk = content[start:start + 64 * 1024]
+                scanner.sendall(struct.pack("!I", len(chunk)) + chunk)
+            scanner.sendall(struct.pack("!I", 0))
+            verdict = scanner.recv(4096).rstrip(b"\0").decode("utf-8", "replace")
+    except OSError as exc:
+        raise HTTPException(503, "Evidence malware scanner is unavailable") from exc
+    if verdict.endswith(" FOUND"):
+        raise HTTPException(422, "Evidence upload failed malware screening")
+    if not verdict.endswith(" OK"):
+        raise HTTPException(502, "Evidence malware scanner returned an invalid verdict")
 
 
 @router.get("/evidence/{evidence_id}/content")

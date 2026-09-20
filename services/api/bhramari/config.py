@@ -28,6 +28,8 @@ class Settings(BaseSettings):
     elevenlabs_api_key: str = ""
     elevenlabs_api_url: str = "https://api.elevenlabs.io"
     elevenlabs_voice_id: str = ""
+    malware_scanner_host: str = ""
+    malware_scanner_port: int = 3310
 
 
 @lru_cache

@@ -41,6 +41,10 @@ services:
     volumes: [object-data:/data]
     ports: [9000:9000, 9001:9001]
 
+  malware-scanner:
+    image: clamav/clamav:1.4.1
+    volumes: [clamav-data:/var/lib/clamav]
+
   anvil:
     build: ./contracts
     command: anvil
@@ -80,6 +84,7 @@ services:
       BHRAMARI_SARVAM_API_KEY: ${SARVAM_API_KEY:-}
       BHRAMARI_ELEVENLABS_API_KEY: ${ELEVENLABS_API_KEY:-}
       BHRAMARI_ELEVENLABS_VOICE_ID: ${ELEVENLABS_VOICE_ID:-}
+      BHRAMARI_MALWARE_SCANNER_HOST: malware-scanner
     volumes:
       - ./deploy/participants.json:/config/participants.json:ro
       - evidence-data:/data
@@ -87,6 +92,7 @@ services:
     depends_on:
       postgres: {condition: service_healthy}
       keycloak: {condition: service_started}
+      malware-scanner: {condition: service_started}
     healthcheck:
       test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health')"]
       interval: 5s
@@ -149,3 +155,4 @@ volumes:
   ledger-data:
   prometheus-data:
   grafana-data:
+  clamav-data:
