@@ -29,14 +29,33 @@ class FieldVault {
       password: password,
       version: 1,
       onCreate: (db, _) async {
-        await db.execute('CREATE TABLE queue (id TEXT PRIMARY KEY, envelope TEXT NOT NULL, created_at TEXT NOT NULL)');
-        await db.execute('CREATE TABLE state (name TEXT PRIMARY KEY, value TEXT NOT NULL)');
+        await db.execute(
+          'CREATE TABLE queue (id TEXT PRIMARY KEY, envelope TEXT NOT NULL, created_at TEXT NOT NULL)',
+        );
+        await db.execute(
+          'CREATE TABLE state (name TEXT PRIMARY KEY, value TEXT NOT NULL)',
+        );
       },
     );
   }
 
   Future<int> pendingCount() async =>
-      Sqflite.firstIntValue(await _database.rawQuery('SELECT COUNT(*) FROM queue')) ?? 0;
+      Sqflite.firstIntValue(
+        await _database.rawQuery('SELECT COUNT(*) FROM queue'),
+      ) ??
+      0;
+
+  Future<void> cache(String name, Object value) => _database.insert('state', {
+    'name': 'cache.$name',
+    'value': jsonEncode(value),
+  }, conflictAlgorithm: ConflictAlgorithm.replace);
+
+  Future<List<Map<String, dynamic>>> cachedList(String name) async {
+    final value = await _state('cache.$name');
+    return value == null
+        ? []
+        : (jsonDecode(value) as List).cast<Map<String, dynamic>>();
+  }
 
   Future<void> registerDevice() async {
     if (await _secure.read(key: 'device.id') != null) return;
@@ -58,12 +77,6 @@ class FieldVault {
     required String floral,
     String notes = '',
   }) async {
-    final deviceId = await _secure.read(key: 'device.id');
-    final seed = await _secure.read(key: 'device.seed');
-    if (deviceId == null || seed == null) throw StateError('Register this device while online first.');
-
-    final sequence = int.parse(await _state('sequence') ?? '0') + 1;
-    final previousHash = await _state('last_hash') ?? '';
     final payload = {
       'hive_id': hiveId,
       'product': 'honey',
@@ -71,13 +84,53 @@ class FieldVault {
       'floral': floral,
       'notes': notes,
     };
+    return _queue(
+      user: user,
+      eventType: 'harvest',
+      subjectId: hiveId,
+      payload: payload,
+    );
+  }
+
+  Future<String> queueInspection({
+    required Map<String, dynamic> user,
+    required String hiveId,
+    required String observation,
+    required String status,
+    bool? queenSeen,
+    int? frames,
+  }) => _queue(
+    user: user,
+    eventType: 'inspection',
+    subjectId: hiveId,
+    payload: {
+      'observation': observation,
+      'status': status,
+      'queen_seen': queenSeen,
+      'frames': frames,
+    },
+  );
+
+  Future<String> _queue({
+    required Map<String, dynamic> user,
+    required String eventType,
+    required String subjectId,
+    required Map<String, dynamic> payload,
+  }) async {
+    final deviceId = await _secure.read(key: 'device.id');
+    final seed = await _secure.read(key: 'device.seed');
+    if (deviceId == null || seed == null) {
+      throw StateError('Register this device while online first.');
+    }
+    final sequence = int.parse(await _state('sequence') ?? '0') + 1;
+    final previousHash = await _state('last_hash') ?? '';
     final unsigned = <String, dynamic>{
       'schema_version': 1,
       'event_id': const Uuid().v7(),
       'actor_id': user['id'],
       'organisation_id': user['org_id'],
-      'event_type': 'harvest',
-      'subject_id': hiveId,
+      'event_type': eventType,
+      'subject_id': subjectId,
       'occurred_at': DateTime.now().toUtc().toIso8601String(),
       'device_sequence': sequence,
       'previous_event_hash': previousHash,
@@ -88,7 +141,10 @@ class FieldVault {
       'payload': payload,
     };
     final pair = await _signer.newKeyPairFromSeed(base64Decode(seed));
-    final signature = await _signer.sign(utf8.encode(canonicalJson(unsigned)), keyPair: pair);
+    final signature = await _signer.sign(
+      utf8.encode(canonicalJson(unsigned)),
+      keyPair: pair,
+    );
     final envelope = {...unsigned, 'signature': base64Encode(signature.bytes)};
     final envelopeHash = await _digest(unsigned);
     await _database.transaction((txn) async {
@@ -97,37 +153,66 @@ class FieldVault {
         'envelope': jsonEncode(envelope),
         'created_at': unsigned['occurred_at'],
       });
-      await txn.insert('state', {'name': 'sequence', 'value': '$sequence'}, conflictAlgorithm: ConflictAlgorithm.replace);
-      await txn.insert('state', {'name': 'last_hash', 'value': envelopeHash}, conflictAlgorithm: ConflictAlgorithm.replace);
+      await txn.insert('state', {
+        'name': 'sequence',
+        'value': '$sequence',
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
+      await txn.insert('state', {
+        'name': 'last_hash',
+        'value': envelopeHash,
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
     });
     return unsigned['event_id'] as String;
   }
 
-  Future<List<Map<String, dynamic>>> queued() async => (await _database.query('queue', orderBy: 'created_at'))
-      .map((row) => jsonDecode(row['envelope'] as String) as Map<String, dynamic>)
-      .toList();
+  Future<List<Map<String, dynamic>>> queued() async =>
+      (await _database.query('queue', orderBy: 'created_at'))
+          .map(
+            (row) =>
+                jsonDecode(row['envelope'] as String) as Map<String, dynamic>,
+          )
+          .toList();
 
   Future<List<Map<String, dynamic>>> sync() async {
     final events = await queued();
     if (events.isEmpty) return [];
     final result = await api.post('/sync', {'events': events});
     final receipts = (result['receipts'] as List).cast<Map<String, dynamic>>();
-    final finalized = receipts.where((item) => item['status'] == 'accepted' || item['status'] == 'disputed').map((item) => item['event_id']).toList();
+    final finalized = receipts
+        .where(
+          (item) =>
+              item['status'] == 'accepted' || item['status'] == 'disputed',
+        )
+        .map((item) => item['event_id'])
+        .toList();
     if (finalized.isNotEmpty) {
-      await _database.delete('queue', where: 'id IN (${List.filled(finalized.length, '?').join(',')})', whereArgs: finalized);
+      await _database.delete(
+        'queue',
+        where: 'id IN (${List.filled(finalized.length, '?').join(',')})',
+        whereArgs: finalized,
+      );
     }
     return receipts;
   }
 
   Future<String?> _state(String name) async {
-    final rows = await _database.query('state', columns: ['value'], where: 'name = ?', whereArgs: [name], limit: 1);
+    final rows = await _database.query(
+      'state',
+      columns: ['value'],
+      where: 'name = ?',
+      whereArgs: [name],
+      limit: 1,
+    );
     return rows.isEmpty ? null : rows.first['value'] as String;
   }
 
   Future<String> _digest(Object value) async {
     final digest = await _hash.hash(utf8.encode(canonicalJson(value)));
-    return digest.bytes.map((byte) => byte.toRadixString(16).padLeft(2, '0')).join();
+    return digest.bytes
+        .map((byte) => byte.toRadixString(16).padLeft(2, '0'))
+        .join();
   }
 
-  Database get _database => _db ?? (throw StateError('Vault has not been opened.'));
+  Database get _database =>
+      _db ?? (throw StateError('Vault has not been opened.'));
 }

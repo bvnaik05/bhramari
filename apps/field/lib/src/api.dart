@@ -33,13 +33,15 @@ class ApiClient {
       (await _request('POST', path, body)) as Map<String, dynamic>;
 
   Future<dynamic> _request(String method, String path, [Object? body]) async {
-    final response = await _client.send(http.Request(method, Uri.parse('$apiUrl$path'))
-      ..headers.addAll({
-        'accept': 'application/json',
-        if (token != null) 'authorization': 'Bearer $token',
-        if (body != null) 'content-type': 'application/json',
-      })
-      ..body = body == null ? '' : jsonEncode(body));
+    final response = await _client.send(
+      http.Request(method, Uri.parse('$apiUrl$path'))
+        ..headers.addAll({
+          'accept': 'application/json',
+          if (token != null) 'authorization': 'Bearer $token',
+          if (body != null) 'content-type': 'application/json',
+        })
+        ..body = body == null ? '' : jsonEncode(body),
+    );
     final text = await response.stream.bytesToString();
     final value = text.isEmpty ? null : jsonDecode(text);
     if (response.statusCode < 200 || response.statusCode >= 300) {
