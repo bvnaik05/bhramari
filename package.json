@@ -1,0 +1,15 @@
+{
+  "name": "bhramari",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Bhramari: accountable honey traceability and inclusive hive management for SIH26021",
+  "workspaces": ["apps/web", "services/ledger", "contracts"],
+  "scripts": {
+    "dev": "npm run dev --workspace apps/web",
+    "build": "npm run build --workspace apps/web",
+    "typecheck": "npm run typecheck --workspace apps/web",
+    "test:contracts": "npm test --workspace contracts",
+    "test:ledger": "npm test --workspace services/ledger"
+  },
+  "engines": { "node": ">=22.0.0" }
+}
