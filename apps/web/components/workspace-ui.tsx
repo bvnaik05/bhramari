@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, type ReactNode } from "react";
-import { ArrowRight, Check, ChevronDown, LoaderCircle, RefreshCw, TriangleAlert } from "lucide-react";
+import { ArrowRight, Check, ChevronDown, Hexagon, LoaderCircle, RefreshCw, TriangleAlert } from "lucide-react";
 import { api, display, type RecordData } from "@/lib/api";
 
 export type Field = { name: string; label: string; type?: string; value?: string | number; required?: boolean; min?: number; max?: number; step?: number; options?: { value: string; label: string }[]; hint?: string };
@@ -21,7 +21,7 @@ export function Status({ value }: { value: unknown }) {
   return <span className={`status status-${text.toLowerCase().replaceAll(" ", "-")}`}>{text}</span>;
 }
 
-export function Empty({ children = "No records yet. Your next action starts the story." }: { children?: ReactNode }) { return <div className="empty-state"><span className="empty-hex">⬡</span><p>{children}</p></div>; }
+export function Empty({ children = "No records yet. Your next action starts the story." }: { children?: ReactNode }) { return <div className="empty-state"><Hexagon className="empty-hex" /><p>{children}</p></div>; }
 export function ErrorNotice({ message, retry }: { message: string; retry?: () => void }) { return <div className="notice notice-error" role="alert"><TriangleAlert size={18} /><span>{message}</span>{retry && <button className="text-link" onClick={retry}>Try again <RefreshCw size={14} /></button>}</div>; }
 
 export function useRecords<T>(path: string, revision = 0) {

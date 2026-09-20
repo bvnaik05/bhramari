@@ -8,6 +8,15 @@ export const api = {
   async get<T = RecordData>(path: string): Promise<T> { return request<T>(path); },
   async post<T = RecordData>(path: string, body: unknown): Promise<T> { return request<T>(path, "POST", body); },
   async patch<T = RecordData>(path: string, body: unknown): Promise<T> { return request<T>(path, "PATCH", body); },
+  async delete<T = RecordData>(path: string): Promise<T> { return request<T>(path, "DELETE"); },
+  async audio(path: string, body: unknown): Promise<Blob> {
+    const token = typeof window !== "undefined" ? sessionStorage.getItem("bhramari.token") : null;
+    const response = await fetch(`/api/v1${path}`, { method: "POST", headers: {
+      "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    }, body: JSON.stringify(body) });
+    if (!response.ok) throw new Error((await response.json().catch(() => ({}))).detail || "Voice provider failed.");
+    return response.blob();
+  },
 };
 
 async function request<T>(path: string, method = "GET", body?: unknown): Promise<T> {
