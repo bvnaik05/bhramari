@@ -145,7 +145,7 @@ def match_reasons(db, lot, requirement):
                 continue
         except (TypeError, ValueError):
             continue
-        moisture = item.summary.get("moisture_pct")
+        moisture = item.summary.get("moisture_pct", item.summary.get("moisture_percent"))
         if requirement.get("max_moisture") is not None:
             if not isinstance(moisture, (int, float)) or moisture > requirement["max_moisture"]:
                 continue
