@@ -6,7 +6,7 @@ from uuid import UUID
 
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -16,6 +16,7 @@ from .auth import require_roles
 from .config import settings
 from .db import get_db
 from .events import canonical, emit
+from .languages import generate_speech, translate
 from .models import Bottle, Custody, DomainEvent, Evidence, Hive, Lot, Organisation, Record, User, now, uid
 from .schemas import Input, PackInput
 from .traceability import consume
@@ -90,6 +91,17 @@ def passport(serial: str, db: Session = Depends(get_db)):
     journey = [{"title": event.event_type.replace(".", " · ").replace("_", " ").title(), "date": event.created_at.isoformat(), "detail": public_event_detail(event)} for event in events if event.event_type not in {"offline.disputed", "consent.updated"}]
     public_evidence = [{"id": item.id, "kind": item.kind, "title": "Laboratory report" if item.kind == "laboratory" else "Field evidence", "sha256": item.sha256, "expires_at": item.expires_at, "fresh": item.expires_at >= now().date().isoformat(), "summary": {key: value for key, value in item.summary.items() if key in {"moisture_percent", "test", "result", "method", "screening_only"} and isinstance(value, (int, float, bool))}} for item in evidence]
     return {"serial": serial, "status": status, "safety_status": state, "product": lot.product, "quantity_g": bottle.quantity_g, "origin": {"region": lot.region, "floral": lot.floral, "producer": producer_name(db, origins), "source_lots": len(origins)}, "journey": journey, "evidence": public_evidence, "proof": {**proof, "transaction_hash": proof.get("receipt", {}).get("transaction_hash")}, "certificate": bottle.certificate, "issuer_key_id": KEY_ID, "refreshed_at": now().isoformat(), "truth_boundary": "Blockchain proves accepted records have not changed. It does not prove chemical purity. A QR label can be copied; laboratory evidence and current recall checks remain essential."}
+
+
+@router.get("/passport/{serial}/audio")
+def passport_audio(serial: str, language_code: str = "en-IN", db: Session = Depends(get_db)):
+    data = passport(serial, db)
+    origin = data["origin"]
+    text = (f"{data['status']}. {data['product']}, {data['quantity_g']} grams. "
+            f"Origin: {origin['region']}. Floral source: {origin['floral']}. {data['truth_boundary']}")
+    localized, _ = translate(text, language_code)
+    audio, media_type, provider = generate_speech(localized, language_code)
+    return Response(audio, media_type=media_type, headers={"X-Voice-Provider": provider, "Cache-Control": "public, max-age=3600"})
 
 
 def producer_name(db, origins):

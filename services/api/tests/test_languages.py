@@ -32,3 +32,10 @@ def test_madhu_intent_uses_provider_translation_for_any_manifest_language(client
     assert response.status_code == 200
     assert response.json()["intent"] == "draft_harvest"
     assert response.json()["draft"]["quantity_g"] == 2_000
+
+
+def test_public_passport_audio_uses_selected_provider_language(client):
+    response = client.get("/api/v1/passport/BHR-2026-0001/audio?language_code=as-IN")
+
+    assert response.status_code == 503
+    assert "Text remains available" in response.json()["detail"]

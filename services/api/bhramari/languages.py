@@ -44,21 +44,25 @@ def capabilities():
 
 @router.post("/synthesize")
 def synthesize(body: SynthesisInput, _: User = Depends(current_user)):
-    item = language(body.language)
+    data, media_type, provider = generate_speech(body.text, body.language)
+    return Response(data, media_type=media_type, headers={"X-Voice-Provider": provider})
+
+
+def generate_speech(text, language_code):
+    item = language(language_code)
     config = settings()
     if "sarvam" in item["tts"] and config.sarvam_api_key:
         result = request_json("POST", f"{config.sarvam_api_url}/text-to-speech",
             headers={"api-subscription-key": config.sarvam_api_key},
-            json={"text": body.text, "language_code": body.language, "model": "bulbul:v3",
+            json={"text": text, "language_code": language_code, "model": "bulbul:v3",
                   "speaker": "shubh", "output_audio_codec": "mp3"})
         import base64
-        return Response(base64.b64decode(result["audios"][0]), media_type="audio/mpeg",
-                        headers={"X-Voice-Provider": "sarvam"})
+        return base64.b64decode(result["audios"][0]), "audio/mpeg", "sarvam"
     if "elevenlabs" in item["tts"] and config.elevenlabs_api_key and config.elevenlabs_voice_id:
         data = request_bytes("POST", f"{config.elevenlabs_api_url}/v1/text-to-speech/{config.elevenlabs_voice_id}",
             headers={"xi-api-key": config.elevenlabs_api_key, "Accept": "audio/mpeg"},
-            json={"text": body.text, "model_id": "eleven_v3"})
-        return Response(data, media_type="audio/mpeg", headers={"X-Voice-Provider": "elevenlabs"})
+            json={"text": text, "model_id": "eleven_v3"})
+        return data, "audio/mpeg", "elevenlabs"
     raise HTTPException(503, "No configured voice provider supports this language. Text remains available.")
 
 
