@@ -103,7 +103,11 @@ def content(evidence_id: str, user: User = Depends(current_user), db: Session = 
         raise HTTPException(403, "Evidence access is restricted to its issuer and lot owner")
     try:
         from pathlib import Path
-        raw = evidence_cipher().decrypt(Path(evidence.object_path).read_bytes())
+        encrypted = Path(evidence.object_path).read_bytes()
+        decoded = base64.b64decode(encrypted, altchars=b"-_", validate=True)
+        if len(decoded) < 73 or (len(decoded) - 57) % 16:
+            raise ValueError("invalid encrypted object length")
+        raw = evidence_cipher().decrypt(encrypted)
         if hashlib.sha256(raw).hexdigest() != evidence.sha256:
             raise ValueError("hash mismatch")
     except (InvalidToken, OSError, ValueError) as exc:

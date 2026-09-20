@@ -72,6 +72,8 @@ def receipt(checkpoint_id: str, body: ReceiptInput, db: Session = Depends(get_db
     checkpoint = db.scalar(select(Checkpoint).where(Checkpoint.id == checkpoint_id).with_for_update())
     if not checkpoint:
         raise HTTPException(404, "Checkpoint not found")
+    if body.checkpoint_id and body.checkpoint_id != checkpoint.id:
+        raise HTTPException(409, "Receipt checkpoint ID does not match the request path")
     if body.merkle_root and body.merkle_root.removeprefix("0x").lower() != checkpoint.root:
         raise HTTPException(409, "Receipt root does not match this checkpoint")
     if checkpoint.status == "anchored" and checkpoint.receipt.get("transaction_hash") != body.transaction_hash:
