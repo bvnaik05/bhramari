@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
 from sqlalchemy import text
 
 from . import auth, dashboard, logistics, passport, quality, sync, traceability, trust
@@ -48,10 +49,13 @@ for name in ["community", "engagement", "intelligence", "languages", "madhu", "a
 
 # ponytail: in-process rate buckets protect the single-worker demo; use gateway/Redis limits for multiple workers.
 buckets = defaultdict(deque)
+requests_total = Counter("bhramari_http_requests_total", "HTTP requests", ["method", "path", "status"])
+request_seconds = Histogram("bhramari_http_request_seconds", "HTTP request duration", ["method", "path"])
 
 
 @app.middleware("http")
 async def protect(request: Request, call_next):
+    started = time.monotonic()
     if int(request.headers.get("content-length", "0")) > 3_000_000:
         return JSONResponse({"detail": "Request exceeds 3 MB"}, status_code=413)
     key = (request.client.host if request.client else "unknown", "auth" if request.url.path.endswith("/auth/demo") else "api")
@@ -63,6 +67,10 @@ async def protect(request: Request, call_next):
         return JSONResponse({"detail": "Rate limit reached; retry in one minute"}, status_code=429, headers={"Retry-After": "60"})
     bucket.append(timestamp)
     response = await call_next(request)
+    route = request.scope.get("route")
+    path = getattr(route, "path", "unmatched")
+    requests_total.labels(request.method, path, response.status_code).inc()
+    request_seconds.labels(request.method, path).observe(time.monotonic() - started)
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     response.headers["X-Frame-Options"] = "DENY"
@@ -76,3 +84,9 @@ def health():
     with engine.connect() as connection:
         connection.execute(text("SELECT 1"))
     return {"status": "ok", "service": "bhramari-api", "mode": "simulated-validation" if settings().demo else "production", "version": "1.0.0"}
+
+
+@app.get("/metrics", include_in_schema=False)
+def metrics():
+    from fastapi import Response
+    return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
