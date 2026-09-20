@@ -83,6 +83,21 @@ def test_signed_offline_replay_is_idempotent_and_tampering_is_rejected(client, a
     assert rejected["status"] == "rejected"
 
 
+def test_device_key_rotation_revokes_old_key_atomically(client, auth):
+    headers = auth("beekeeper")
+    first = Ed25519PrivateKey.generate().public_key().public_bytes(serialization.Encoding.Raw, serialization.PublicFormat.Raw)
+    second = Ed25519PrivateKey.generate().public_key().public_bytes(serialization.Encoding.Raw, serialization.PublicFormat.Raw)
+    device = client.post("/api/v1/devices", headers=headers, json={"name": "Old phone", "public_key": base64.b64encode(first).decode()}).json()
+
+    rotated = client.post(f"/api/v1/devices/{device['id']}/rotate", headers=headers, json={"name": "Replacement phone", "public_key": base64.b64encode(second).decode()})
+
+    assert rotated.status_code == 201
+    devices = {item["id"]: item for item in client.get("/api/v1/devices", headers=headers).json()}
+    assert devices[device["id"]]["revoked"] is True
+    assert devices[rotated.json()["id"]]["revoked"] is False
+    assert client.post(f"/api/v1/devices/{device['id']}/rotate", headers=headers, json={"name": "Third phone", "public_key": base64.b64encode(second).decode()}).status_code == 409
+
+
 def test_encrypted_evidence_detects_mutation(client, auth):
     headers = auth("beekeeper")
     lot = harvest(client, headers, 500)

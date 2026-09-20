@@ -21,15 +21,19 @@ router = APIRouter(tags=["Signed offline access"])
 
 @router.post("/devices", status_code=201)
 def register(body: DeviceInput, user: User = Depends(current_user), db: Session = Depends(get_db)):
-    try:
-        Ed25519PublicKey.from_public_bytes(base64.b64decode(body.public_key, validate=True))
-    except ValueError as exc:
-        raise HTTPException(422, "Provide a base64 Ed25519 public key") from exc
+    validate_public_key(body.public_key)
     record = Device(user_id=user.id, public_key=body.public_key, name=body.name)
     db.add(record)
     db.flush()
     emit(db, user, "device.registered", record.id, {"public_key": body.public_key, "name": body.name})
     return row_view(record)
+
+
+def validate_public_key(public_key):
+    try:
+        Ed25519PublicKey.from_public_bytes(base64.b64decode(public_key, validate=True))
+    except ValueError as exc:
+        raise HTTPException(422, "Provide a base64 Ed25519 public key") from exc
 
 
 @router.get("/devices")
@@ -45,6 +49,22 @@ def revoke(device_id: str, user: User = Depends(current_user), db: Session = Dep
     device.revoked = True
     emit(db, user, "device.revoked", device.id, {})
     return {"id": device.id, "revoked": True}
+
+
+@router.post("/devices/{device_id}/rotate", status_code=201)
+def rotate(device_id: str, body: DeviceInput, user: User = Depends(current_user), db: Session = Depends(get_db)):
+    validate_public_key(body.public_key)
+    device = db.scalar(select(Device).where(Device.id == device_id).with_for_update())
+    if not device or device.user_id != user.id:
+        raise HTTPException(404, "Device not found")
+    if device.revoked:
+        raise HTTPException(409, "A revoked key cannot be rotated")
+    replacement = Device(user_id=user.id, public_key=body.public_key, name=body.name)
+    device.revoked = True
+    db.add(replacement)
+    db.flush()
+    emit(db, user, "device.rotated", replacement.id, {"previous_device_id": device.id, "name": body.name})
+    return {**row_view(replacement), "previous_device_id": device.id}
 
 
 @router.post("/sync")
