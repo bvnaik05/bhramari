@@ -32,6 +32,29 @@ class ApiClient {
   Future<Map<String, dynamic>> post(String path, Object body) async =>
       (await _request('POST', path, body)) as Map<String, dynamic>;
 
+  Future<Map<String, dynamic>> transcribe(
+    String filePath,
+    String language,
+  ) async {
+    final request =
+        http.MultipartRequest('POST', Uri.parse('$apiUrl/languages/transcribe'))
+          ..fields['language_code'] = language
+          ..files.add(await http.MultipartFile.fromPath('audio', filePath));
+    if (token != null) request.headers['authorization'] = 'Bearer $token';
+    final response = await request.send();
+    final text = await response.stream.bytesToString();
+    final value = text.isEmpty
+        ? <String, dynamic>{}
+        : jsonDecode(text) as Map<String, dynamic>;
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw ApiException(
+        response.statusCode,
+        value['detail']?.toString() ?? 'Speech input failed.',
+      );
+    }
+    return value;
+  }
+
   Future<dynamic> _request(String method, String path, [Object? body]) async {
     final response = await _client.send(
       http.Request(method, Uri.parse('$apiUrl$path'))

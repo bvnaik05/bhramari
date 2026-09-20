@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
+import 'package:record/record.dart';
 
 import 'api.dart';
 import 'vault.dart';
@@ -320,9 +323,54 @@ class MadhuPanel extends StatefulWidget {
 
 class _MadhuPanelState extends State<MadhuPanel> {
   final message = TextEditingController();
+  final recorder = AudioRecorder();
   String language = 'en-IN';
   String? hive, answer, confirmation;
   bool busy = false;
+  bool recording = false;
+
+  @override
+  void dispose() {
+    recorder.dispose();
+    message.dispose();
+    super.dispose();
+  }
+
+  Future<void> toggleRecording() async {
+    if (recording) {
+      final recordingPath = await recorder.stop();
+      setState(() => recording = false);
+      if (recordingPath == null) return;
+      setState(() => busy = true);
+      try {
+        final result = await widget.api.transcribe(recordingPath, language);
+        setState(() => message.text = result['transcript']?.toString() ?? '');
+      } catch (failure) {
+        setState(
+          () => answer = '${failure.toString()} You can continue with text.',
+        );
+      } finally {
+        if (mounted) setState(() => busy = false);
+      }
+      return;
+    }
+    if (!await recorder.hasPermission()) {
+      setState(
+        () => answer =
+            'Microphone permission is unavailable. You can continue with text.',
+      );
+      return;
+    }
+    final directory = await getTemporaryDirectory();
+    await recorder.start(
+      const RecordConfig(encoder: AudioEncoder.aacLc),
+      path: path.join(
+        directory.path,
+        'madhu-${DateTime.now().millisecondsSinceEpoch}.m4a',
+      ),
+    );
+    setState(() => recording = true);
+  }
 
   Future<void> send({bool confirm = false}) async {
     setState(() => busy = true);
@@ -406,10 +454,32 @@ class _MadhuPanelState extends State<MadhuPanel> {
         ),
       ),
       const SizedBox(height: 12),
-      FilledButton.icon(
-        onPressed: busy || message.text.trim().isEmpty ? null : send,
-        icon: const Icon(Icons.arrow_upward),
-        label: Text(busy ? 'Working…' : 'Ask Madhu'),
+      Row(
+        children: [
+          IconButton.filledTonal(
+            onPressed: busy ? null : toggleRecording,
+            tooltip: recording
+                ? 'Stop recording'
+                : 'Dictate in the selected language',
+            icon: Icon(recording ? Icons.stop : Icons.mic_none),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: FilledButton.icon(
+              onPressed: busy || recording || message.text.trim().isEmpty
+                  ? null
+                  : send,
+              icon: const Icon(Icons.arrow_upward),
+              label: Text(
+                recording
+                    ? 'Listening…'
+                    : busy
+                    ? 'Working…'
+                    : 'Ask Madhu',
+              ),
+            ),
+          ),
+        ],
       ),
       if (answer != null)
         Card(
