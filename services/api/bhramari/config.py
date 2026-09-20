@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     passport_private_key: str = ""
     public_url: str = "http://localhost:3000"
     language_manifest: Path = Path(__file__).parent / "data" / "languages.json"
+    bootstrap_file: Path | None = None
     sarvam_api_key: str = ""
     sarvam_api_url: str = "https://api.sarvam.ai"
     elevenlabs_api_key: str = ""

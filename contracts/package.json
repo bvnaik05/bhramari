@@ -5,7 +5,7 @@
   "scripts": {
     "compile": "node scripts/compile.mjs",
     "test": "node scripts/foundry.mjs forge test",
-    "anvil": "node scripts/foundry.mjs anvil --host 127.0.0.1",
+    "anvil": "node scripts/foundry.mjs anvil --host 0.0.0.0",
     "deploy": "node scripts/deploy.mjs",
     "test:integration": "node --test test/integration.test.mjs"
   },

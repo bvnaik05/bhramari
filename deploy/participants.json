@@ -1,0 +1,18 @@
+{
+  "organisations": [
+    {"id": "ORG-BEEKEEPER", "name": "Sahyadri Beekeepers Collective", "kind": "beekeeper"},
+    {"id": "ORG-FPO", "name": "Sahyadri Honey FPO", "kind": "fpo"},
+    {"id": "ORG-PROCESSOR", "name": "Deccan Honey Works", "kind": "processor"},
+    {"id": "ORG-LAB", "name": "Western Ghats Food Laboratory", "kind": "lab"},
+    {"id": "ORG-BUYER", "name": "The Good Pantry", "kind": "buyer"},
+    {"id": "ORG-ADMIN", "name": "Bhramari Cluster Coordination", "kind": "admin"}
+  ],
+  "users": [
+    {"id": "USER-BEEKEEPER", "email": "beekeeper@bhramari.local", "name": "Asha Patil", "org_id": "ORG-BEEKEEPER", "role": "beekeeper", "oidc_subject": "kc-user-beekeeper"},
+    {"id": "USER-FPO", "email": "fpo@bhramari.local", "name": "Meera Deshmukh", "org_id": "ORG-FPO", "role": "fpo", "oidc_subject": "kc-user-fpo"},
+    {"id": "USER-PROCESSOR", "email": "processor@bhramari.local", "name": "Rohan Shah", "org_id": "ORG-PROCESSOR", "role": "processor", "oidc_subject": "kc-user-processor"},
+    {"id": "USER-LAB", "email": "lab@bhramari.local", "name": "Dr. Kavita Rao", "org_id": "ORG-LAB", "role": "lab", "oidc_subject": "kc-user-lab"},
+    {"id": "USER-BUYER", "email": "buyer@bhramari.local", "name": "Ananya Joshi", "org_id": "ORG-BUYER", "role": "buyer", "oidc_subject": "kc-user-buyer"},
+    {"id": "USER-ADMIN", "email": "admin@bhramari.local", "name": "Cluster Coordinator", "org_id": "ORG-ADMIN", "role": "admin", "oidc_subject": "kc-user-admin"}
+  ]
+}

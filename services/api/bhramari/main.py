@@ -12,6 +12,7 @@ from . import auth, dashboard, logistics, passport, quality, sync, traceability,
 from .config import settings
 from .db import Base, SessionLocal, engine
 from .seed import seed_demo
+from .seed_identity import seed_identities
 
 
 @asynccontextmanager
@@ -26,6 +27,9 @@ async def lifespan(app):
             except ModuleNotFoundError as exc:
                 if exc.name != "bhramari.seed_extra":
                     raise
+    elif settings().bootstrap_file:
+        with SessionLocal.begin() as db:
+            seed_identities(db, settings().bootstrap_file)
     yield
 
 

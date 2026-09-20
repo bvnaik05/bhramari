@@ -1,0 +1,127 @@
+name: bhramari
+
+services:
+  postgres:
+    image: postgres:16.4-alpine
+    environment:
+      POSTGRES_DB: bhramari
+      POSTGRES_USER: bhramari
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Copy .env.example to .env and set POSTGRES_PASSWORD}
+    volumes: [postgres-data:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U bhramari]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.8
+    command: start-dev --import-realm
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?Set KEYCLOAK_ADMIN_PASSWORD}
+    volumes:
+      - ./deploy/keycloak-realm.json:/opt/keycloak/data/import/bhramari-realm.json:ro
+      - keycloak-data:/opt/keycloak/data
+    ports: [8080:8080]
+
+  mqtt:
+    image: eclipse-mosquitto:2.0.20
+    volumes:
+      - ./deploy/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - mqtt-data:/mosquitto/data
+    ports: [1883:1883]
+
+  object-store:
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
+    command: server /data --console-address :9001
+    environment:
+      MINIO_ROOT_USER: bhramari
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Set MINIO_ROOT_PASSWORD}
+    volumes: [object-data:/data]
+    ports: [9000:9000, 9001:9001]
+
+  anvil:
+    build: ./contracts
+    command: anvil
+    ports: [8545:8545]
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:8545',{method:'POST',headers:{'content-type':'application/json'},body:'{\"jsonrpc\":\"2.0\",\"method\":\"eth_chainId\",\"params\":[],\"id\":1}'}).then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 3s
+      timeout: 2s
+      retries: 30
+
+  contract-deployer:
+    build: ./contracts
+    command: deploy
+    environment:
+      RPC_URL: http://anvil:8545
+      ADMIN_TRANSFER_DELAY: 0
+    depends_on:
+      anvil: {condition: service_healthy}
+    restart: no
+
+  api:
+    build: ./services/api
+    environment:
+      BHRAMARI_DATABASE_URL: postgresql+psycopg://bhramari:${POSTGRES_PASSWORD}@postgres:5432/bhramari
+      BHRAMARI_DATA_DIR: /data
+      BHRAMARI_BOOTSTRAP_FILE: /config/participants.json
+      BHRAMARI_OIDC_ISSUER: http://localhost:8080/realms/bhramari
+      BHRAMARI_OIDC_JWKS_URL: http://keycloak:8080/realms/bhramari/protocol/openid-connect/certs
+      BHRAMARI_OIDC_CLIENT_ID: bhramari-web
+      BHRAMARI_OIDC_AUTHORIZATION_URL: http://localhost:8080/realms/bhramari/protocol/openid-connect/auth
+      BHRAMARI_OIDC_TOKEN_URL: http://localhost:8080/realms/bhramari/protocol/openid-connect/token
+      BHRAMARI_RELAYER_TOKEN: ${BHRAMARI_RELAYER_TOKEN:?Set BHRAMARI_RELAYER_TOKEN}
+      BHRAMARI_EVIDENCE_KEY: ${BHRAMARI_EVIDENCE_KEY:?Set BHRAMARI_EVIDENCE_KEY}
+      BHRAMARI_PASSPORT_PRIVATE_KEY: ${BHRAMARI_PASSPORT_PRIVATE_KEY:?Set BHRAMARI_PASSPORT_PRIVATE_KEY}
+      BHRAMARI_PUBLIC_URL: http://localhost:3000
+      BHRAMARI_CORS_ORIGINS: http://localhost:3000
+      BHRAMARI_SARVAM_API_KEY: ${SARVAM_API_KEY:-}
+      BHRAMARI_ELEVENLABS_API_KEY: ${ELEVENLABS_API_KEY:-}
+      BHRAMARI_ELEVENLABS_VOICE_ID: ${ELEVENLABS_VOICE_ID:-}
+    volumes:
+      - ./deploy/participants.json:/config/participants.json:ro
+      - evidence-data:/data
+    ports: [8000:8000]
+    depends_on:
+      postgres: {condition: service_healthy}
+      keycloak: {condition: service_started}
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  ledger:
+    build: ./services/ledger
+    environment:
+      RPC_URL: http://anvil:8545
+      CHAIN_ID: 31337
+      API_BASE_URL: http://api:8000
+      LEDGER_HOST: 0.0.0.0
+      LEDGER_DB_PATH: /data/relayer.sqlite
+      BHRAMARI_RELAYER_TOKEN: ${BHRAMARI_RELAYER_TOKEN:?Set BHRAMARI_RELAYER_TOKEN}
+      RELAYER_PRIVATE_KEY: 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+      EVIDENCE_ANCHOR_ADDRESS: 0x5FC8d32690cc91D4c39d9d3abcBD16989F875707
+    volumes: [ledger-data:/data]
+    ports: [8001:8001]
+    depends_on:
+      api: {condition: service_healthy}
+      contract-deployer: {condition: service_completed_successfully}
+
+  web:
+    build: ./apps/web
+    environment:
+      API_INTERNAL_URL: http://api:8000
+    ports: [3000:3000]
+    depends_on:
+      api: {condition: service_healthy}
+
+volumes:
+  postgres-data:
+  keycloak-data:
+  mqtt-data:
+  object-data:
+  evidence-data:
+  ledger-data:

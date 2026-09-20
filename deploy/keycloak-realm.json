@@ -1,0 +1,45 @@
+{
+  "realm": "bhramari",
+  "enabled": true,
+  "displayName": "Bhramari",
+  "registrationAllowed": false,
+  "resetPasswordAllowed": true,
+  "bruteForceProtected": true,
+  "roles": {"realm": [
+    {"name": "beekeeper"}, {"name": "fpo"}, {"name": "processor"},
+    {"name": "lab"}, {"name": "buyer"}, {"name": "admin"}
+  ]},
+  "clients": [
+    {
+      "clientId": "bhramari-api",
+      "enabled": true,
+      "bearerOnly": true
+    },
+    {
+      "clientId": "bhramari-web",
+      "name": "Bhramari web",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": ["http://localhost:3000/workspace"],
+      "webOrigins": ["http://localhost:3000"],
+      "attributes": {"pkce.code.challenge.method": "S256"},
+      "protocolMappers": [{
+        "name": "bhramari-api-audience",
+        "protocol": "openid-connect",
+        "protocolMapper": "oidc-audience-mapper",
+        "consentRequired": false,
+        "config": {"included.custom.audience": "bhramari-api", "access.token.claim": "true"}
+      }]
+    }
+  ],
+  "users": [
+    {"id": "kc-user-beekeeper", "username": "beekeeper", "email": "beekeeper@bhramari.local", "firstName": "Asha", "lastName": "Patil", "enabled": true, "emailVerified": true, "realmRoles": ["beekeeper"], "credentials": [{"type": "password", "value": "bhramari-local", "temporary": false}]},
+    {"id": "kc-user-fpo", "username": "fpo", "email": "fpo@bhramari.local", "firstName": "Meera", "lastName": "Deshmukh", "enabled": true, "emailVerified": true, "realmRoles": ["fpo"], "credentials": [{"type": "password", "value": "bhramari-local", "temporary": false}]},
+    {"id": "kc-user-processor", "username": "processor", "email": "processor@bhramari.local", "firstName": "Rohan", "lastName": "Shah", "enabled": true, "emailVerified": true, "realmRoles": ["processor"], "credentials": [{"type": "password", "value": "bhramari-local", "temporary": false}]},
+    {"id": "kc-user-lab", "username": "lab", "email": "lab@bhramari.local", "firstName": "Kavita", "lastName": "Rao", "enabled": true, "emailVerified": true, "realmRoles": ["lab"], "credentials": [{"type": "password", "value": "bhramari-local", "temporary": false}]},
+    {"id": "kc-user-buyer", "username": "buyer", "email": "buyer@bhramari.local", "firstName": "Ananya", "lastName": "Joshi", "enabled": true, "emailVerified": true, "realmRoles": ["buyer"], "credentials": [{"type": "password", "value": "bhramari-local", "temporary": false}]},
+    {"id": "kc-user-admin", "username": "admin", "email": "admin@bhramari.local", "firstName": "Cluster", "lastName": "Coordinator", "enabled": true, "emailVerified": true, "realmRoles": ["admin"], "credentials": [{"type": "password", "value": "bhramari-local", "temporary": false}]}
+  ]
+}
