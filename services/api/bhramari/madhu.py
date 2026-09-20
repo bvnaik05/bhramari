@@ -50,7 +50,7 @@ def chat(body: Chat, db: Session = Depends(get_db), user: User = Depends(current
         return response(body, MESSAGES["safety"], "escalation", escalation="qualified_human", tools=[])
     if has(text, ["mentor", "concern", "help hive"]):
         return draft_action(db, user, body, "request_mentor", {"question": body.message, "hive_id": body.context_id})
-    if has(text, ["harvest", "कटाई", "काढणी", "मध काढ"]):
+    if has(text, ["harvest", "extract honey"]):
         if user.role not in ("beekeeper", "fpo", "admin"):
             raise HTTPException(403, "Your role cannot capture a harvest")
         hive = authorized_hive(db, user, body.context_id)
@@ -61,7 +61,7 @@ def chat(body: Chat, db: Session = Depends(get_db), user: User = Depends(current
             return response(body, MESSAGES["quantity"], "draft_harvest")
         payload = HarvestInput(hive_id=hive.id, quantity_g=grams, floral=hive.floral).model_dump()
         return draft_action(db, user, body, "draft_harvest", payload)
-    if has(text, ["inspect", "inspection", "निरीक्षण", "तपासणी"]):
+    if has(text, ["inspect", "inspection"]):
         if user.role not in ("beekeeper", "fpo", "admin"):
             raise HTTPException(403, "Your role cannot record an inspection")
         hive = authorized_hive(db, user, body.context_id)
@@ -159,11 +159,11 @@ def has(text, keywords):
 
 
 def parse_grams(text):
-    match = re.search(r"(?<![-\d.])(\d+(?:\.\d{1,3})?)\s*(kg|kilograms?|किलो|g|grams?|ग्राम)\b", text)
+    match = re.search(r"(?<![-\d.])(\d+(?:\.\d{1,3})?)\s*(kg|kilogram(?:me)?s?|g|grams?)\b", text)
     if not match:
         return None
     try:
-        amount = Decimal(match[1]) * (1000 if match[2] in ("kg", "kilogram", "kilograms", "किलो") else 1)
+        amount = Decimal(match[1]) * (1000 if match[2].startswith(("kg", "kilogram")) else 1)
         return int(amount) if amount == int(amount) and 0 < amount <= 10_000_000 else None
     except InvalidOperation:
         return None
