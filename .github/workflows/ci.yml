@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12", cache: pip}
+      - run: pip install -e "services/api[test]"
+      - run: pytest -q services/api
+
+  web:
+    runs-on: ubuntu-latest
+    defaults: {run: {working-directory: apps/web}}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm, cache-dependency-path: apps/web/package-lock.json}
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run build
+
+  contracts:
+    runs-on: ubuntu-latest
+    defaults: {run: {working-directory: contracts}}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm, cache-dependency-path: contracts/package-lock.json}
+      - run: npm ci
+      - run: npm test
+      - run: npm run test:integration
+
+  ledger:
+    runs-on: ubuntu-latest
+    defaults: {run: {working-directory: services/ledger}}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm, cache-dependency-path: services/ledger/package-lock.json}
+      - run: npm ci
+      - run: npm test
+
+  field:
+    runs-on: ubuntu-latest
+    defaults: {run: {working-directory: apps/field}}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with: {channel: stable, cache: true}
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test

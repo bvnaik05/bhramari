@@ -1,0 +1,55 @@
+name: Security
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "17 3 * * 1"
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  dependency-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install pip-audit
+      - run: pip-audit -r <(python -c "import tomllib; print('\n'.join(tomllib.load(open('services/api/pyproject.toml','rb'))['project']['dependencies']))")
+        shell: bash
+      - uses: actions/setup-node@v4
+        with: {node-version: 22}
+      - run: npm audit --audit-level=high --omit=dev --prefix apps/web
+      - run: npm audit --audit-level=high --omit=dev --prefix services/ledger
+      - run: npm audit --audit-level=high --omit=dev --prefix contracts
+
+  codeql:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: {language: [javascript-typescript, python]}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with: {languages: "${{ matrix.language }}"}
+      - uses: github/codeql-action/analyze@v3
+
+  filesystem-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: sarif
+          output: trivy-results.sarif
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: "1"
+      - uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with: {sarif_file: trivy-results.sarif}
