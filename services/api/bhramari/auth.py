@@ -91,6 +91,24 @@ def demo_login(body: Login, db: Session = Depends(get_db)):
     return {"access_token": token, "token_type": "bearer", "expires_in": 7200, "user": user_view(user), "mode": "simulated-demo"}
 
 
+@router.get("/config")
+def auth_config():
+    config = settings()
+    if config.demo:
+        return {"mode": "demo"}
+    if not all((config.oidc_issuer, config.oidc_jwks_url, config.oidc_client_id)):
+        raise HTTPException(503, "OIDC must be configured")
+    base = config.oidc_issuer.rstrip("/")
+    return {
+        "mode": "oidc",
+        "issuer": config.oidc_issuer,
+        "client_id": config.oidc_client_id,
+        "authorization_url": config.oidc_authorization_url or f"{base}/protocol/openid-connect/auth",
+        "token_url": config.oidc_token_url or f"{base}/protocol/openid-connect/token",
+        "scopes": "openid profile email",
+    }
+
+
 @router.get("/me")
 def me(user: User = Depends(current_user)):
     return user_view(user)

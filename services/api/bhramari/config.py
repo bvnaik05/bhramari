@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     oidc_issuer: str = ""
     oidc_audience: str = "bhramari-api"
     oidc_jwks_url: str = ""
+    oidc_client_id: str = "bhramari-web"
+    oidc_authorization_url: str = ""
+    oidc_token_url: str = ""
     relayer_token: str = ""
     cors_origins: str = "http://localhost:3000,http://127.0.0.1:3000"
     data_dir: Path = Path("data")
