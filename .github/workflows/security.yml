@@ -53,3 +53,17 @@ jobs:
       - uses: github/codeql-action/upload-sarif@v3
         if: always()
         with: {sarif_file: trivy-results.sarif}
+
+  sbom:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: anchore/sbom-action@v0
+        with:
+          path: .
+          format: cyclonedx-json
+          output-file: bhramari-sbom.cdx.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bhramari-sbom
+          path: bhramari-sbom.cdx.json
