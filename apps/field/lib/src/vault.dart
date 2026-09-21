@@ -17,17 +17,21 @@ class FieldVault {
   final _signer = Ed25519();
   final _hash = Sha256();
   Database? _db;
+  String? _userId;
 
-  Future<void> open() async {
-    var password = await _secure.read(key: 'vault.password');
+  Future<void> open(String userId) async {
+    if (_userId == userId && _db != null) return;
+    await close();
+    final namespace = await vaultNamespace(userId);
+    var password = await _secure.read(key: 'vault.$namespace.password');
     if (password == null) {
       password = base64UrlEncode(SecretKeyData.random(length: 32).bytes);
-      await _secure.write(key: 'vault.password', value: password);
+      await _secure.write(key: 'vault.$namespace.password', value: password);
     }
     _db = await openDatabase(
-      path.join(await getDatabasesPath(), 'bhramari-field.db'),
+      path.join(await getDatabasesPath(), 'bhramari-field-$namespace.db'),
       password: password,
-      version: 1,
+      version: 2,
       onCreate: (db, _) async {
         await db.execute(
           'CREATE TABLE queue (id TEXT PRIMARY KEY, envelope TEXT NOT NULL, created_at TEXT NOT NULL)',
@@ -35,8 +39,19 @@ class FieldVault {
         await db.execute(
           'CREATE TABLE state (name TEXT PRIMARY KEY, value TEXT NOT NULL)',
         );
+        await _createReceipts(db);
+      },
+      onUpgrade: (db, oldVersion, _) async {
+        if (oldVersion < 2) await _createReceipts(db);
       },
     );
+    _userId = userId;
+  }
+
+  Future<void> close() async {
+    await _db?.close();
+    _db = null;
+    _userId = null;
   }
 
   Future<int> pendingCount() async =>
@@ -58,7 +73,8 @@ class FieldVault {
   }
 
   Future<void> registerDevice() async {
-    if (await _secure.read(key: 'device.id') != null) return;
+    final namespace = await _namespace;
+    if (await _secure.read(key: 'device.$namespace.id') != null) return;
     final pair = await _signer.newKeyPair();
     final privateBytes = await pair.extractPrivateKeyBytes();
     final publicKey = await pair.extractPublicKey();
@@ -66,8 +82,14 @@ class FieldVault {
       'name': 'Bhramari field phone',
       'public_key': base64Encode(publicKey.bytes),
     });
-    await _secure.write(key: 'device.seed', value: base64Encode(privateBytes));
-    await _secure.write(key: 'device.id', value: result['id'] as String);
+    await _secure.write(
+      key: 'device.$namespace.seed',
+      value: base64Encode(privateBytes),
+    );
+    await _secure.write(
+      key: 'device.$namespace.id',
+      value: result['id'] as String,
+    );
   }
 
   Future<String> queueHarvest({
@@ -117,8 +139,12 @@ class FieldVault {
     required String subjectId,
     required Map<String, dynamic> payload,
   }) async {
-    final deviceId = await _secure.read(key: 'device.id');
-    final seed = await _secure.read(key: 'device.seed');
+    if (user['id'] != _userId) {
+      throw StateError('The signed-in user does not own this vault.');
+    }
+    final namespace = await _namespace;
+    final deviceId = await _secure.read(key: 'device.$namespace.id');
+    final seed = await _secure.read(key: 'device.$namespace.seed');
     if (deviceId == null || seed == null) {
       throw StateError('Register this device while online first.');
     }
@@ -173,26 +199,60 @@ class FieldVault {
           )
           .toList();
 
+  Future<List<Map<String, dynamic>>> receipts() async =>
+      (await _database.query(
+            'receipts',
+            orderBy: 'updated_at DESC',
+            limit: 100,
+          ))
+          .map(
+            (row) => {
+              'event_id': row['id'],
+              'status': row['status'],
+              'detail': row['detail'],
+              'updated_at': row['updated_at'],
+            },
+          )
+          .toList();
+
   Future<List<Map<String, dynamic>>> sync() async {
     final events = await queued();
     if (events.isEmpty) return [];
-    final result = await api.post('/sync', {'events': events});
-    final receipts = (result['receipts'] as List).cast<Map<String, dynamic>>();
-    final finalized = receipts
-        .where(
-          (item) =>
-              item['status'] == 'accepted' || item['status'] == 'disputed',
-        )
-        .map((item) => item['event_id'])
-        .toList();
-    if (finalized.isNotEmpty) {
-      await _database.delete(
-        'queue',
-        where: 'id IN (${List.filled(finalized.length, '?').join(',')})',
-        whereArgs: finalized,
-      );
+    final allReceipts = <Map<String, dynamic>>[];
+    for (var offset = 0; offset < events.length; offset += syncBatchSize) {
+      final end = offset + syncBatchSize < events.length
+          ? offset + syncBatchSize
+          : events.length;
+      final result = await api.post('/sync', {
+        'events': events.sublist(offset, end),
+      });
+      final batch = (result['receipts'] as List).cast<Map<String, dynamic>>();
+      await _storeReceipts(batch);
+      allReceipts.addAll(batch);
+      if (batch.any((item) => item['status'] == 'rejected')) break;
     }
-    return receipts;
+    return allReceipts;
+  }
+
+  Future<void> _storeReceipts(List<Map<String, dynamic>> receipts) async {
+    final finalized = finalizedReceiptIds(receipts);
+    await _database.transaction((txn) async {
+      for (final receipt in receipts) {
+        await txn.insert('receipts', {
+          'id': receipt['event_id'],
+          'status': receipt['status'],
+          'detail': receipt['detail']?.toString(),
+          'updated_at': DateTime.now().toUtc().toIso8601String(),
+        }, conflictAlgorithm: ConflictAlgorithm.replace);
+      }
+      if (finalized.isNotEmpty) {
+        await txn.delete(
+          'queue',
+          where: 'id IN (${List.filled(finalized.length, '?').join(',')})',
+          whereArgs: finalized,
+        );
+      }
+    });
   }
 
   Future<String?> _state(String name) async {
@@ -215,4 +275,33 @@ class FieldVault {
 
   Database get _database =>
       _db ?? (throw StateError('Vault has not been opened.'));
+
+  Future<String> get _namespace async {
+    final userId = _userId;
+    if (userId == null) throw StateError('Vault has not been opened.');
+    return vaultNamespace(userId);
+  }
+
+  static Future<void> _createReceipts(Database db) => db.execute(
+    'CREATE TABLE receipts (id TEXT PRIMARY KEY, status TEXT NOT NULL, detail TEXT, updated_at TEXT NOT NULL)',
+  );
+}
+
+const syncBatchSize = 25;
+
+List<Object?> finalizedReceiptIds(List<Map<String, dynamic>> receipts) =>
+    receipts
+        .where(
+          (item) =>
+              item['status'] == 'accepted' || item['status'] == 'disputed',
+        )
+        .map((item) => item['event_id'])
+        .toList();
+
+Future<String> vaultNamespace(String userId) async {
+  final digest = await Sha256().hash(utf8.encode(userId));
+  return digest.bytes
+      .take(12)
+      .map((byte) => byte.toRadixString(16).padLeft(2, '0'))
+      .join();
 }

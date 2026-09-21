@@ -141,10 +141,11 @@ class _MobileWorkspaceState extends State<MobileWorkspace> {
     ),
   );
 
-  Widget _vault() => FutureBuilder<List<Map<String, dynamic>>>(
-    future: widget.vault.queued(),
+  Widget _vault() => FutureBuilder<List<List<Map<String, dynamic>>>>(
+    future: Future.wait([widget.vault.queued(), widget.vault.receipts()]),
     builder: (context, snapshot) {
-      final records = snapshot.data ?? [];
+      final records = snapshot.data?.first ?? [];
+      final receipts = snapshot.data?.last ?? [];
       return ListView(
         padding: const EdgeInsets.all(20),
         children: [
@@ -176,6 +177,20 @@ class _MobileWorkspaceState extends State<MobileWorkspace> {
               title: item['event_type'],
               subtitle: item['occurred_at'],
               trailing: '#${item['device_sequence']}',
+            ),
+          ),
+          const _Section('Sync receipts'),
+          if (receipts.isEmpty) const Text('No sync receipts yet.'),
+          ...receipts.map(
+            (item) => _Card(
+              icon: item['status'] == 'accepted'
+                  ? Icons.verified_outlined
+                  : item['status'] == 'disputed'
+                  ? Icons.rule_outlined
+                  : Icons.sync_problem_outlined,
+              title: item['status'],
+              subtitle: item['detail'] ?? item['updated_at'],
+              trailing: (item['event_id'] as String).substring(0, 8),
             ),
           ),
         ],

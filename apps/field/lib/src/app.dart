@@ -64,15 +64,15 @@ class _FieldAppState extends State<FieldApp> {
   }
 
   Future<void> _restore() async {
-    await vault.open();
     final token = await secure.read(key: 'session.token');
     final saved = await secure.read(key: 'session.user');
     if (token != null && saved != null) {
       api.token = token;
       user = jsonDecode(saved) as Map<String, dynamic>;
+      await vault.open(user!['id'] as String);
       await _refresh();
+      pending = await vault.pendingCount();
     }
-    pending = await vault.pendingCount();
     if (mounted) setState(() => busy = false);
   }
 
@@ -84,11 +84,15 @@ class _FieldAppState extends State<FieldApp> {
     try {
       final session = await api.login(email, password);
       user = session['user'] as Map<String, dynamic>;
+      await vault.open(user!['id'] as String);
       await secure.write(key: 'session.token', value: api.token);
       await secure.write(key: 'session.user', value: jsonEncode(user));
       await vault.registerDevice();
       await _refresh();
     } catch (failure) {
+      await vault.close();
+      api.token = null;
+      user = null;
       error = failure.toString();
     } finally {
       if (mounted) setState(() => busy = false);
@@ -141,6 +145,7 @@ class _FieldAppState extends State<FieldApp> {
   Future<void> _logout() async {
     await secure.delete(key: 'session.token');
     await secure.delete(key: 'session.user');
+    await vault.close();
     api.token = null;
     setState(() {
       user = null;
