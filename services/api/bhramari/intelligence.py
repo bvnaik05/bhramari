@@ -17,6 +17,7 @@ from .models import Hive, Record, User
 
 router = APIRouter(prefix="/sensors", tags=["Hive intelligence"])
 MODEL_VERSION = "hive-rules-1.0"
+ANALYTICS_VERSION = "hive-screening-1.0"
 
 
 class Reading(BaseModel):
@@ -92,6 +93,16 @@ def alerts(db: Session = Depends(get_db), user: User = Depends(current_user)):
     return rows
 
 
+@router.get("/analytics")
+def analytics(reserve_weight_kg: float = 20, db: Session = Depends(get_db),
+              user: User = Depends(current_user)):
+    if not 0 <= reserve_weight_kg <= 500:
+        raise HTTPException(422, "Reserve weight must be between 0 and 500 kg")
+    readings = list_records(db, "sensor_reading", user.org_id)
+    hives = db.scalars(select(Hive).where(Hive.org_id == user.org_id)).all()
+    return [hive_analytics(hive, readings, reserve_weight_kg) for hive in hives]
+
+
 @router.post("/alerts/{alert_id}/acknowledge")
 def acknowledge(alert_id: str, db: Session = Depends(get_db),
                  user: User = Depends(require_roles("beekeeper", "fpo", "admin"))):
@@ -128,3 +139,45 @@ def store_reading(db, user, body, simulated):
             "model_version": MODEL_VERSION, "confidence": "rule-based", "input_window": [row["id"] for row in previous] + [reading["id"]],
             "status": "open", "simulated": simulated, "guidance": "Screening only. No automated treatment."})
     return reading
+
+
+def hive_analytics(hive, readings, reserve_weight_kg):
+    window = sorted(
+        (row for row in readings if row["hive_id"] == hive.id),
+        key=lambda row: row["recorded_at"],
+    )[-24:]
+    if not window:
+        return {"hive_id": hive.id, "hive_name": hive.name, "disease_risk": "no_data",
+                "health_score": None, "weight_change_kg": None, "harvestable_kg": None,
+                "recommendation": "Connect a sensor and collect readings before screening.",
+                "confidence": "none", "signals": [], "model_version": ANALYTICS_VERSION}
+    signals = []
+    if sum(row["temperature_c"] > 38 for row in window) >= 2:
+        signals.append("Repeated heat can accompany colony or brood stress; inspect ventilation and brood frames.")
+    if sum(row["humidity_pct"] > 85 for row in window) >= 2:
+        signals.append("Persistent high humidity can increase brood-disease risk; inspect the hive rather than treating automatically.")
+    if any(
+        previous["weight_kg"] - current["weight_kg"] > 2
+        and datetime.fromisoformat(current["recorded_at"]) - datetime.fromisoformat(previous["recorded_at"]) <= timedelta(hours=1)
+        for previous, current in zip(window, window[1:])
+    ):
+        signals.append("Rapid weight loss can indicate swarm, disturbance, harvest, or sensor error; verify in person.")
+    latest = window[-1]
+    change = round(latest["weight_kg"] - window[0]["weight_kg"], 2)
+    harvestable = round(max(0, latest["weight_kg"] - reserve_weight_kg), 2)
+    risk = "review" if signals else "no_sensor_signal"
+    recommendation = (
+        "Inspect the colony and escalate to a qualified mentor before treatment or harvest."
+        if signals else
+        "Plan a supervised harvest while preserving the configured reserve weight."
+        if harvestable >= 5 and change >= 0 else
+        "Continue monitoring; the configured reserve leaves no clear harvest surplus."
+    )
+    simulated = any(row.get("simulated", False) for row in window)
+    return {"hive_id": hive.id, "hive_name": hive.name, "disease_risk": risk,
+            "health_score": max(0, 100 - 25 * len(signals)), "weight_change_kg": change,
+            "harvestable_kg": harvestable, "reserve_weight_kg": reserve_weight_kg,
+            "recommendation": recommendation, "confidence": "low" if simulated or len(window) < 12 else "medium",
+            "signals": signals, "reading_count": len(window), "simulated": simulated,
+            "model_version": ANALYTICS_VERSION,
+            "boundary": "Sensor analytics screen risk and optimize inspection or harvest timing; they do not diagnose disease or authorize treatment."}

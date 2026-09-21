@@ -51,6 +51,12 @@ def test_sensor_rules_and_equipment_conflict_are_explainable(client, auth):
     assert simulated.status_code == 201, simulated.text
     alerts = client.get("/api/v1/sensors/alerts", headers=beekeeper).json()
     assert any(item["rule"] == "temperature" and item["confidence"] == "rule-based" for item in alerts)
+    analytics = client.get("/api/v1/sensors/analytics?reserve_weight_kg=20", headers=beekeeper).json()
+    hive = next(item for item in analytics if item["hive_id"] == "HIVE-MH-001")
+    assert hive["disease_risk"] == "review"
+    assert hive["health_score"] < 100
+    assert hive["harvestable_kg"] >= 0
+    assert hive["confidence"] == "low" and hive["signals"]
 
     fpo = auth("fpo")
     equipment = client.get("/api/v1/circles/equipment", headers=fpo).json()[0]
