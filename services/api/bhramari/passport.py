@@ -4,6 +4,7 @@ from datetime import timedelta
 from functools import lru_cache
 from uuid import UUID
 
+from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from fastapi import APIRouter, Depends, HTTPException, Response
@@ -50,6 +51,22 @@ def certificate(serial, lot_id, grams):
     return f"{payload}.{b64url(issuer_key().sign(payload.encode()))}"
 
 
+def verify_certificate(signed, bottle):
+    try:
+        payload, signature = signed.split(".")
+        issuer_key().public_key().verify(b64url_decode(signature), payload.encode())
+        claims = json.loads(b64url_decode(payload))
+        if claims["serial"] != bottle.serial or claims["lot_id"] != bottle.lot_id or claims["quantity_g"] != bottle.quantity_g or claims["issuer_key_id"] != KEY_ID:
+            raise ValueError
+        return claims
+    except (InvalidSignature, KeyError, ValueError, json.JSONDecodeError) as exc:
+        raise HTTPException(422, "Bottle certificate is invalid or does not match this serial") from exc
+
+
+def b64url_decode(value):
+    return base64.urlsafe_b64decode(value + "=" * (-len(value) % 4))
+
+
 @router.get("/trust/issuer-key")
 def public_key():
     raw = issuer_key().public_key().public_bytes(serialization.Encoding.Raw, serialization.PublicFormat.Raw)
@@ -66,7 +83,8 @@ def pack(body: PackInput, user: User = Depends(require_roles("fpo", "processor",
         signed = certificate(serial, lot.id, body.grams_per_bottle)
         bottle = Bottle(serial=serial, lot_id=lot.id, quantity_g=body.grams_per_bottle, certificate=signed)
         db.add(bottle)
-        result.append({"serial": serial, "lot_id": lot.id, "quantity_g": body.grams_per_bottle, "certificate": signed, "resolver_url": f"{settings().public_url}/passport/{serial}"})
+        resolver = f"{settings().public_url}/passport/{serial}"
+        result.append({"serial": serial, "lot_id": lot.id, "quantity_g": body.grams_per_bottle, "certificate": signed, "resolver_url": resolver, "qr_payload": f"{resolver}?certificate={signed}&key={KEY_ID}"})
     emit(db, user, "lot.packaged", lot.id, {"bottle_serials": [item["serial"] for item in result], "quantity_g": body.bottle_count * body.grams_per_bottle})
     return {"bottles": result}
 
@@ -76,6 +94,7 @@ def passport(serial: str, db: Session = Depends(get_db)):
     bottle = db.get(Bottle, serial)
     if not bottle:
         raise HTTPException(404, "Unknown bottle serial; ask the retailer to verify it")
+    verify_certificate(bottle.certificate, bottle)
     lot = db.get(Lot, bottle.lot_id)
     ids = ancestor_ids(db, lot.id)
     origins = db.scalars(select(Lot).where(Lot.id.in_(ids), Lot.source_hive_id.is_not(None)).order_by(Lot.created_at)).all()
@@ -120,12 +139,18 @@ def public_event_detail(event):
 class ScanInput(Input):
     region: str = Field(min_length=2, max_length=100)
     client_nonce: str = Field(min_length=36, max_length=36)
+    certificate: str | None = Field(default=None, min_length=100, max_length=1000)
 
 
 @router.post("/passport/{serial}/scan")
 def scan(serial: str, body: ScanInput, db: Session = Depends(get_db)):
-    if not db.get(Bottle, serial):
+    bottle = db.get(Bottle, serial)
+    if not bottle:
         raise HTTPException(404, "Unknown serial")
+    if body.certificate:
+        verify_certificate(body.certificate, bottle)
+        if body.certificate != bottle.certificate:
+            raise HTTPException(409, "Label certificate does not match the issued certificate")
     try:
         UUID(body.client_nonce)
     except ValueError as exc:
@@ -135,7 +160,7 @@ def scan(serial: str, body: ScanInput, db: Session = Depends(get_db)):
     duplicate_nonce = any(row.data.get("client_nonce") == body.client_nonce for row in related)
     risk = len(related) >= 5 or any(row.data.get("region", "").casefold() != body.region.casefold() for row in related)
     if not duplicate_nonce:
-        db.add(Record(kind="scan", org_id="public", data={"serial": serial, **body.model_dump()}))
+        db.add(Record(kind="scan", org_id="public", data={"serial": serial, **body.model_dump(exclude={"certificate"})}))
         if risk:
             db.add(Record(kind="scan_risk", org_id="public", data={"serial": serial, "reason": "Rapid scans from different stated regions or repeated scans; human review required"}))
     db.flush()

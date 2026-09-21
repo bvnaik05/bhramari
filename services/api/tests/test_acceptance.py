@@ -160,6 +160,28 @@ def test_public_passport_excludes_private_identity_fields(client):
     assert set(body["origin"]) == {"region", "floral", "producer", "source_lots"}
 
 
+def test_jar_certificate_is_verified_and_scan_is_idempotent(client, auth):
+    packed = client.post("/api/v1/lots/pack", headers=auth("fpo"), json={
+        "lot_id": "LOT-2026-002", "bottle_count": 1, "grams_per_bottle": 500,
+    }).json()["bottles"][0]
+    assert packed["certificate"] in packed["qr_payload"]
+    serial = packed["serial"]
+    passport = client.get(f"/api/v1/passport/{serial}").json()
+    scan = {"region": "Pune, Maharashtra", "client_nonce": str(UUID(int=1)),
+            "certificate": passport["certificate"]}
+    first = client.post(f"/api/v1/passport/{serial}/scan", json=scan)
+    replay = client.post(f"/api/v1/passport/{serial}/scan", json=scan)
+    assert first.status_code == 200 and replay.status_code == 200
+    assert first.json()["risk"] == replay.json()["risk"] == "normal"
+
+    payload, signature = passport["certificate"].split(".")
+    replacement = "A" if signature[-1] != "A" else "B"
+    tampered = client.post(f"/api/v1/passport/{serial}/scan", json={
+        **scan, "client_nonce": str(UUID(int=2)), "certificate": f"{payload}.{signature[:-1]}{replacement}",
+    })
+    assert tampered.status_code == 422
+
+
 def test_malware_verdict_rejects_evidence(monkeypatch):
     from types import SimpleNamespace
     from bhramari import quality

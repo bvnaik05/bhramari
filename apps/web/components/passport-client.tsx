@@ -1,17 +1,23 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, AudioLines, CheckCircle2, CircleAlert, FileCheck2, Fingerprint, Flag, Hexagon, MapPin, PackageCheck, ShieldCheck } from "lucide-react";
 import { api, display, quantity, shortDate, type RecordData } from "@/lib/api";
 import { Brand } from "./brand";
 import { ErrorNotice, TechnicalDetails } from "./workspace-ui";
 import { type Language, type LanguageCapabilities } from "./language-cloud";
 
-export function PassportClient({ serial }: { serial: string }) {
+export function PassportClient({ serial, certificate }: { serial: string; certificate?: string }) {
   const [data, setData] = useState<RecordData | null>(null); const [error, setError] = useState(""); const [concern, setConcern] = useState(false);
+  const [scanMessage, setScanMessage] = useState(""); const nonce = useRef("");
   const [languages, setLanguages] = useState<Language[]>([]); const [language, setLanguage] = useState("en-IN"); const [listening, setListening] = useState(false);
-  useEffect(() => { api.get<RecordData>(`/passport/${encodeURIComponent(serial)}`).then(setData).catch(failure => setError(failure.message)); }, [serial]);
+  useEffect(() => {
+    if (!nonce.current) nonce.current = crypto.randomUUID();
+    api.post<RecordData>(`/passport/${encodeURIComponent(serial)}/scan`, { region: "Not shared", client_nonce: nonce.current, ...(certificate ? { certificate } : {}) })
+      .then(result => { setData(result.passport as RecordData); setScanMessage(display(result.message)); })
+      .catch(failure => setError(failure.message));
+  }, [serial, certificate]);
   useEffect(() => { api.get<LanguageCapabilities>("/languages").then(value => { setLanguages(value.languages); setLanguage(value.default); }).catch(() => setLanguages([])); }, []);
   async function listen() {
     if (!data) return;
@@ -25,6 +31,7 @@ export function PassportClient({ serial }: { serial: string }) {
   const origin = data.origin as RecordData; const journey = data.journey as RecordData[]; const evidence = data.evidence as RecordData[]; const proof = data.proof as RecordData;
   const verified = data.status === "Verified record";
   return <main id="main" className="passport-page"><header className="passport-header"><Brand /><span>Honey Passport · no login or wallet</span></header>
+    {scanMessage && <div className="notice notice-success" role="status"><ShieldCheck size={18} />{scanMessage}</div>}
     <section className="passport-hero"><div className="passport-state"><div className={verified ? "passport-seal verified" : "passport-seal"}>{verified ? <CheckCircle2 /> : <CircleAlert />}</div><div><span className="eyebrow">LIVE BOTTLE STATUS</span><h1>{display(data.status)}</h1><p>Refreshed {shortDate(data.refreshed_at)}</p></div></div><div className="passport-audio"><select aria-label="Passport audio language" value={language} onChange={event => setLanguage(event.target.value)}>{languages.map(item => <option value={item.code} key={item.code}>{item.native_name} · {item.name}</option>)}</select><button className="button button-light" onClick={listen} disabled={listening}><AudioLines size={18} />{listening ? "Playing…" : "Listen to this passport"}</button></div></section>
     <section className="passport-product"><div className="jar-illustration"><div className="jar-lid" /><div className="jar-body"><Hexagon size={65} /><strong>Bhramari</strong><span>{display(data.product)}</span></div></div><div><span className="eyebrow">BOTTLE {display(data.serial)}</span><h2>{display(origin.floral)}<br /><span className="serif-word">from {display(origin.region)}.</span></h2><p>{quantity(Number(data.quantity_g))} packed from an accountable lot genealogy. The producer story is shown at cluster level to protect exact hive locations.</p><div className="passport-facts"><span><MapPin />{display(origin.region)}</span><span><Fingerprint />{display(origin.source_lots)} source lot(s)</span><span><PackageCheck />{display(data.safety_status)}</span></div></div></section>
     <section className="passport-grid"><article className="passport-panel"><span className="eyebrow"><FileCheck2 size={15} /> CURRENT EVIDENCE</span><h2>What supports this record</h2>{evidence.length ? evidence.map(item => <div className="evidence-card" key={display(item.id)}><FileCheck2 /><div><strong>{display(item.title)}</strong><span>Valid until {shortDate(item.expires_at)} · {item.fresh ? "current" : "expired"}</span><small>Hash {display(item.sha256).slice(0, 18)}…</small></div></div>) : <p>No public evidence is attached to this lineage.</p>}</article><article className="passport-panel"><span className="eyebrow"><ShieldCheck size={15} /> TAMPER-EVIDENT PROOF</span><h2>What the ledger proves</h2><p>{proof.status === "anchored" ? "The latest accepted event is included in an anchored Merkle checkpoint." : "The record exists, but its latest checkpoint still needs an online ledger receipt."}</p><TechnicalDetails data={proof} label="Verify the technical proof" /></article></section>
