@@ -54,7 +54,7 @@ export function WorkspaceClient() {
     setView(next); setMenu(false); window.history.replaceState({}, "", `/workspace?view=${next}`);
   }
   function signOut() { sessionStorage.removeItem("bhramari.token"); sessionStorage.removeItem("bhramari.user"); setUser(null); }
-  if (loading) return <main className="workspace-loading">Opening Bhramari…</main>;
+  if (loading) return <main className="workspace-loading in-hive"><span className="pp-loading-cell" /><p>Opening Bhramari…</p></main>;
   if (!user) return <Login auth={authConfig} initialError={authError} onLogin={setUser} />;
   return <div className="workspace-shell">
     <aside className={menu ? "workspace-sidebar is-open" : "workspace-sidebar"}>
@@ -62,7 +62,7 @@ export function WorkspaceClient() {
       <nav aria-label="Workspace navigation">{navigation.map(([key, label, Icon]) => <button key={key} className={view === key ? "active" : ""} onClick={() => navigate(key)}><Icon size={18} /><span>{label}</span></button>)}</nav>
       <div className="sidebar-profile"><div className="profile-mark">{user.name.slice(0, 1)}</div><div><strong>{user.name}</strong><span>{roleLabels[user.role] || user.role}</span></div><button onClick={signOut} aria-label="Sign out"><LogOut size={16} /></button></div>
     </aside>
-    <div className="workspace-main"><header className="workspace-header"><button className="workspace-menu" onClick={() => setMenu(true)} aria-label="Open menu"><Menu /></button><div><span className="eyebrow">BHRAMARI FIELD & PARTNER NETWORK</span><h1>{navigation.find(item => item[0] === view)?.[1] || "Workspace"}</h1></div><div className="connection-state"><span /> Connected · records save locally when offline</div></header>
+    <div className="workspace-main"><header className="workspace-header"><button className="workspace-menu icon-btn" onClick={() => setMenu(true)} aria-label="Open menu"><Menu size={18} /></button><div><span className="marker">Field and partner network</span><h1>{navigation.find(item => item[0] === view)?.[1] || "Workspace"}</h1></div><div className="connection-state"><span /> Connected · records save locally when offline</div></header>
       <main id="main" className="workspace-content">{renderView(view, user, navigate)}</main>
     </div>
   </div>;
@@ -98,5 +98,25 @@ function Login({ auth, initialError, onLogin }: { auth?: AuthConfig; initialErro
     setBusy("oidc"); setError("");
     try { await beginOidc(auth); } catch (failure) { setError((failure as Error).message); setBusy(""); }
   }
-  return <main id="main" className="login-page"><Brand /><section className="login-card"><span className="eyebrow"><ShieldCheck size={15} /> {auth?.mode === "oidc" ? "VERIFIED PARTICIPANT ACCESS" : "EXPLICIT SIMULATED DEMO"}</span><h1>{auth?.mode === "oidc" ? <>Sign in to the<br /><span className="serif-word">hive economy.</span></> : <>Choose your place<br />in the <span className="serif-word">hive economy.</span></>}</h1><p>{auth?.mode === "oidc" ? "Continue through your institution’s identity provider. Access is limited to enrolled participants and their assigned organization." : "Each workspace uses real role and organization checks. Seeded people and records are fictional competition fixtures."}</p>{auth?.mode === "oidc" ? <button className="primary-button" onClick={institutionalLogin} disabled={!!busy}>{busy ? "Redirecting…" : "Continue with institutional sign-in"}</button> : <div className="role-grid">{Object.entries(roleLabels).map(([role, label]) => <button key={role} onClick={() => login(role)} disabled={!!busy || !auth}><span>{label}</span><small>{role === "beekeeper" ? "Field records and offline capture" : role === "buyer" ? "Requirements and enquiries" : role === "lab" ? "Evidence and restrictions" : "Operations and accountable handoffs"}</small>{busy === role && <Activity className="spin" size={16} />}</button>)}</div>}{error && <div className="notice notice-error">{error}</div>}{auth?.mode === "demo" && <small className="login-note">Production mode disables demo sign-in and requires the configured OIDC provider.</small>}</section></main>;
+  const oidc = auth?.mode === "oidc";
+  return <main id="main" className="login in-hive">
+    <div className="login-inner">
+      <Brand light />
+      <section className="login-card">
+        <span className="marker marker-plain"><ShieldCheck size={15} /> {oidc ? "Verified participant access" : "Simulated demo, clearly labelled"}</span>
+        <h1>{oidc ? <>Sign in to the hive economy.</> : <>Choose your place in the hive economy.</>}</h1>
+        <p className="lede">{oidc ? "Continue through your institution’s identity provider. Access is limited to enrolled participants and their assigned organisation." : "Every workspace runs real role and organisation checks. The people and records behind them are fictional competition fixtures."}</p>
+        {oidc
+          ? <button className="btn btn-honey" onClick={institutionalLogin} disabled={!!busy}>{busy ? "Redirecting…" : "Continue with institutional sign-in"}</button>
+          : <div className="role-grid">{Object.entries(roleLabels).map(([role, label]) => <button key={role} className="role-card" onClick={() => login(role)} disabled={!!busy || !auth}>
+              <span className="role-cell" aria-hidden="true" />
+              <strong>{label}</strong>
+              <small>{role === "beekeeper" ? "Field records and offline capture" : role === "buyer" ? "Requirements and enquiries" : role === "lab" ? "Evidence and restrictions" : "Operations and accountable handoffs"}</small>
+              {busy === role && <Activity className="spin" size={15} />}
+            </button>)}</div>}
+        {error && <div className="notice notice-error" role="alert">{error}</div>}
+        {auth?.mode === "demo" && <small className="login-note">Production mode disables demo sign-in and requires the configured OIDC provider.</small>}
+      </section>
+    </div>
+  </main>;
 }
