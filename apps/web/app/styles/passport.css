@@ -1,2 +1,549 @@
-/* Honey Passport — the public page a shopper reaches by scanning a label.
-   Written when the passport markup is redesigned. */
+/* ---------------------------------------------------------------------------
+   Honey Passport — the public page a shopper reaches by scanning a label.
+   The jar is lit against the dark of the hive, then the record opens into
+   daylight for the evidence and the journey.
+--------------------------------------------------------------------------- */
+
+.pp {
+  min-height: 100svh;
+}
+
+/* ------------------------------ states ---------------------------------- */
+
+.pp-loading {
+  min-height: 100svh;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 1.5rem;
+  text-align: center;
+  padding: 2rem;
+  color: var(--ink-soft);
+}
+
+.pp-loading-cell {
+  width: 3.2rem;
+  height: 3.7rem;
+  background: linear-gradient(180deg, var(--nectar), var(--honey-deep));
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  animation: cell-pulse 1.5s var(--ease-honey) infinite;
+}
+
+.pp-error {
+  max-width: 40rem;
+  margin-inline: auto;
+  padding: clamp(2rem, 8vh, 6rem) var(--gutter);
+  display: grid;
+  gap: 2rem;
+  justify-items: start;
+}
+
+/* ------------------------------ header ---------------------------------- */
+
+.pp-header {
+  position: relative;
+  z-index: 3;
+}
+
+.pp-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  min-height: 4.75rem;
+}
+
+.pp-header-note {
+  font-size: var(--t-sm);
+  color: var(--ink-faint);
+}
+
+/* -------------------------------- hero ---------------------------------- */
+
+.pp-hero {
+  position: relative;
+  padding-block: clamp(2.5rem, 2rem + 5vw, 5rem) clamp(5rem, 4rem + 6vw, 8rem);
+  overflow: hidden;
+}
+
+/* A pool of light behind the jar, as if it were sitting on a lit shelf. */
+.pp-hero::before {
+  content: "";
+  position: absolute;
+  inset: -20% -10% 0 40%;
+  background: radial-gradient(ellipse 50% 55% at 60% 45%, rgba(255, 182, 39, 0.22), transparent 70%);
+  pointer-events: none;
+}
+
+.pp-hero-inner {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: center;
+}
+
+.pp-state h1 {
+  font-size: var(--t-3xl);
+  color: var(--field-lit);
+  margin: 0.75rem 0 1.5rem;
+}
+
+.pp-from {
+  display: block;
+  font-size: 0.62em;
+  color: var(--nectar);
+  letter-spacing: -0.02em;
+  margin-top: 0.15em;
+}
+
+.pp-verdict {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.75rem 1.15rem;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--rule);
+  background: rgba(74, 49, 16, 0.3);
+  color: var(--warn-bg);
+}
+
+.pp-verdict.is-verified {
+  border-color: rgba(120, 180, 130, 0.45);
+  background: rgba(63, 107, 69, 0.22);
+  color: #cdeccf;
+}
+
+.pp-verdict div {
+  display: grid;
+  gap: 0.1rem;
+}
+
+.pp-verdict strong {
+  font-size: var(--t-sm);
+  font-weight: 600;
+}
+
+.pp-verdict span {
+  font-size: var(--t-xs);
+  opacity: 0.75;
+}
+
+.pp-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 1.75rem 0;
+}
+
+.pp-facts li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--rule);
+  font-size: var(--t-sm);
+  color: var(--ink-soft);
+}
+
+.pp-facts svg {
+  color: var(--nectar);
+}
+
+.pp-listen {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.pp-listen select {
+  padding: 0.7rem 0.9rem;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--rule);
+  background: var(--surface-raised);
+  color: var(--ink);
+  max-width: 15rem;
+  font-size: var(--t-sm);
+}
+
+/* --------------------------------- jar ---------------------------------- */
+
+.pp-jar-wrap {
+  display: grid;
+  place-items: center;
+}
+
+.pp-jar {
+  margin: 0;
+  display: grid;
+  justify-items: center;
+  gap: 1.25rem;
+  width: min(100%, 20rem);
+  animation: jar-float 9s var(--ease-honey) infinite;
+}
+
+.pp-jar svg {
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 30px 45px rgba(10, 6, 1, 0.55));
+}
+
+.pp-jar figcaption {
+  display: grid;
+  justify-items: center;
+  gap: 0.2rem;
+  text-align: center;
+}
+
+.pp-jar strong {
+  font-family: var(--font-display);
+  font-size: var(--t-lg);
+  color: var(--field-lit);
+}
+
+.pp-jar span {
+  font-size: var(--t-sm);
+  color: var(--ink-faint);
+}
+
+@keyframes jar-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-0.4deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(0.4deg);
+  }
+}
+
+/* ------------------------------- sections -------------------------------- */
+
+.pp-scan-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 2rem;
+  padding: 0.7rem 1.1rem;
+  border-radius: var(--r-pill);
+  background: var(--ok-bg);
+  color: var(--ok);
+  font-size: var(--t-sm);
+  font-weight: 500;
+}
+
+.pp-section {
+  padding-block: clamp(3rem, 2rem + 5vw, 5.5rem);
+}
+
+.pp-panels {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1rem, 2.5vw, 2rem);
+  align-items: start;
+}
+
+.pp-panel {
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+  border-radius: var(--r-cell);
+  border: 1px solid var(--rule);
+  background: var(--surface-raised);
+  box-shadow: var(--lift-1);
+}
+
+.pp-panel h2 {
+  font-size: var(--t-xl);
+  margin: 0.6rem 0 1.1rem;
+}
+
+.pp-panel .chip {
+  margin-top: 1rem;
+}
+
+.pp-evidence {
+  display: grid;
+  gap: 1rem;
+}
+
+.pp-evidence li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.9rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule-soft);
+}
+
+.pp-evidence li:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.pp-evidence-mark {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.9rem;
+  color: var(--ink-faint);
+  background: var(--surface-sunk);
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+}
+
+.pp-evidence-mark.is-fresh {
+  color: var(--propolis);
+  background: linear-gradient(170deg, var(--nectar), var(--honey-deep));
+}
+
+.pp-evidence div {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.pp-evidence strong {
+  font-size: var(--t-sm);
+}
+
+.pp-evidence span {
+  font-size: var(--t-xs);
+  color: var(--ink-soft);
+}
+
+.pp-evidence code {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  color: var(--ink-faint);
+  overflow-wrap: anywhere;
+}
+
+/* ------------------------------- journey -------------------------------- */
+
+.pp-journey {
+  background: var(--surface-sunk);
+  padding-block: clamp(3.5rem, 2.5rem + 6vw, 7rem);
+}
+
+.pp-journey h2 {
+  font-size: var(--t-2xl);
+  margin: 0.75rem 0 clamp(2rem, 4vw, 3rem);
+  max-width: 24ch;
+}
+
+/* The journey runs down a single thread of honey with a cell at each stop. */
+.pp-timeline {
+  display: grid;
+  gap: 0;
+  position: relative;
+  padding-left: 2.6rem;
+}
+
+.pp-timeline::before {
+  content: "";
+  position: absolute;
+  left: 0.72rem;
+  top: 0.9rem;
+  bottom: 1.5rem;
+  width: 2px;
+  background: linear-gradient(180deg, var(--nectar), var(--honey-deep));
+  opacity: 0.55;
+}
+
+.pp-timeline li {
+  display: grid;
+  gap: 0.3rem;
+  padding-bottom: 2.25rem;
+  position: relative;
+}
+
+.pp-timeline li:last-child {
+  padding-bottom: 0;
+}
+
+.pp-timeline-node {
+  position: absolute;
+  left: -2.6rem;
+  top: 0.35rem;
+  width: 1.5rem;
+  height: 1.73rem;
+  background: linear-gradient(170deg, var(--nectar), var(--honey-deep));
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  box-shadow: 0 0 0 5px var(--surface-sunk);
+}
+
+.pp-timeline time {
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  color: var(--ink-faint);
+}
+
+.pp-timeline strong {
+  font-family: var(--font-display);
+  font-size: var(--t-lg);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.pp-timeline p {
+  font-size: var(--t-sm);
+  color: var(--ink-soft);
+  max-width: 62ch;
+  line-height: 1.6;
+}
+
+/* -------------------------------- truth --------------------------------- */
+
+.pp-truth {
+  position: relative;
+  padding-block: clamp(3rem, 2rem + 4vw, 4.5rem);
+}
+
+.pp-truth-inner {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1.25rem;
+  align-items: start;
+  max-width: 60rem;
+}
+
+.pp-truth svg {
+  color: var(--nectar);
+  margin-top: 0.15rem;
+}
+
+.pp-truth strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--t-lg);
+  color: var(--field-lit);
+  margin-bottom: 0.4rem;
+}
+
+.pp-truth p {
+  font-size: var(--t-sm);
+  color: var(--ink-soft);
+  max-width: 68ch;
+  line-height: 1.65;
+}
+
+/* ------------------------------- concern -------------------------------- */
+
+.pp-concern {
+  padding-block: clamp(2.5rem, 2rem + 3vw, 4rem);
+  display: grid;
+  justify-items: center;
+}
+
+.pp-concern-form {
+  width: min(100%, 38rem);
+  display: grid;
+  gap: 1rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-cell);
+  background: var(--surface-raised);
+}
+
+.pp-concern-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.pp-concern-head strong {
+  font-family: var(--font-display);
+  font-size: var(--t-lg);
+}
+
+.pp-field {
+  display: grid;
+  gap: 0.4rem;
+  font-size: var(--t-sm);
+  font-weight: 600;
+}
+
+.pp-field select,
+.pp-field textarea {
+  font-weight: 400;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.pp-field textarea {
+  min-height: 7rem;
+  resize: vertical;
+}
+
+.pp-sent {
+  font-size: var(--t-sm);
+  color: var(--ok);
+  font-weight: 500;
+}
+
+/* -------------------------------- footer -------------------------------- */
+
+.pp-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 2rem 3rem;
+  border-top: 1px solid var(--rule);
+  font-size: var(--t-sm);
+  color: var(--ink-faint);
+}
+
+/* ------------------------------ responsive ------------------------------ */
+
+@media (max-width: 900px) {
+  .pp-hero-inner {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.5rem;
+  }
+
+  .pp-jar-wrap {
+    order: -1;
+  }
+
+  .pp-jar {
+    width: min(100%, 14rem);
+  }
+
+  .pp-panels {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .pp-header-note {
+    display: none;
+  }
+
+  .pp-listen {
+    width: 100%;
+  }
+
+  .pp-listen select,
+  .pp-listen .btn {
+    width: 100%;
+    max-width: none;
+  }
+
+  .pp-timeline {
+    padding-left: 2.1rem;
+  }
+
+  .pp-timeline-node {
+    left: -2.1rem;
+    width: 1.15rem;
+    height: 1.33rem;
+  }
+
+  .pp-timeline::before {
+    left: 0.5rem;
+  }
+}
