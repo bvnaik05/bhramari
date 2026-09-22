@@ -16,18 +16,21 @@ workflow.
 | Inclusive access | Farmer Card, delegation, farmer confirmation and signed agent attestation | Simulated validation |
 | Hive Economy | Honey/beeswax inventory, evidence-first requirement matching, enquiry, quotation and reservation | Working prototype |
 | Bee Circles | Questions, mentor request and conflict-safe shared-equipment booking | Working prototype |
-| Intelligence | Reading ingestion, deterministic sensor simulator, missing/stuck/rate alerts and human acknowledgement | Simulated validation |
-| Web application | Responsive landing, role workspaces, control tower and public Passport production build | Working prototype |
+| Intelligence | Reading ingestion, named early-risk patterns, human inspection route, seven-day weight-trend forecast and deterministic simulator | Simulated validation |
+| Control and disputes | Duplicate-scan routing, demand gaps, audit KPIs, owned reviews, response deadlines and resolution history | Working prototype |
+| Web application | Responsive landing, role workspaces, control tower, dispute action and public Passport production build | Working prototype |
 | Native field app | Android/iOS source, encrypted offline harvest/inspection, queue, Madhu voice/text, demand and mentor journeys | Working prototype; physical low-end Android validation pending |
-| Operations | Compose, Keycloak realm, PostgreSQL, MQTT, object store, ClamAV, Prometheus/Grafana, backup/restore, CI, CodeQL, dependency/secret/container scan and SBOM | Implemented configuration; full Compose boot pending on a Docker host |
+| Operations | Compose, Keycloak, PostgreSQL, MQTT, object store, ClamAV, monitoring, backup/restore and KVIC cluster deployment pack | Implemented configuration; full Compose boot pending on a Docker host |
 
 ## Automated validation
 
-- FastAPI: 21 tests pass. They cover tenant isolation, replay/idempotency,
+- FastAPI: 24 tests pass. They cover tenant isolation, replay/idempotency,
   tampering, evidence quarantine, quantity conservation, recall inheritance,
-  receipt binding, public privacy, key rotation and append-only correction.
+  receipt binding, public privacy, key rotation, forecasting, demand gaps,
+  duplicate-scan routing, dispute resolution and append-only correction.
 - Solidity: 7 Foundry tests pass, including 256-run fuzz properties and a
-  4,096-call conservation invariant.
+  4,096-call conservation invariant. The deployment check rejects pilot mode
+  without a contract multisignature address and a one-day transfer delay.
 - Relayer: 4 tests pass against a real local Anvil chain, including callback
   recovery, durable outbox restart, proof mutation and authentication.
 - Web: TypeScript checking and the Next.js production build pass for landing,
