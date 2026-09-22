@@ -162,7 +162,8 @@ def scan(serial: str, body: ScanInput, db: Session = Depends(get_db)):
     if not duplicate_nonce:
         db.add(Record(kind="scan", org_id="public", data={"serial": serial, **body.model_dump(exclude={"certificate"})}))
         if risk:
-            db.add(Record(kind="scan_risk", org_id="public", data={"serial": serial, "reason": "Rapid scans from different stated regions or repeated scans; human review required"}))
+            lot = db.get(Lot, bottle.lot_id)
+            db.add(Record(kind="scan_risk", org_id=lot.owner_org_id, data={"serial": serial, "reason": "Rapid scans from different stated regions or repeated scans; human review required"}))
     db.flush()
     return {"risk": "review" if risk else "normal", "message": "A scan pattern needs review; this is not proof of counterfeit honey" if risk else "Serial resolved. Check the label seal and live safety state.", "passport": passport(serial, db)}
 

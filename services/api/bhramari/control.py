@@ -46,9 +46,10 @@ def control_tower(db: Session = Depends(get_db), user: User = Depends(require_ro
         if record.kind == "sensor_alert" and record.data.get("status") == "open":
             exceptions.append({"id": record.id, "type": "hive_alert", "severity": "warning",
                                "title": record.data["rule"], "detail": record.data["explanation"]})
-        if record.kind in ("concern", "passport_concern", "duplicate_scan", "sync_conflict"):
+        if record.kind in ("concern", "scan_risk", "sync_conflict"):
             exceptions.append({"id": record.id, "type": record.kind, "severity": "warning",
-                               "title": "Review requested", "detail": "Review the original claim and preserve its evidence."})
+                               "title": "Duplicate QR scan risk" if record.kind == "scan_risk" else "Review requested",
+                               "detail": record.data.get("reason", "Review the original claim and preserve its evidence.")})
     return {"as_of": datetime.now(timezone.utc).isoformat(), "scope": "consortium" if user.role == "admin" else "organization",
             "metrics": {"lots": len(lots), "available_g": sum(lot.available_g for lot in lots),
                         "unanchored_events": len(pending), "restricted_lots": len(restricted),

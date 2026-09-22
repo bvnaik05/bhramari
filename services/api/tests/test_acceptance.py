@@ -174,10 +174,17 @@ def test_jar_certificate_is_verified_and_scan_is_idempotent(client, auth):
     assert first.status_code == 200 and replay.status_code == 200
     assert first.json()["risk"] == replay.json()["risk"] == "normal"
 
+    risky = client.post(f"/api/v1/passport/{serial}/scan", json={
+        **scan, "region": "Delhi", "client_nonce": str(UUID(int=2)),
+    })
+    assert risky.status_code == 200 and risky.json()["risk"] == "review"
+    control = client.get("/api/v1/control", headers=auth("fpo"))
+    assert any(item["type"] == "scan_risk" for item in control.json()["exceptions"])
+
     payload, signature = passport["certificate"].split(".")
     replacement = "A" if signature[-1] != "A" else "B"
     tampered = client.post(f"/api/v1/passport/{serial}/scan", json={
-        **scan, "client_nonce": str(UUID(int=2)), "certificate": f"{payload}.{signature[:-1]}{replacement}",
+        **scan, "client_nonce": str(UUID(int=3)), "certificate": f"{payload}.{signature[:-1]}{replacement}",
     })
     assert tampered.status_code == 422
 
