@@ -40,7 +40,7 @@ class Reading(BaseModel):
 
 class Simulation(BaseModel):
     hive_id: str
-    scenario: Literal["normal", "heat", "weight_drop", "stuck", "productivity"] = "normal"
+    scenario: Literal["normal", "heat", "brood_risk", "weight_drop", "stuck", "productivity"] = "normal"
 
 
 @router.get("/readings")
@@ -71,6 +71,8 @@ def simulate(body: Simulation, db: Session = Depends(get_db),
                   "weight_kg": 24.0 + index / 2 if long_range else 28.0 + index / 20}
         if body.scenario == "heat" and index > 4:
             values["temperature_c"] = 40 + index / 4
+        if body.scenario == "brood_risk" and index > 4:
+            values["humidity_pct"] = 90 + index / 4
         if body.scenario == "weight_drop" and index > 5:
             values["weight_kg"] = 22.0
         if body.scenario == "stuck":
@@ -154,24 +156,28 @@ def hive_analytics(hive, readings, reserve_weight_kg):
                 "health_score": None, "weight_change_kg": None, "harvestable_kg": None,
                 "predicted_harvestable_kg": None, "daily_weight_trend_kg": None,
                 "forecast_horizon_days": 7, "forecast_confidence": "none",
+                "risk_categories": [], "confirmation_required": False, "confirmation_route": None,
                 "recommendation": "Connect a sensor and collect readings before screening.",
                 "confidence": "none", "signals": [], "model_version": ANALYTICS_VERSION}
-    signals = []
+    signals, risk_categories = [], []
     if sum(row["temperature_c"] > 38 for row in window) >= 2:
+        risk_categories.append("heat_stress")
         signals.append("Repeated heat can accompany colony or brood stress; inspect ventilation and brood frames.")
     if sum(row["humidity_pct"] > 85 for row in window) >= 2:
+        risk_categories.append("brood_disease_environment")
         signals.append("Persistent high humidity can increase brood-disease risk; inspect the hive rather than treating automatically.")
     if any(
         previous["weight_kg"] - current["weight_kg"] > 2
         and datetime.fromisoformat(current["recorded_at"]) - datetime.fromisoformat(previous["recorded_at"]) <= timedelta(hours=1)
         for previous, current in zip(window, window[1:])
     ):
+        risk_categories.append("rapid_weight_loss")
         signals.append("Rapid weight loss can indicate swarm, disturbance, harvest, or sensor error; verify in person.")
     latest = window[-1]
     change = round(latest["weight_kg"] - window[0]["weight_kg"], 2)
     harvestable = round(max(0, latest["weight_kg"] - reserve_weight_kg), 2)
     forecast = productivity_forecast(window, reserve_weight_kg)
-    risk = "review" if signals else "no_sensor_signal"
+    risk = "brood_disease_risk" if "brood_disease_environment" in risk_categories else "colony_stress" if signals else "no_detected_signal"
     recommendation = (
         "Inspect the colony and escalate to a qualified mentor before treatment or harvest."
         if signals else
@@ -184,6 +190,8 @@ def hive_analytics(hive, readings, reserve_weight_kg):
             "health_score": max(0, 100 - 25 * len(signals)), "weight_change_kg": change,
             "harvestable_kg": harvestable, "reserve_weight_kg": reserve_weight_kg,
             **forecast,
+            "risk_categories": risk_categories, "confirmation_required": bool(risk_categories),
+            "confirmation_route": f"/hives/{hive.id}/inspections" if risk_categories else None,
             "recommendation": recommendation, "confidence": "low" if simulated or len(window) < 12 else "medium",
             "signals": signals, "reading_count": len(window), "simulated": simulated,
             "model_version": ANALYTICS_VERSION,

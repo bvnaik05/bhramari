@@ -53,7 +53,10 @@ def test_sensor_rules_and_equipment_conflict_are_explainable(client, auth):
     assert any(item["rule"] == "temperature" and item["confidence"] == "rule-based" for item in alerts)
     analytics = client.get("/api/v1/sensors/analytics?reserve_weight_kg=20", headers=beekeeper).json()
     hive = next(item for item in analytics if item["hive_id"] == "HIVE-MH-001")
-    assert hive["disease_risk"] == "review"
+    assert hive["disease_risk"] == "colony_stress"
+    assert hive["risk_categories"] == ["heat_stress"]
+    assert hive["confirmation_required"] is True
+    assert hive["confirmation_route"] == "/hives/HIVE-MH-001/inspections"
     assert hive["health_score"] < 100
     assert hive["harvestable_kg"] >= 0
     assert hive["confidence"] == "low" and hive["signals"]
@@ -66,6 +69,14 @@ def test_sensor_rules_and_equipment_conflict_are_explainable(client, auth):
     assert forecast["predicted_harvestable_kg"] > forecast["harvestable_kg"]
     assert forecast["forecast_horizon_days"] == 7
     assert forecast["forecast_confidence"] == "low"
+
+    brood_feed = client.post("/api/v1/sensors/simulate", headers=beekeeper,
+                             json={"hive_id": "HIVE-MH-003", "scenario": "brood_risk"})
+    assert brood_feed.status_code == 201, brood_feed.text
+    analytics = client.get("/api/v1/sensors/analytics", headers=beekeeper).json()
+    brood_risk = next(item for item in analytics if item["hive_id"] == "HIVE-MH-003")
+    assert brood_risk["disease_risk"] == "brood_disease_risk"
+    assert "brood_disease_environment" in brood_risk["risk_categories"]
 
     fpo = auth("fpo")
     equipment = client.get("/api/v1/circles/equipment", headers=fpo).json()[0]
