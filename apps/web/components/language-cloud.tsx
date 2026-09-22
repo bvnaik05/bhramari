@@ -24,10 +24,11 @@ export function LanguageCloud({ compact = false }: { compact?: boolean }) {
   useEffect(() => {
     api.get<LanguageCapabilities>("/languages").then(setCapabilities).catch(() => setCapabilities(null));
   }, []);
-  if (!capabilities) return <div className="language-pills"><span>Indian language support loads with the API</span></div>;
+  if (!capabilities)
+    return <div className="language-cloud language-cloud-compact"><span>Language list loads with the API</span></div>;
   const languages = compact ? capabilities.languages.filter(item => item.tts.length).slice(0, 8) : capabilities.languages;
   return <div className={`language-cloud ${compact ? "language-cloud-compact" : ""}`} aria-label={`${capabilities.languages.length} supported languages`}>
     {languages.map(item => <span key={item.code} title={`${item.name} · ${item.tts.length ? "voice and text" : "text and speech input"}`}>{item.native_name}</span>)}
-    {compact && capabilities.languages.length > languages.length && <span>+{capabilities.languages.length - languages.length}</span>}
+    {compact && capabilities.languages.length > languages.length && <span>+{capabilities.languages.length - languages.length} more</span>}
   </div>;
 }

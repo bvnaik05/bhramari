@@ -1,45 +1,98 @@
 import Link from "next/link";
 
+/* Bhramari is the humming bee — the name is also the bee-breath. The mark
+   makes the hum literal: the bee's stripes carry on past its body as sound,
+   held inside a single comb cell. */
 export function BeeMark({ className = "" }: { className?: string }) {
-  return <svg className={className} viewBox="0 0 48 48" fill="none" aria-hidden="true">
-    <path d="m24 3 18 10.5v21L24 45 6 34.5v-21L24 3Z" stroke="currentColor" strokeWidth="2" />
-    <path d="M24 18c-15-13-18 5-3 6M24 18c15-13 18 5 3 6" stroke="currentColor" strokeWidth="1.8" />
-    <path d="M18 23c0-4 12-4 12 0v8l-6 6-6-6v-8Z" fill="currentColor" />
-    <path d="M18 26h12M19 31h10" stroke="var(--cream,#fffaf0)" strokeWidth="2" />
-    <path d="m22 17-3-4m7 4 3-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-  </svg>;
-}
-
-export function Brand({ light = false }: { light?: boolean }) {
-  return <Link href="/" className={`brand ${light ? "brand-light" : ""}`} aria-label="Bhramari home"><BeeMark /><span>bhramari<span className="brand-dot">.</span></span></Link>;
-}
-
-export function HoneyArt() {
-  const cells = Array.from({ length: 81 }, (_, i) => ({ x: 94 + (i % 9) * 37 + (Math.floor(i / 9) % 2) * 18.5, y: 83 + Math.floor(i / 9) * 32 }));
-  return <div className="honey-art" aria-hidden="true">
-    <svg className="honey-orb" viewBox="0 0 540 540" fill="none">
-      <defs>
-        <radialGradient id="amber" cx=".31" cy=".23" r=".81"><stop stopColor="#fff8cb" /><stop offset=".22" stopColor="#ffd465" /><stop offset=".53" stopColor="#ed9b14" /><stop offset=".8" stopColor="#ae4b04" /><stop offset="1" stopColor="#ffdd82" /></radialGradient>
-        <linearGradient id="honey-glint" x1="70" y1="40" x2="460" y2="480" gradientUnits="userSpaceOnUse"><stop stopColor="#fff9cf" /><stop offset=".5" stopColor="#ffe9a1" stopOpacity=".22" /><stop offset="1" stopColor="#713400" /></linearGradient>
-        <radialGradient id="inner-glow"><stop stopColor="#fff0ae" stopOpacity=".6" /><stop offset="1" stopColor="#ffb628" stopOpacity="0" /></radialGradient>
-        <clipPath id="orb-clip"><path d="M470 276c-3 114-82 213-198 205S58 396 65 264 156 57 274 62s199 99 196 214Z" /></clipPath>
-        <filter id="orb-shadow"><feGaussianBlur stdDeviation="13" /></filter>
-      </defs>
-      <ellipse cx="278" cy="488" rx="158" ry="15" fill="#b7782f" opacity=".2" filter="url(#orb-shadow)" />
-      <g className="orb-body">
-        <path d="M470 276c-3 114-82 213-198 205S58 396 65 264 156 57 274 62s199 99 196 214Z" fill="url(#amber)" />
-        <g clipPath="url(#orb-clip)" transform="rotate(-22 270 270)">
-          {cells.map((cell, i) => <path key={i} d={`M${cell.x} ${cell.y - 21}l18 10.5v21l-18 10.5-18-10.5v-21Z`} fill={i % 7 === 0 ? "#ffd663" : "none"} fillOpacity=".25" stroke="url(#honey-glint)" strokeWidth="3" />)}
-          <ellipse cx="175" cy="130" rx="250" ry="125" fill="url(#inner-glow)" />
-        </g>
-        <path d="M98 264c1-89 61-157 139-170" stroke="#fffbd8" strokeWidth="5" strokeLinecap="round" opacity=".75" />
-        <path d="M424 313c-22 84-72 126-142 137" stroke="#ffdc78" strokeWidth="3" strokeLinecap="round" opacity=".6" />
-        <ellipse cx="156" cy="133" rx="29" ry="14" transform="rotate(-39 156 133)" fill="#fffce3" opacity=".55" />
-      </g>
-      <ellipse cx="267" cy="271" rx="254" ry="90" transform="rotate(-28 267 271)" stroke="#b27e29" strokeOpacity=".26" strokeDasharray="3 6" />
-      <circle cx="479" cy="170" r="6" fill="#8c540d" /><circle cx="61" cy="377" r="5" fill="#d79d29" />
+  return (
+    <svg className={className} viewBox="0 0 48 48" fill="none" aria-hidden="true">
+      <path
+        d="M24 2.5 42.5 13.25v21.5L24 45.5 5.5 34.75v-21.5L24 2.5Z"
+        stroke="currentColor"
+        strokeWidth="2.1"
+        strokeLinejoin="round"
+      />
+      {/* the hum */}
+      <path
+        d="M11.5 20.5c-1.6 2.2-1.6 5 0 7.2M36.5 20.5c1.6 2.2 1.6 5 0 7.2"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        opacity=".55"
+      />
+      {/* wings */}
+      <ellipse cx="16.6" cy="20.6" rx="4.6" ry="3" transform="rotate(-32 16.6 20.6)" fill="currentColor" opacity=".32" />
+      <ellipse cx="31.4" cy="20.6" rx="4.6" ry="3" transform="rotate(32 31.4 20.6)" fill="currentColor" opacity=".32" />
+      {/* head and antennae */}
+      <circle cx="24" cy="15.4" r="3.5" fill="currentColor" />
+      <path d="M22 11.6 20.4 9M26 11.6 27.6 9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      {/* body */}
+      <path
+        d="M24 19.2c4.1 0 6.4 2.5 6.4 6.3 0 4.6-2.9 8.7-6.4 11.1-3.5-2.4-6.4-6.5-6.4-11.1 0-3.8 2.3-6.3 6.4-6.3Z"
+        fill="currentColor"
+      />
+      <path
+        d="M18.2 24.6h11.6M19.3 29.4h9.4M21.4 34h5.2"
+        stroke="var(--stripe, #fffaf0)"
+        strokeWidth="1.9"
+        strokeLinecap="round"
+      />
     </svg>
-    <div className="art-label art-label-top"><span className="tiny-dot" /> ROOTED IN NATURE</div>
-    <div className="art-label art-label-bottom"><span className="tiny-dot" /> CONNECTED BY TRUST</div>
-  </div>;
+  );
+}
+
+export function Brand({ light = false, compact = false }: { light?: boolean; compact?: boolean }) {
+  return (
+    <Link
+      href="/"
+      className={`brand${light ? " brand-light" : ""}${compact ? " brand-compact" : ""}`}
+      aria-label="Bhramari, home"
+    >
+      <span className="brand-mark">
+        <BeeMark />
+      </span>
+      <span className="brand-word">bhramari</span>
+    </Link>
+  );
+}
+
+/* The boundary between sections is a row of comb teeth rather than a rule.
+   A pattern tiles at a fixed size, so the teeth keep their shape at any width
+   instead of stretching. */
+export function CombEdge({ flip = false, className = "" }: { flip?: boolean; className?: string }) {
+  const id = flip ? "comb-tooth-up" : "comb-tooth-down";
+  return (
+    <div className={`comb-edge${flip ? " comb-edge-flip" : ""} ${className}`} aria-hidden="true">
+      <svg xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          {/* The top half of a row of flat-top cells: each tooth is wide at its
+              base and narrow at its crest, so the gaps between them read as
+              the V where two cells meet. */}
+          <pattern id={id} width="64" height="28" patternUnits="userSpaceOnUse">
+            <path d="M0 28 16 0h32l16 28Z" fill="currentColor" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill={`url(#${id})`} />
+      </svg>
+    </div>
+  );
+}
+
+/* A hexagon that can be filled to a level — used wherever a quantity or a
+   degree of completeness is being shown. */
+export function HexCell({
+  fill = 1,
+  label,
+  className = "",
+}: {
+  fill?: number;
+  label?: string;
+  className?: string;
+}) {
+  const level = Math.max(0, Math.min(1, fill));
+  return (
+    <span className={`hex-cell ${className}`} role={label ? "img" : undefined} aria-label={label}>
+      <span className="hex-cell-fill" style={{ height: `${level * 100}%` }} />
+    </span>
+  );
 }
