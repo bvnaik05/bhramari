@@ -32,6 +32,6 @@ Push-Location apps/field; flutter analyze; flutter test; Pop-Location
 ```
 
 See [the acceptance ledger](docs/implementation-status.md),
-[operations runbook](docs/operations.md), and
-[six-minute demonstration](docs/demo-script.md) for deployment boundaries and
-the verified journey.
+[operations runbook](docs/operations.md),
+[KVIC cluster deployment pack](docs/kvic-cluster-deployment.md), and
+[six-minute demonstration](docs/demo-script.md).
