@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from .access import owned_lot, safety_status
 from .auth import current_user, require_roles
 from .db import get_db
+from .disputes import create_review
 from .events import emit
 from .models import Custody, Lot, Organisation, Record, User
 from .schemas import CustodyDecision, CustodyInput, ShipmentInput
@@ -52,6 +53,11 @@ def decide(custody_id: str, body: CustodyDecision, user: User = Depends(operator
     record.status, record.accepted_by = body.decision, user.id
     if body.decision == "accepted":
         lot.owner_org_id = user.org_id
+    else:
+        create_review(db, "custody_dispute", record.from_org_id, "custody", record.id,
+                      body.note or "The receiving organization disputed the custody handover.",
+                      {"lot_id": lot.id, "from_org_id": record.from_org_id, "to_org_id": record.to_org_id,
+                       "reported_by": user.id}, due_hours=48)
     emit(db, user, f"custody.{body.decision}", lot.id, {"custody_id": record.id, "note": body.note})
     return row_view(record)
 

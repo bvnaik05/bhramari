@@ -55,10 +55,10 @@ def control_tower(db: Session = Depends(get_db), user: User = Depends(require_ro
         if record.kind == "sensor_alert" and record.data.get("status") == "open":
             exceptions.append({"id": record.id, "type": "hive_alert", "severity": "warning",
                                "title": record.data["rule"], "detail": record.data["explanation"]})
-        if record.kind in ("concern", "scan_risk", "sync_conflict"):
+        if record.kind in ("concern", "scan_risk", "sync_conflict", "custody_dispute") and record.data.get("status") not in ("resolved", "rejected"):
             exceptions.append({"id": record.id, "type": record.kind, "severity": "warning",
                                "title": "Duplicate QR scan risk" if record.kind == "scan_risk" else "Review requested",
-                               "detail": record.data.get("reason", "Review the original claim and preserve its evidence.")})
+                               "detail": record.data.get("summary", "Review the original claim and preserve its evidence.")})
     anchored = [event for event in events if event.checkpoint_id and checkpoints.get(event.checkpoint_id)
                 and checkpoints[event.checkpoint_id].status == "anchored"]
     parented = set(db.scalars(select(LotEdge.child_id)))
@@ -66,7 +66,8 @@ def control_tower(db: Session = Depends(get_db), user: User = Depends(require_ro
     audit_kpis = {"anchored_events_pct": percent(len(anchored), len(events)),
                   "traceable_lots_pct": percent(len(traceable), len(lots)),
                   "current_evidence_pct": percent(len(evidence) - len(expiring), len(evidence)),
-                  "open_conflicts": sum(row.kind == "sync_conflict" for row in records)}
+                  "open_conflicts": sum(row.kind in ("concern", "scan_risk", "sync_conflict", "custody_dispute")
+                                        and row.data.get("status") not in ("resolved", "rejected") for row in records)}
     # ponytail: direct matching is enough for cluster volumes; batch or index it when requirement counts grow.
     return {"as_of": datetime.now(timezone.utc).isoformat(), "scope": "consortium" if user.role == "admin" else "organization",
             "metrics": {"lots": len(lots), "available_g": sum(lot.available_g for lot in lots),

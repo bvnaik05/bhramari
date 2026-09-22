@@ -16,6 +16,7 @@ from .access import ancestor_ids, owned_lot, safety_status
 from .auth import require_roles
 from .config import settings
 from .db import get_db
+from .disputes import create_review
 from .events import canonical, emit
 from .languages import generate_speech, translate
 from .models import Bottle, Custody, DomainEvent, Evidence, Hive, Lot, Organisation, Record, User, now, uid
@@ -163,7 +164,9 @@ def scan(serial: str, body: ScanInput, db: Session = Depends(get_db)):
         db.add(Record(kind="scan", org_id="public", data={"serial": serial, **body.model_dump(exclude={"certificate"})}))
         if risk:
             lot = db.get(Lot, bottle.lot_id)
-            db.add(Record(kind="scan_risk", org_id=lot.owner_org_id, data={"serial": serial, "reason": "Rapid scans from different stated regions or repeated scans; human review required"}))
+            reason = "Rapid scans from different stated regions or repeated scans; human review required"
+            create_review(db, "scan_risk", lot.owner_org_id, "passport_scan", serial, reason,
+                          {"serial": serial, "reason": reason}, due_hours=24)
     db.flush()
     return {"risk": "review" if risk else "normal", "message": "A scan pattern needs review; this is not proof of counterfeit honey" if risk else "Serial resolved. Check the label seal and live safety state.", "passport": passport(serial, db)}
 
@@ -179,7 +182,6 @@ def concern(serial: str, body: ConcernInput, db: Session = Depends(get_db)):
     if not bottle:
         raise HTTPException(404, "Unknown serial")
     lot = db.get(Lot, bottle.lot_id)
-    record = Record(kind="concern", org_id=lot.owner_org_id, data={"serial": serial, **body.model_dump(), "status": "open"})
-    db.add(record)
-    db.flush()
+    record = create_review(db, "concern", lot.owner_org_id, "passport_concern", serial,
+                           body.description, {"serial": serial, **body.model_dump()}, due_hours=48)
     return {"id": record.id, "status": "open", "message": "Concern recorded for an authorised quality reviewer"}

@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from .auth import current_user, require_roles
 from .db import get_db
+from .disputes import create_review
 from .events import canonical, digest, emit
 from .models import Device, Record, SyncReceipt, User, now
 from .schemas import DeviceInput, Envelope, HarvestInput, InspectionInput, SyncInput
@@ -107,7 +108,9 @@ def accept_envelope(db, user, envelope: Envelope):
     except (HTTPException, ValidationError) as exc:
         detail = exc.detail if isinstance(exc, HTTPException) else "Payload schema validation failed"
         result = {"event_id": envelope.event_id, "status": "disputed", "detail": detail}
-        db.add(Record(kind="sync_conflict", org_id=user.org_id, data={"envelope": unsigned, "signature": envelope.signature, "detail": detail}))
+        create_review(db, "sync_conflict", user.org_id, "offline_event", envelope.event_id, str(detail),
+                      {"envelope": unsigned, "signature": envelope.signature, "detail": detail,
+                       "reported_by": user.id}, due_hours=24)
         emit(db, user, "offline.disputed", envelope.subject_id, {"event_id": envelope.event_id, "envelope_hash": envelope_hash, "detail": detail})
     device.sequence, device.last_hash = envelope.device_sequence, envelope_hash
     db.add(SyncReceipt(id=envelope.event_id, device_id=device.id, envelope_hash=envelope_hash, status=result["status"], result=result))

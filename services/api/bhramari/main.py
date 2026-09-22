@@ -39,7 +39,7 @@ app.add_middleware(CORSMiddleware, allow_origins=settings().cors_origins.split("
 
 for module in [auth, dashboard, traceability, logistics, quality, sync, passport, trust]:
     app.include_router(module.router, prefix="/api/v1")
-for name in ["community", "engagement", "intelligence", "languages", "madhu", "assisted", "control"]:
+for name in ["community", "engagement", "intelligence", "languages", "madhu", "assisted", "control", "disputes"]:
     try:
         module = importlib.import_module(f".{name}", __package__)
         app.include_router(module.router, prefix="/api/v1")
