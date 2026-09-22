@@ -22,4 +22,14 @@ Custody proposal and receipt require separate eligible accounts. Revoked parties
 
 `EvidenceAnchor` records immutable laboratory evidence hashes and SHA-256 Merkle roots. Evidence can be revoked with a separate audit event. Backend checkpoint IDs map to `sha256(UTF8(id))`. Merkle siblings are sorted as 32-byte values, concatenated and hashed with SHA-256. The proof supports the API's canonical-JSON SHA-256 event leaves.
 
-The local demo is an Anvil development chain. A pilot requires independent contract review, institutional validator governance and an administrator multisig controlled by a timelock. The included delayed two-step admin transfer is not a substitute for that governance. No upgrade key can rewrite these contracts. Blockchain records accepted evidence; it cannot establish chemical purity or the truth of a physical observation.
+The local demo is an Anvil development chain. Set `DEPLOYMENT_MODE=pilot`,
+`ADMIN_MULTISIG_ADDRESS`, and an `ADMIN_TRANSFER_DELAY` of at least 86400 seconds
+for a pilot. The deployment fails if the address is not a deployed contract. It
+starts the delayed two-step transfer and records the pending administrator in
+the deployment manifest. The multisignature owners must accept the transfer
+after the delay before the pilot handles real batches.
+
+A pilot also requires independent contract review and institutional validator
+governance. The delayed two-step transfer does not replace that governance. No
+upgrade key can rewrite these contracts. Blockchain records accepted evidence;
+it cannot establish chemical purity or the truth of a physical observation.

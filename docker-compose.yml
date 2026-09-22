@@ -60,7 +60,9 @@ services:
     command: deploy
     environment:
       RPC_URL: http://anvil:8545
-      ADMIN_TRANSFER_DELAY: 0
+      DEPLOYMENT_MODE: ${DEPLOYMENT_MODE:-demo}
+      ADMIN_TRANSFER_DELAY: ${ADMIN_TRANSFER_DELAY:-0}
+      ADMIN_MULTISIG_ADDRESS: ${ADMIN_MULTISIG_ADDRESS:-}
     depends_on:
       anvil: {condition: service_healthy}
     restart: no

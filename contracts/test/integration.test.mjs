@@ -26,8 +26,9 @@ test('Anvil lifecycle: harvest, consented custody, exact split, evidence, inheri
   const admin = new NonceManager(await provider.getSigner(0));
   const farmer = new NonceManager(await provider.getSigner(1));
   const packer = new NonceManager(await provider.getSigner(2));
-  const contracts = await deployContracts(admin);
+  const contracts = await deployContracts(admin, { adminAddress: await packer.getAddress() });
   const { HoneyAccessManager: access, ParticipantRegistry: participants, BatchRegistry: batches, CustodyChain: custody, BlendRegistry: blend, EvidenceAnchor: evidence, RecallRegistry: recall } = contracts;
+  assert.equal((await access.pendingDefaultAdmin())[0], await packer.getAddress());
   for (const role of ['REGISTRAR_ROLE', 'RECALL_ROLE']) await (await access.grantRole(await access[role](), await admin.getAddress())).wait();
   for (const signer of [farmer, packer]) {
     await (await participants.register(await signer.getAddress(), id('org'), id('private evidence'))).wait();
