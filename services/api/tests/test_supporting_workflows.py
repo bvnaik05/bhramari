@@ -58,6 +58,15 @@ def test_sensor_rules_and_equipment_conflict_are_explainable(client, auth):
     assert hive["harvestable_kg"] >= 0
     assert hive["confidence"] == "low" and hive["signals"]
 
+    forecast_feed = client.post("/api/v1/sensors/simulate", headers=beekeeper,
+                                json={"hive_id": "HIVE-MH-002", "scenario": "productivity"})
+    assert forecast_feed.status_code == 201, forecast_feed.text
+    analytics = client.get("/api/v1/sensors/analytics?reserve_weight_kg=20", headers=beekeeper).json()
+    forecast = next(item for item in analytics if item["hive_id"] == "HIVE-MH-002")
+    assert forecast["predicted_harvestable_kg"] > forecast["harvestable_kg"]
+    assert forecast["forecast_horizon_days"] == 7
+    assert forecast["forecast_confidence"] == "low"
+
     fpo = auth("fpo")
     equipment = client.get("/api/v1/circles/equipment", headers=fpo).json()[0]
     start = datetime.now(timezone.utc) + timedelta(days=2)

@@ -40,7 +40,7 @@ class Reading(BaseModel):
 
 class Simulation(BaseModel):
     hive_id: str
-    scenario: Literal["normal", "heat", "weight_drop", "stuck"] = "normal"
+    scenario: Literal["normal", "heat", "weight_drop", "stuck", "productivity"] = "normal"
 
 
 @router.get("/readings")
@@ -62,17 +62,20 @@ def simulate(body: Simulation, db: Session = Depends(get_db),
     if not settings().demo:
         raise HTTPException(404, "Simulator is available only in explicit demo mode")
     rows = []
-    start = datetime.now(timezone.utc) - timedelta(minutes=35)
+    long_range = body.scenario == "productivity"
+    start = datetime.now(timezone.utc) - (timedelta(days=7) if long_range else timedelta(minutes=35))
+    step = timedelta(days=1) if long_range else timedelta(minutes=5)
     for index in range(8):
         values = {"temperature_c": round(33.5 + math.sin(index / 2), 2),
-                  "humidity_pct": round(57 + 2 * math.cos(index / 2), 2), "weight_kg": 28.0 + index / 20}
+                  "humidity_pct": round(57 + 2 * math.cos(index / 2), 2),
+                  "weight_kg": 24.0 + index / 2 if long_range else 28.0 + index / 20}
         if body.scenario == "heat" and index > 4:
             values["temperature_c"] = 40 + index / 4
         if body.scenario == "weight_drop" and index > 5:
             values["weight_kg"] = 22.0
         if body.scenario == "stuck":
             values = {"temperature_c": 34.0, "humidity_pct": 57.0, "weight_kg": 28.0}
-        reading = Reading(hive_id=body.hive_id, recorded_at=start + timedelta(minutes=index * 5), **values)
+        reading = Reading(hive_id=body.hive_id, recorded_at=start + step * index, **values)
         rows.append(store_reading(db, user, reading, simulated=True))
     return {"scenario": body.scenario, "simulated": True, "readings": rows}
 
@@ -149,6 +152,8 @@ def hive_analytics(hive, readings, reserve_weight_kg):
     if not window:
         return {"hive_id": hive.id, "hive_name": hive.name, "disease_risk": "no_data",
                 "health_score": None, "weight_change_kg": None, "harvestable_kg": None,
+                "predicted_harvestable_kg": None, "daily_weight_trend_kg": None,
+                "forecast_horizon_days": 7, "forecast_confidence": "none",
                 "recommendation": "Connect a sensor and collect readings before screening.",
                 "confidence": "none", "signals": [], "model_version": ANALYTICS_VERSION}
     signals = []
@@ -165,6 +170,7 @@ def hive_analytics(hive, readings, reserve_weight_kg):
     latest = window[-1]
     change = round(latest["weight_kg"] - window[0]["weight_kg"], 2)
     harvestable = round(max(0, latest["weight_kg"] - reserve_weight_kg), 2)
+    forecast = productivity_forecast(window, reserve_weight_kg)
     risk = "review" if signals else "no_sensor_signal"
     recommendation = (
         "Inspect the colony and escalate to a qualified mentor before treatment or harvest."
@@ -177,7 +183,27 @@ def hive_analytics(hive, readings, reserve_weight_kg):
     return {"hive_id": hive.id, "hive_name": hive.name, "disease_risk": risk,
             "health_score": max(0, 100 - 25 * len(signals)), "weight_change_kg": change,
             "harvestable_kg": harvestable, "reserve_weight_kg": reserve_weight_kg,
+            **forecast,
             "recommendation": recommendation, "confidence": "low" if simulated or len(window) < 12 else "medium",
             "signals": signals, "reading_count": len(window), "simulated": simulated,
             "model_version": ANALYTICS_VERSION,
             "boundary": "Sensor analytics screen risk and optimize inspection or harvest timing; they do not diagnose disease or authorize treatment."}
+
+
+def productivity_forecast(window, reserve_weight_kg):
+    horizon = 7
+    times = [datetime.fromisoformat(row["recorded_at"]) for row in window]
+    span_days = (times[-1] - times[0]).total_seconds() / 86400
+    if len(window) < 4 or span_days < 1:
+        return {"predicted_harvestable_kg": None, "daily_weight_trend_kg": None,
+                "forecast_horizon_days": horizon, "forecast_confidence": "none"}
+    days = [(value - times[0]).total_seconds() / 86400 for value in times]
+    mean_day, mean_weight = sum(days) / len(days), sum(row["weight_kg"] for row in window) / len(window)
+    denominator = sum((day - mean_day) ** 2 for day in days)
+    daily_trend = sum((day - mean_day) * (row["weight_kg"] - mean_weight)
+                      for day, row in zip(days, window)) / denominator
+    predicted_weight = max(0, window[-1]["weight_kg"] + daily_trend * horizon)
+    # ponytail: linear trend is the pilot baseline; replace it after labelled seasonal data exists.
+    return {"predicted_harvestable_kg": round(max(0, predicted_weight - reserve_weight_kg), 2),
+            "daily_weight_trend_kg": round(daily_trend, 3), "forecast_horizon_days": horizon,
+            "forecast_confidence": "low" if any(row.get("simulated", False) for row in window) or len(window) < 12 else "medium"}
