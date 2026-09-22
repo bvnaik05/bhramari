@@ -24,6 +24,22 @@ def test_market_filters_evidence_and_reserves_once(client, auth):
     assert next(item for item in lots if item["id"] == "LOT-2026-001")["available_g"] == 115000
 
 
+def test_control_tower_reports_demand_and_audit_gaps(client, auth):
+    requirement = client.post("/api/v1/market/requirements", headers=auth("buyer"), json={
+        "product": "honey", "quantity_g": 100_000_000, "region": "Maharashtra",
+    })
+    assert requirement.status_code == 201, requirement.text
+
+    control = client.get("/api/v1/control", headers=auth("admin"))
+    assert control.status_code == 200, control.text
+    body = control.json()
+    assert any(item["id"] == requirement.json()["id"] for item in body["demand_gaps"])
+    assert body["metrics"]["demand_gaps"] >= 1
+    assert set(body["audit_kpis"]) == {
+        "anchored_events_pct", "traceable_lots_pct", "current_evidence_pct", "open_conflicts",
+    }
+
+
 def test_assisted_harvest_needs_delegation_and_farmer_confirmation(client, auth):
     fpo = auth("fpo")
     farmers = client.get("/api/v1/assisted/farmers", headers=fpo)
