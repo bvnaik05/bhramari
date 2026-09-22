@@ -505,6 +505,13 @@
     gap: 2.5rem;
   }
 
+  /* The jar moves to the top here, so the light has to follow it. */
+  .pp-hero::before {
+    inset: -12% -10% auto -10%;
+    height: 60%;
+    background: radial-gradient(ellipse 55% 60% at 50% 38%, rgba(255, 182, 39, 0.22), transparent 70%);
+  }
+
   .pp-jar-wrap {
     order: -1;
   }

@@ -31,7 +31,9 @@
   --surface-sunk: #efe4c9;
   --ink: #241806;
   --ink-soft: #6a5537;
-  --ink-faint: #8d7a58;
+  /* Markers and hints run at 12–14px, so this has to clear 4.5:1 on
+     --field-light rather than merely look quiet. */
+  --ink-faint: #75613f;
   --rule: #ddcba4;
   --rule-soft: #e9dcbe;
   --focus: #8a4b00;

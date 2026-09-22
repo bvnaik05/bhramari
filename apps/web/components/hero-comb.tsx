@@ -20,6 +20,7 @@ uniform float uTime;
 uniform vec2  uLight;   // lamp position, aspect-corrected units
 uniform float uBuild;   // 0 -> 1 comb construction
 uniform float uFade;    // 0 -> 1 scroll-out
+uniform float uScale;   // cells across the height, set to hold cell size fixed
 
 const vec3 WAX_DARK   = vec3(0.071, 0.047, 0.016);
 const vec3 WALL_LIT   = vec3(0.404, 0.259, 0.082);
@@ -50,9 +51,9 @@ float hexEdge(vec2 p) {
 void main() {
   vec2 uv = (gl_FragCoord.xy - 0.5 * uRes) / uRes.y;
 
-  /* Cells stay a constant size on screen, so a wide monitor shows more comb
-     rather than bigger cells. */
-  float scale = clamp(uRes.x / uRes.y, 0.6, 2.4) * 8.0 + 4.0;
+  /* Cells stay a constant size on screen, so a phone shows fewer of them
+     rather than enormous ones. */
+  float scale = uScale;
   vec2 p = uv * scale;
   /* A slow drift keeps the wall alive when nothing is pointing at it. */
   p += vec2(sin(uTime * 0.06) * 0.18, cos(uTime * 0.05) * 0.13);
@@ -64,7 +65,8 @@ void main() {
 
   /* Comb is drawn from the middle outward, each cell with its own hesitation. */
   float ring = length(id * vec2(1.0, 0.9));
-  float appear = clamp(uBuild * 22.0 - ring - rnd.x * 2.2, 0.0, 1.0);
+  /* The wave has to cross however many cells this viewport holds. */
+  float appear = clamp(uBuild * scale * 1.5 - ring - rnd.x * 2.2, 0.0, 1.0);
   appear = appear * appear * (3.0 - 2.0 * appear);
 
   /* One tight pool of light behind the wall, plus a far weaker wanderer.
@@ -194,14 +196,20 @@ export function HeroComb() {
     const uLight = gl.getUniformLocation(program, "uLight");
     const uBuild = gl.getUniformLocation(program, "uBuild");
     const uFade = gl.getUniformLocation(program, "uFade");
+    const uScale = gl.getUniformLocation(program, "uScale");
+
+    /* Roughly the width of one cell in CSS pixels. */
+    const CELL_PX = 54;
 
     let width = 0;
     let height = 0;
+    let scale = 16;
     const resize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 1.75);
       const rect = canvas.getBoundingClientRect();
       width = Math.max(1, Math.round(rect.width * dpr));
       height = Math.max(1, Math.round(rect.height * dpr));
+      scale = Math.max(6, rect.height / CELL_PX);
       if (canvas.width !== width || canvas.height !== height) {
         canvas.width = width;
         canvas.height = height;
@@ -209,16 +217,31 @@ export function HeroComb() {
       }
     };
     resize();
-    const observer = new ResizeObserver(resize);
+    const observer = new ResizeObserver(() => {
+      resize();
+      restLamp();
+    });
     observer.observe(canvas);
 
     /* The lamp eases toward the pointer instead of snapping to it, so light
        behaves like it has mass. */
-    /* Rests over the open right-hand side, away from the headline. */
-    const target = { x: 0.42, y: 0.06 };
-    const lamp = { x: 0.42, y: 0.06 };
+    /* Rests over the open right-hand side, away from the headline. The visible
+       x range is half the aspect ratio, so a fixed value would sit off-screen
+       on a phone. */
+    const target = { x: 0, y: 0.06 };
+    const lamp = { x: 0, y: 0.06 };
+    let pointerMoved = false;
+    const restLamp = () => {
+      if (pointerMoved) return;
+      const rect = canvas.getBoundingClientRect();
+      target.x = 0.28 * (rect.width / rect.height);
+    };
+    restLamp();
+    lamp.x = target.x;
+
     const onPointer = (event: PointerEvent) => {
       const rect = canvas.getBoundingClientRect();
+      pointerMoved = true;
       target.x = ((event.clientX - rect.left) / rect.width - 0.5) * (rect.width / rect.height);
       target.y = -((event.clientY - rect.top) / rect.height - 0.5);
     };
@@ -249,6 +272,7 @@ export function HeroComb() {
       gl.uniform2f(uLight, lamp.x, lamp.y);
       gl.uniform1f(uBuild, still ? 1 : Math.min(1, elapsed / 2.4));
       gl.uniform1f(uFade, fade);
+      gl.uniform1f(uScale, scale);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     };
     frame = requestAnimationFrame(draw);

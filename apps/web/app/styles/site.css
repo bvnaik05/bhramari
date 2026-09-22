@@ -161,6 +161,17 @@
   gap: 0.75rem;
 }
 
+/* The brand and the toggle stay above the panel that slides down behind them. */
+.site-header .brand,
+.site-header-actions {
+  position: relative;
+  z-index: 2;
+}
+
+.nav-cta {
+  display: none;
+}
+
 .header-cta {
   white-space: nowrap;
 }
@@ -803,11 +814,16 @@
   animation: hum-breathe 3.4s var(--ease-honey) infinite;
 }
 
-.hum-ring {
+.hum-rings {
   position: absolute;
   inset: 0;
-  border: 2px solid var(--nectar);
-  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.hum-rings polygon {
+  transform-origin: center;
   animation: hum-out 3.7s cubic-bezier(0.16, 0.7, 0.4, 1) infinite;
   opacity: 0;
 }
@@ -957,11 +973,14 @@
   max-width: 34rem;
 }
 
+/* Indic scripts need a little more size and leading than Latin to stay
+   legible at the same optical weight. */
 .language-cloud span {
-  padding: 0.35rem 0.8rem;
+  padding: 0.4rem 0.85rem;
   border-radius: var(--r-pill);
   border: 1px solid var(--rule);
-  font-size: var(--t-xs);
+  font-size: var(--t-sm);
+  line-height: 1.5;
   color: var(--ink-soft);
   background: color-mix(in oklab, var(--surface-raised) 45%, transparent);
   transition: border-color 0.3s, color 0.3s, transform 0.3s var(--ease-comb);
@@ -1031,10 +1050,6 @@
     row-gap: 1.75rem;
   }
 
-  .hero-facts li:last-child {
-    grid-column: span 2;
-  }
-
   .thread-steps {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     row-gap: 2.75rem;
@@ -1077,6 +1092,17 @@
     display: block;
   }
 
+  /* The nav leaves the flow here, so the actions have to claim the right
+     edge themselves. */
+  .site-header-actions {
+    margin-inline-start: auto;
+  }
+
+  /* The cue reads as a stray line once the hero stops filling the viewport. */
+  .hero-scroll {
+    display: none;
+  }
+
   .site-nav {
     position: fixed;
     inset: 0 0 auto 0;
@@ -1106,6 +1132,13 @@
     display: none;
   }
 
+  .site-nav .nav-cta {
+    display: inline-flex;
+    margin-top: 1.5rem;
+    border-bottom: 0;
+    font-size: var(--t-sm);
+  }
+
   .site-header.is-open {
     background: rgba(16, 10, 3, 0.97);
   }
@@ -1122,9 +1155,33 @@
   .hero-title {
     max-width: 18ch;
   }
+
+  /* Narrow screens put copy directly over the lit comb, so the veil has to
+     carry more of the contrast. */
+  .hero-veil {
+    background: linear-gradient(
+        180deg,
+        rgba(14, 9, 2, 0.8) 0%,
+        rgba(14, 9, 2, 0.58) 42%,
+        rgba(14, 9, 2, 0.76) 100%
+      ),
+      linear-gradient(100deg, rgba(14, 9, 2, 0.6) 0%, rgba(14, 9, 2, 0.12) 100%);
+  }
 }
 
 @media (max-width: 620px) {
+  /* The display size that works on a laptop breaks this line into four on a
+     phone, so it steps down and the copy keeps its shape. */
+  .hero-title {
+    font-size: clamp(2.45rem, 9.5vw, 3.1rem);
+    letter-spacing: -0.035em;
+    max-width: none;
+  }
+
+  .hero-lede {
+    font-size: var(--t-base);
+  }
+
   .hero-facts {
     grid-template-columns: minmax(0, 1fr);
     gap: 1.4rem;

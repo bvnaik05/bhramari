@@ -67,6 +67,10 @@ export default function HomePage() {
             <Link href="/passport/BHR-2026-0001" onClick={() => setMenu(false)}>
               Trace a jar
             </Link>
+            {/* The header CTA has no room on a phone, so it lives in the panel. */}
+            <Link className="btn btn-honey nav-cta" href="/workspace" onClick={() => setMenu(false)}>
+              Open the workspace
+            </Link>
           </nav>
           <div className="site-header-actions">
             <Link className="btn btn-honey btn-sm header-cta" href="/workspace">
@@ -286,9 +290,19 @@ function HumOrb() {
   return (
     <div className="hum-orb" aria-hidden="true">
       <span className="hum-glow" />
-      {[0, 1, 2, 3, 4].map((ring) => (
-        <span className="hum-ring" key={ring} style={{ animationDelay: `${ring * 0.74}s` }} />
-      ))}
+      {/* Stroked polygons, not clipped borders — a clip-path would cut a
+          border down to slivers where the hexagon meets the box edge. */}
+      <svg className="hum-rings" viewBox="0 0 200 200" fill="none">
+        {[0, 1, 2, 3, 4].map((ring) => (
+          <polygon
+            key={ring}
+            points="100,8 180,54 180,146 100,192 20,146 20,54"
+            stroke="var(--nectar)"
+            strokeWidth="2"
+            style={{ animationDelay: `${ring * 0.74}s` }}
+          />
+        ))}
+      </svg>
       <span className="hum-core">
         <AudioLines size={38} strokeWidth={1.4} />
       </span>
