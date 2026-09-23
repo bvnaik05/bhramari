@@ -130,11 +130,6 @@ export default function HomePage() {
               ))}
             </ul>
           </div>
-          <a className="hero-scroll" href="#truth" aria-label="Read on">
-            <span className="hero-scroll-track">
-              <span className="hero-scroll-drop" />
-            </span>
-          </a>
         </section>
 
         {/* ------------------------------ truth ------------------------------ */}
@@ -219,18 +214,16 @@ export default function HomePage() {
         {/* ----------------------------- passport ---------------------------- */}
         <section className="scan">
           <div className="shell scan-inner">
-            <div className="scan-copy">
+            <div className="scan-copy" data-reveal="rise">
               <p className="marker">Try it now</p>
               <h2 data-reveal="fill">Find out what your jar knows.</h2>
               <p className="lede" data-reveal="rise">
                 Every bottle carries a serial. Type one in and the passport opens: where the honey came
                 from, what evidence supports it, and whether anything has been held or recalled since.
               </p>
-            </div>
             <form
               className="scan-form"
               action={`/passport/${encodeURIComponent(serial.trim() || "BHR-2026-0001")}`}
-              data-reveal="rise"
             >
               <label htmlFor="serial">Bottle serial</label>
               <div className="scan-field">
@@ -255,23 +248,34 @@ export default function HomePage() {
                 Letters, numbers and dashes. No login and no wallet needed.
               </span>
             </form>
+            </div>
+            <ScanLabel serial={serial} />
           </div>
         </section>
       </main>
 
+      {/* Sits outside the footer, which clips its own overflow for the watermark. */}
+      <CombEdge className="edge-before-footer" />
       <footer className="site-footer in-hive">
-        <CombEdge className="edge-to-hive" />
         <div className="shell site-footer-inner">
           <div className="footer-brand">
             <Brand light />
             <p>Built for the people who keep India&apos;s hives, and everyone who opens the jar.</p>
           </div>
-          <nav className="footer-nav" aria-label="Footer">
-            <Link href="/workspace">Workspace</Link>
-            <Link href="/passport/BHR-2026-0001">Honey Passport</Link>
-            <a href="#thread">How it works</a>
-            <a href="#truth">What we prove</a>
-          </nav>
+          <div className="footer-cols">
+            <nav aria-labelledby="footer-explore">
+              <h2 id="footer-explore">Explore</h2>
+              <Link href="/workspace">Workspace</Link>
+              <Link href="/passport/BHR-2026-0001">Honey Passport</Link>
+              <a href="#ecosystem">Who it is for</a>
+            </nav>
+            <nav aria-labelledby="footer-understand">
+              <h2 id="footer-understand">Understand</h2>
+              <a href="#thread">How it works</a>
+              <a href="#truth">What a record proves</a>
+              <a href="#madhu">Madhu, the assistant</a>
+            </nav>
+          </div>
           <div className="footer-base">
             <span>© {new Date().getFullYear()} Bhramari</span>
             <span>Made in India, for India&apos;s beekeeping clusters</span>
@@ -281,6 +285,38 @@ export default function HomePage() {
       </footer>
       <TweakPanel />
     </>
+  );
+}
+
+/* The label as it appears on the jar, with a scan line passing over it. The
+   cell pattern is derived from the serial, so it genuinely changes as you
+   type — the thing on screen is the thing on the bottle. */
+function ScanLabel({ serial }: { serial: string }) {
+  const seed = serial.trim().toUpperCase() || "BHR";
+  let hash = 2166136261;
+  for (const char of seed) {
+    hash ^= char.charCodeAt(0);
+    hash = Math.imul(hash, 16777619) >>> 0;
+  }
+  const cells = Array.from({ length: 30 }, (_, index) => {
+    const bit = (hash >>> index % 32) ^ (hash * (index + 7));
+    return ((bit >>> 3) & 1) === 1;
+  });
+
+  return (
+    <figure className="scan-label" data-reveal="rise" aria-hidden="true">
+      <div className="scan-label-card">
+        <span className="scan-label-brand">bhramari</span>
+        <div className="scan-label-code">
+          {cells.map((filled, index) => (
+            <span key={index} className={filled ? "is-filled" : undefined} />
+          ))}
+        </div>
+        <span className="scan-label-serial num">{seed}</span>
+        <span className="scan-label-note">Scan to open the passport</span>
+        <span className="scan-label-beam" />
+      </div>
+    </figure>
   );
 }
 

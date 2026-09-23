@@ -77,6 +77,13 @@
   left: 0;
 }
 
+/* Same teeth, but in normal flow — for a section that clips its overflow and
+   so cannot carry the edge as an absolutely positioned child. */
+.edge-before-footer {
+  color: var(--propolis);
+  margin-bottom: -1px;
+}
+
 .hex-cell {
   position: relative;
   display: block;
@@ -360,55 +367,6 @@
   line-height: 1.55;
   color: rgba(248, 236, 210, 0.62);
   max-width: 34ch;
-}
-
-/* A drop of honey falling down a thread — the scroll cue is the subject. */
-.hero-scroll {
-  position: absolute;
-  left: 50%;
-  bottom: clamp(1.25rem, 3vh, 2.5rem);
-  transform: translateX(-50%);
-  z-index: 3;
-  padding: 0.5rem;
-}
-
-.hero-scroll-track {
-  display: block;
-  width: 1.5px;
-  height: clamp(2.5rem, 6vh, 4rem);
-  background: linear-gradient(180deg, transparent, rgba(255, 216, 132, 0.45));
-  position: relative;
-  overflow: hidden;
-}
-
-.hero-scroll-drop {
-  position: absolute;
-  left: 50%;
-  top: 0;
-  width: 5px;
-  height: 5px;
-  margin-left: -2.5px;
-  border-radius: 50% 50% 55% 55%;
-  background: var(--nectar);
-  box-shadow: 0 0 10px var(--nectar);
-  animation: drop-fall 2.8s var(--ease-honey) infinite;
-}
-
-@keyframes drop-fall {
-  0% {
-    transform: translateY(-120%) scaleY(0.7);
-    opacity: 0;
-  }
-  22% {
-    opacity: 1;
-  }
-  78% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(1000%) scaleY(1.5);
-    opacity: 0;
-  }
 }
 
 /* --------------------------------- truth -------------------------------- */
@@ -872,6 +830,7 @@
 .scan-form {
   display: grid;
   gap: 0.6rem;
+  margin-top: clamp(1.5rem, 3vw, 2.25rem);
 }
 
 .scan-form label {
@@ -913,16 +872,134 @@
   color: var(--ink-faint);
 }
 
+/* ------------------------------ scan label ------------------------------ */
+
+.scan-label {
+  margin: 0;
+  display: grid;
+  place-items: center;
+  perspective: 900px;
+}
+
+.scan-label-card {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 0.85rem;
+  width: min(100%, 19rem);
+  padding: 2rem 1.75rem 1.6rem;
+  border-radius: 14px;
+  background: linear-gradient(165deg, var(--field-lit), #f1e4c4);
+  border: 1px solid var(--rule);
+  box-shadow: var(--lift-3);
+  overflow: hidden;
+  transform: rotate(-3deg);
+  transition: transform 0.6s var(--ease-comb);
+}
+
+.scan-label:hover .scan-label-card {
+  transform: rotate(0deg) translateY(-4px);
+}
+
+.scan-label-brand {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  color: var(--propolis);
+}
+
+/* A code made of cells rather than squares — the same alphabet as the rest
+   of the page. */
+.scan-label-code {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 5px;
+  width: 100%;
+  padding: 0.85rem;
+  border-radius: 8px;
+  background: var(--surface-sunk);
+}
+
+.scan-label-code span {
+  aspect-ratio: 1 / 1.1547;
+  background: var(--rule);
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  transition: background 0.45s var(--ease-comb);
+}
+
+.scan-label-code span.is-filled {
+  background: var(--propolis);
+}
+
+.scan-label-serial {
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--propolis);
+  letter-spacing: 0.02em;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.scan-label-note {
+  font-size: var(--t-xs);
+  color: var(--ink-faint);
+}
+
+/* The reader passing over the label. */
+.scan-label-beam {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 40%;
+  background: linear-gradient(180deg, transparent, rgba(255, 182, 39, 0.4), transparent);
+  animation: scan-sweep 3.6s var(--ease-honey) infinite;
+  pointer-events: none;
+}
+
+@keyframes scan-sweep {
+  0% {
+    transform: translateY(-110%);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(290%);
+    opacity: 0;
+  }
+}
+
 /* -------------------------------- footer -------------------------------- */
 
 .site-footer {
   position: relative;
   padding-block: clamp(4rem, 3rem + 6vw, 7rem) 2.5rem;
+  overflow: hidden;
+}
+
+/* A single oversized cell sunk into the corner — the mark at architectural
+   scale, not a repeated texture. */
+.site-footer::after {
+  content: "";
+  position: absolute;
+  right: -6rem;
+  bottom: -9rem;
+  width: 26rem;
+  height: 30rem;
+  background: rgba(255, 182, 39, 0.045);
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  pointer-events: none;
 }
 
 .site-footer-inner {
+  position: relative;
+  z-index: 1;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
   gap: clamp(2rem, 5vw, 4rem);
   align-items: start;
 }
@@ -934,19 +1011,35 @@
   max-width: 34ch;
 }
 
-.footer-nav {
+.footer-cols {
   display: grid;
-  gap: 0.85rem;
-  font-size: var(--t-sm);
-  justify-items: start;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1.5rem, 4vw, 3rem);
 }
 
-.footer-nav a {
+.footer-cols nav {
+  display: grid;
+  gap: 0.7rem;
+  justify-items: start;
+  font-size: var(--t-sm);
+  align-content: start;
+}
+
+.footer-cols h2 {
+  font-family: var(--font-text);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--ink-faint);
+  margin-bottom: 0.15rem;
+}
+
+.footer-cols a {
   color: var(--ink-soft);
   transition: color 0.25s;
 }
 
-.footer-nav a:hover {
+.footer-cols a:hover {
   color: var(--nectar);
 }
 
@@ -1098,11 +1191,6 @@
     margin-inline-start: auto;
   }
 
-  /* The cue reads as a stray line once the hero stops filling the viewport. */
-  .hero-scroll {
-    display: none;
-  }
-
   .site-nav {
     position: fixed;
     inset: 0 0 auto 0;
@@ -1242,14 +1330,11 @@
     gap: 0.5rem;
   }
 
-  .header-cta {
-    display: none;
+  .scan-label-card {
+    width: min(100%, 16rem);
   }
-}
 
-/* The hero cue overlaps content on very short viewports. */
-@media (max-height: 700px) and (min-width: 861px) {
-  .hero-scroll {
+  .header-cta {
     display: none;
   }
 }
