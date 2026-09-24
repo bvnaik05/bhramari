@@ -24,7 +24,7 @@
   width: 2.1em;
   height: 2.1em;
   flex: none;
-  color: var(--nectar);
+  color: var(--nectar-ink);
   transition: transform 0.5s var(--ease-comb);
 }
 
@@ -293,7 +293,7 @@
   gap: 0.6rem;
   font-size: var(--t-sm);
   font-weight: 500;
-  color: var(--nectar-pale);
+  color: var(--nectar-ink-pale);
   margin-bottom: clamp(1.25rem, 2vw, 2rem);
 }
 
@@ -396,7 +396,7 @@
   place-items: center;
   width: 2.5rem;
   aspect-ratio: 1 / 1.1547;
-  color: var(--nectar);
+  color: var(--nectar-ink);
   background: rgba(255, 182, 39, 0.12);
   clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
 }
@@ -469,7 +469,7 @@
 }
 
 .truth-col-settled h3 {
-  color: var(--nectar);
+  color: var(--nectar-ink);
 }
 
 .truth-col ul {
@@ -492,7 +492,7 @@
 }
 
 .truth-col-settled li svg {
-  color: var(--nectar);
+  color: var(--nectar-ink);
 }
 
 .truth-col-decided li svg {
@@ -596,7 +596,7 @@
 }
 
 .role-points svg {
-  color: var(--nectar);
+  color: var(--nectar-ink);
 }
 
 .role-art {
@@ -730,7 +730,7 @@
   width: 4.25rem;
   height: 4.75rem;
   margin-bottom: 1.5rem;
-  color: var(--nectar);
+  color: var(--nectar-ink);
   background: linear-gradient(180deg, #3a2912, var(--surface-raised) 60%);
   clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
   transition: transform 0.45s var(--ease-comb), color 0.3s;
@@ -899,13 +899,13 @@
   background: var(--surface-sunk);
   border: 1px solid var(--rule);
   border-radius: var(--r-pill);
-  color: var(--nectar);
+  color: var(--nectar-ink);
   box-shadow: inset 0 2px 6px rgba(6, 3, 0, 0.25);
   transition: border-color 0.25s, box-shadow 0.25s;
 }
 
 .scan-field:focus-within {
-  border-color: var(--nectar);
+  border-color: var(--nectar-ink);
   box-shadow: inset 0 2px 6px rgba(6, 3, 0, 0.25), 0 0 0 4px rgba(255, 182, 39, 0.16);
 }
 
@@ -1100,7 +1100,7 @@
 }
 
 .footer-cols a:hover {
-  color: var(--nectar);
+  color: var(--nectar-ink);
 }
 
 .footer-base {
@@ -1140,8 +1140,8 @@
 }
 
 .language-cloud span:hover {
-  border-color: var(--nectar);
-  color: var(--nectar);
+  border-color: var(--nectar-ink);
+  color: var(--nectar-ink);
   transform: translateY(-2px);
 }
 

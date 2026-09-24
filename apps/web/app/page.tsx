@@ -214,7 +214,7 @@ export default function HomePage() {
         </section>
 
         {/* ----------------------------- passport ---------------------------- */}
-        <section className="scan in-amber">
+        <section className="scan in-gold">
           <div className="shell scan-inner">
             <div className="scan-copy" data-reveal="rise">
               <p className="marker">Try it now</p>

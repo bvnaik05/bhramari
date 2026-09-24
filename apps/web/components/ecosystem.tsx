@@ -58,7 +58,7 @@ export function Ecosystem() {
   const role = roles[active];
 
   return (
-    <section id="ecosystem" className="ecosystem section in-amber">
+    <section id="ecosystem" className="ecosystem section in-gold">
       <div className="shell">
         <div className="ecosystem-head">
           <div>

@@ -1,8 +1,9 @@
 /* ---------------------------------------------------------------------------
-   Bhramari — one dark hive, lit by its own honey.
-   Every surface is a warm brown from the same comb. Sections step between
-   three tones (deep hive, comb, amber) rather than flipping to a light page,
-   so the eye never has to readjust.
+   Bhramari — hive comb and honeycomb gold.
+   The page alternates between two families rather than flipping to plain
+   white: a deep wax brown and a warm, sunlit gold. Neither is ever pure
+   black or pure white, and the same ink colour scale (dark on gold, cream
+   on wax) carries across both so the eye never has to relearn the page.
 --------------------------------------------------------------------------- */
 
 :root {
@@ -19,6 +20,27 @@
   --nectar-pale: #ffd884;
   --cream: #f6e9cc;
   --amber: #3d2b12;
+
+  /* Honeycomb gold — the lifted, sunlit family used by .in-gold sections.
+     Fills stay bright across the whole set; only the ink and rule tokens
+     below change to keep text readable against them. */
+  --gold-pale: #fff7d4;
+  --gold-raised: #ffefb3;
+  --gold-sunk: #ffe393;
+  --gold-soft: #ffd95a;
+  --gold: #ffc94a;
+  --gold-deep: #fcb454;
+  --gold-amber: #ffaf45;
+  /* Deep gold-brown ink: reads clearly on every gold surface above. */
+  --gold-ink: #7a5000;
+  --gold-ink-pale: #6b4700;
+
+  /* Text/icon colour that swaps with the section: bright honey on wax,
+     deep gold-brown on the gold family. Fills (buttons, glows, gradients)
+     keep using --nectar/--honey-deep directly, since a filled shape reads
+     fine against either background — only bare text and icons need this. */
+  --nectar-ink: var(--nectar);
+  --nectar-ink-pale: var(--nectar-pale);
 
   /* Bloom varietals — Indian honey is named by its flower, so these encode
      origin rather than decorate. */
@@ -110,17 +132,34 @@
   background: var(--surface);
 }
 
-/* The lifted tone: comb held up to the light, where the wax turns ochre. */
-.in-amber {
-  --surface: var(--amber);
-  --surface-raised: #4a3517;
-  --surface-sunk: #30210d;
-  --rule: #5a4220;
-  --rule-soft: #4a3517;
+/* The lifted tone: comb held up into full daylight, where the wax turns to
+   honeycomb gold. This is the page's other half — soft, warm and legible,
+   never white — so the site reads as an alternation between two families
+   of the same colour rather than a dark theme with light holes cut in it. */
+.in-gold {
+  --surface: var(--gold-pale);
+  --surface-raised: var(--gold-raised);
+  --surface-sunk: var(--gold-sunk);
+  --ink: #2a1a07;
+  --ink-soft: #5a4220;
+  --ink-faint: #7a5c28;
+  --rule: rgba(122, 80, 0, 0.22);
+  --rule-soft: rgba(122, 80, 0, 0.14);
+  --focus: var(--gold-ink);
+  --nectar-ink: var(--gold-ink);
+  --nectar-ink-pale: var(--gold-ink-pale);
+  /* The status marks stay legible against gold by going darker and more
+     saturated, instead of the pale-on-pale the wax-tone values would give. */
+  --ok: #2a6d37;
+  --ok-bg: rgba(42, 109, 55, 0.14);
+  --warn: #8f5000;
+  --warn-bg: rgba(143, 80, 0, 0.14);
+  --stop: #a8362a;
+  --stop-bg: rgba(168, 54, 42, 0.14);
   color: var(--ink);
   background:
-    radial-gradient(ellipse 70% 60% at 85% 25%, rgba(255, 182, 39, 0.12), transparent 70%),
-    radial-gradient(ellipse 60% 50% at 0% 100%, rgba(192, 106, 2, 0.12), transparent 70%),
+    radial-gradient(ellipse 70% 60% at 85% 20%, rgba(255, 201, 74, 0.55), transparent 70%),
+    radial-gradient(ellipse 60% 55% at 5% 100%, rgba(255, 175, 69, 0.4), transparent 70%),
     var(--surface);
 }
 
@@ -338,7 +377,7 @@ p {
   z-index: 200;
   padding: 0.85rem 1.2rem;
   background: var(--propolis);
-  color: var(--nectar);
+  color: var(--nectar-ink);
   border-radius: 0 0 10px 10px;
   font-size: var(--t-sm);
   font-weight: 600;
@@ -415,7 +454,7 @@ p {
 .btn-primary {
   background: #4a3517;
   border: 1px solid rgba(255, 182, 39, 0.45);
-  color: var(--nectar-pale);
+  color: var(--nectar-ink-pale);
   box-shadow: var(--lift-1), var(--rim);
 }
 
@@ -509,7 +548,7 @@ p {
 }
 
 .link-honey {
-  color: var(--nectar);
+  color: var(--nectar-ink);
 }
 
 .icon-btn {

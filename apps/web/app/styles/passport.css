@@ -98,7 +98,7 @@
 .pp-from {
   display: block;
   font-size: 0.62em;
-  color: var(--nectar);
+  color: var(--nectar-ink);
   letter-spacing: -0.02em;
   margin-top: 0.15em;
 }
@@ -155,7 +155,7 @@
 }
 
 .pp-facts svg {
-  color: var(--nectar);
+  color: var(--nectar-ink);
 }
 
 .pp-listen {
@@ -421,7 +421,7 @@
 
 /* Only the notice icon: the comb edge in this section is an svg too. */
 .pp-truth-inner > svg {
-  color: var(--nectar);
+  color: var(--nectar-ink);
   margin-top: 0.15rem;
 }
 

@@ -177,7 +177,7 @@ export function PassportClient({ serial, certificate }: { serial: string; certif
         <CombEdge className="edge-to-light" />
       </section>
 
-      <div className="pp-records in-amber">
+      <div className="pp-records in-gold">
       {scanMessage && (
         <div className="shell">
           <p className="pp-scan-note" role="status">

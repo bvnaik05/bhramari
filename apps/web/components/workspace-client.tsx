@@ -142,7 +142,7 @@ function Login({ auth, initialError, onLogin }: { auth?: AuthConfig; initialErro
         {oidc && error && <div className="notice notice-error" role="alert">{error}</div>}
       </section>
 
-      {!oidc && <aside className="login-demo in-amber" aria-labelledby="demo-title">
+      {!oidc && <aside className="login-demo in-gold" aria-labelledby="demo-title">
         <span className="marker marker-plain"><ShieldCheck size={15} /> Simulated demo, clearly labelled</span>
         <h2 id="demo-title">Demo accounts</h2>
         <p>Pick a role to sign in straight away. Every account uses the password <code className="login-code">{DEMO_PASSWORD}</code>.</p>
