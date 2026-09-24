@@ -43,7 +43,7 @@
 
 .login-card h1 {
   font-size: var(--t-3xl);
-  color: var(--field-lit);
+  color: var(--cream);
   margin: 0.85rem 0 1.1rem;
   max-width: 18ch;
 }
@@ -94,7 +94,7 @@
 .role-card strong {
   font-size: var(--t-sm);
   font-weight: 600;
-  color: var(--field-lit);
+  color: var(--cream);
 }
 
 .role-card small {
@@ -344,7 +344,7 @@
 .welcome-banner h2,
 .vault-banner h2 {
   font-size: var(--t-2xl);
-  color: var(--field-lit);
+  color: var(--cream);
 }
 
 .welcome-banner p,
@@ -527,7 +527,7 @@
 }
 
 .next-step-panel h3 {
-  color: var(--field-lit);
+  color: var(--cream);
 }
 
 .next-step-panel p {
@@ -804,7 +804,7 @@ tbody tr:hover {
 
 .madhu-workspace-head h2 {
   font-size: var(--t-2xl);
-  color: var(--field-lit);
+  color: var(--cream);
 }
 
 .madhu-workspace-head p {

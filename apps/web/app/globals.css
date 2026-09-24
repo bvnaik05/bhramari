@@ -1,21 +1,24 @@
 /* ---------------------------------------------------------------------------
-   Bhramari — "Into the comb, out to the light"
-   The page descends into the hive (propolis dark, lit by honey) and emerges
-   into field light. Colour, depth and motion all follow that single arc.
+   Bhramari — one dark hive, lit by its own honey.
+   Every surface is a warm brown from the same comb. Sections step between
+   three tones (deep hive, comb, amber) rather than flipping to a light page,
+   so the eye never has to readjust.
 --------------------------------------------------------------------------- */
 
 :root {
-  /* Core — the hive interior through to open field */
-  --propolis: #1b1205;
-  --propolis-deep: #120b03;
+  /* Core */
+  --propolis: #1d1409;
+  --propolis-deep: #130c05;
   --comb-wall: #4a3110;
   --comb-rim: #6b4715;
   --raw-wax: #e9d4a0;
   --honey-deep: #c06a02;
+  /* honey-deep is a fill colour; text and icons use this brighter cut */
+  --honey-text: #e8a23a;
   --nectar: #ffb627;
   --nectar-pale: #ffd884;
-  --field-light: #f7efdc;
-  --field-lit: #fffaf0;
+  --cream: #f6e9cc;
+  --amber: #3d2b12;
 
   /* Bloom varietals — Indian honey is named by its flower, so these encode
      origin rather than decorate. */
@@ -25,26 +28,26 @@
   --bloom-jamun: #4a2c6b;
   --bloom-forest: #3f5b2e;
 
-  /* Semantic surfaces — light context (default) */
-  --surface: var(--field-light);
-  --surface-raised: var(--field-lit);
-  --surface-sunk: #efe4c9;
-  --ink: #241806;
-  --ink-soft: #6a5537;
-  /* Markers and hints run at 12–14px, so this has to clear 4.5:1 on
-     --field-light rather than merely look quiet. */
-  --ink-faint: #75613f;
-  --rule: #ddcba4;
-  --rule-soft: #e9dcbe;
-  --focus: #8a4b00;
+  /* Semantic surfaces — the comb tone (default) */
+  --surface: var(--propolis);
+  --surface-raised: #2a1d0c;
+  --surface-sunk: #160f06;
+  --ink: var(--cream);
+  --ink-soft: #d4c29b;
+  /* Markers and hints run at 12–14px, so this clears 4.5:1 even on the
+     raised amber surface rather than merely looking quiet. */
+  --ink-faint: #bfab82;
+  --rule: #3b2b14;
+  --rule-soft: #2c200e;
+  --focus: var(--nectar);
 
-  /* Status */
-  --ok: #3f6b45;
-  --ok-bg: #e6f0e2;
-  --warn: #8a6216;
-  --warn-bg: #fdf0cd;
-  --stop: #93392a;
-  --stop-bg: #fbe4dc;
+  /* Status — bright marks on low tints, so state reads without glare */
+  --ok: #8ed69a;
+  --ok-bg: rgba(142, 214, 154, 0.12);
+  --warn: #f2c86e;
+  --warn-bg: rgba(242, 200, 110, 0.12);
+  --stop: #f4a095;
+  --stop-bg: rgba(244, 160, 149, 0.12);
 
   /* Type */
   --font-display: var(--font-display-loaded), Georgia, "Times New Roman", serif;
@@ -85,25 +88,40 @@
   --ease-comb: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-honey: cubic-bezier(0.65, 0, 0.35, 1);
 
-  --lift-1: 0 1px 2px rgba(58, 36, 6, 0.06), 0 4px 14px rgba(58, 36, 6, 0.05);
-  --lift-2: 0 2px 6px rgba(58, 36, 6, 0.07), 0 14px 38px rgba(58, 36, 6, 0.09);
-  --lift-3: 0 6px 18px rgba(30, 18, 3, 0.12), 0 34px 70px rgba(30, 18, 3, 0.16);
-  --glow-honey: 0 0 34px rgba(255, 182, 39, 0.34);
+  /* On a dark page a shadow reads as depth only when it is darker than the
+     surface, so these sit near black rather than tinted grey. */
+  --lift-1: 0 1px 2px rgba(6, 3, 0, 0.3), 0 4px 14px rgba(6, 3, 0, 0.22);
+  --lift-2: 0 2px 6px rgba(6, 3, 0, 0.32), 0 14px 38px rgba(6, 3, 0, 0.34);
+  --lift-3: 0 6px 18px rgba(6, 3, 0, 0.36), 0 34px 70px rgba(6, 3, 0, 0.45);
+  --glow-honey: 0 0 34px rgba(255, 182, 39, 0.3);
+  /* A hairline of light along the top edge of a raised surface. */
+  --rim: inset 0 1px 0 rgba(255, 216, 132, 0.07);
 }
 
-/* Dark context — inside the comb. Applied per-section, not globally. */
+/* Section tones. Text colour is shared, so moving between them changes the
+   depth of the comb, never the reading mode. */
 .in-hive {
-  --surface: var(--propolis);
-  --surface-raised: #241806;
-  --surface-sunk: var(--propolis-deep);
-  --ink: #f8ecd2;
-  --ink-soft: #c2ab82;
-  --ink-faint: #97825e;
-  --rule: #3d2a0f;
-  --rule-soft: #2e1f0b;
-  --focus: var(--nectar);
+  --surface: var(--propolis-deep);
+  --surface-raised: #1f160a;
+  --surface-sunk: #0d0803;
+  --rule: #33240f;
+  --rule-soft: #251a0a;
   color: var(--ink);
   background: var(--surface);
+}
+
+/* The lifted tone: comb held up to the light, where the wax turns ochre. */
+.in-amber {
+  --surface: var(--amber);
+  --surface-raised: #4a3517;
+  --surface-sunk: #30210d;
+  --rule: #5a4220;
+  --rule-soft: #4a3517;
+  color: var(--ink);
+  background:
+    radial-gradient(ellipse 70% 60% at 85% 0%, rgba(255, 182, 39, 0.13), transparent 70%),
+    radial-gradient(ellipse 60% 50% at 0% 100%, rgba(192, 106, 2, 0.12), transparent 70%),
+    var(--surface);
 }
 
 /* --------------------------------- reset -------------------------------- */
@@ -135,8 +153,9 @@ html.lenis body {
 
 body {
   margin: 0;
-  background: var(--field-light);
+  background: var(--propolis);
   color: var(--ink);
+  color-scheme: dark;
   font-family: var(--font-text);
   font-size: var(--t-base);
   line-height: 1.6;
@@ -391,9 +410,10 @@ p {
   transform: scale(0.98);
 }
 
+/* The quieter solid: wax-coloured, turning to honey on hover. */
 .btn-primary {
-  background: var(--propolis);
-  color: var(--field-lit);
+  background: var(--cream);
+  color: var(--propolis-deep);
   box-shadow: var(--lift-1);
 }
 
@@ -413,13 +433,15 @@ p {
   box-shadow: var(--lift-1);
 }
 
+/* On a dark page a dark fill would make the button vanish on hover, so the
+   honey deepens instead. */
 .btn-honey::before {
-  background: var(--propolis);
+  background: linear-gradient(180deg, var(--nectar-pale), var(--nectar));
 }
 
 .btn-honey:hover,
 .btn-honey:focus-visible {
-  color: var(--nectar);
+  box-shadow: var(--lift-2), var(--glow-honey);
 }
 
 .btn-ghost {
@@ -485,10 +507,6 @@ p {
 }
 
 .link-honey {
-  color: var(--honey-deep);
-}
-
-.in-hive .link-honey {
   color: var(--nectar);
 }
 

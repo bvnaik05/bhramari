@@ -14,7 +14,8 @@
   letter-spacing: -0.045em;
   line-height: 1;
   color: var(--ink);
-  --stripe: var(--field-lit);
+  /* The bee's stripes are cut out of its body, so they take the page colour. */
+  --stripe: var(--propolis-deep);
 }
 
 .brand-mark {
@@ -23,7 +24,7 @@
   width: 2.1em;
   height: 2.1em;
   flex: none;
-  color: var(--honey-deep);
+  color: var(--nectar);
   transition: transform 0.5s var(--ease-comb);
 }
 
@@ -38,15 +39,6 @@
 
 .brand-word {
   padding-bottom: 0.08em;
-}
-
-.brand-light {
-  color: var(--field-lit);
-  --stripe: var(--propolis);
-}
-
-.brand-light .brand-mark {
-  color: var(--nectar);
 }
 
 .brand-compact {
@@ -155,7 +147,7 @@
 }
 
 .site-nav a:hover {
-  color: var(--field-lit);
+  color: var(--cream);
 }
 
 .site-nav a:hover::after {
@@ -258,7 +250,26 @@
       rgba(14, 9, 2, 0.12) 68%,
       rgba(14, 9, 2, 0) 100%
     ),
-    linear-gradient(180deg, rgba(14, 9, 2, 0.66) 0%, transparent 26%, rgba(14, 9, 2, 0.6) 100%);
+    linear-gradient(180deg, rgba(14, 9, 2, 0.66) 0%, transparent 26%, rgba(29, 20, 9, 0.5) 100%);
+}
+
+/* The comb sinks into the next section's tone instead of ending on a seam.
+   The veil above must never go darker than that tone near the bottom, or the
+   fade has to brighten again at the very end and reads as a line. */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: clamp(7rem, 20vh, 13rem);
+  z-index: -1;
+  background: linear-gradient(
+    180deg,
+    rgba(29, 20, 9, 0) 0%,
+    rgba(29, 20, 9, 0.45) 35%,
+    rgba(29, 20, 9, 0.85) 70%,
+    var(--propolis) 100%
+  );
+  pointer-events: none;
 }
 
 .hero-inner {
@@ -301,8 +312,10 @@
   line-height: 0.96;
   letter-spacing: -0.042em;
   max-width: 15ch;
-  color: var(--field-lit);
+  color: var(--cream);
   text-wrap: initial;
+  /* A low warm halo lifts the letters off the lit comb without an outline. */
+  text-shadow: 0 2px 30px rgba(10, 6, 1, 0.55);
 }
 
 .hero-line {
@@ -340,32 +353,55 @@
   margin-top: clamp(1.75rem, 3vw, 2.6rem);
 }
 
+/* Three facts on one strip of smoked glass, divided like adjoining cells. */
 .hero-facts {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: clamp(1rem, 2.4vw, 2.4rem);
-  margin-top: clamp(2.75rem, 5vw, 4.5rem);
-  max-width: 66rem;
-  padding-top: clamp(1.5rem, 2.5vw, 2.25rem);
-  border-top: 1px solid rgba(255, 216, 132, 0.2);
+  margin-top: clamp(2.75rem, 5vw, 4.25rem);
+  max-width: 68rem;
+  border: 1px solid rgba(255, 216, 132, 0.14);
+  border-radius: var(--r-cell);
+  background: rgba(19, 12, 5, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: var(--rim);
 }
 
 .hero-facts li {
   display: grid;
-  gap: 0.4rem;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 0.95rem;
+  row-gap: 0.25rem;
+  align-content: start;
+  padding: clamp(1.1rem, 2vw, 1.5rem) clamp(1.1rem, 2vw, 1.6rem);
+}
+
+.hero-facts li + li {
+  border-left: 1px solid rgba(255, 216, 132, 0.12);
+}
+
+.hero-fact-icon {
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  aspect-ratio: 1 / 1.1547;
   color: var(--nectar);
+  background: rgba(255, 182, 39, 0.12);
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
 }
 
 .hero-facts strong {
   font-size: var(--t-sm);
   font-weight: 600;
-  color: var(--field-lit);
+  color: var(--cream);
+  padding-top: 0.1rem;
 }
 
-.hero-facts span {
+.hero-facts li > span:last-child {
   font-size: var(--t-sm);
   line-height: 1.55;
-  color: rgba(248, 236, 210, 0.62);
+  color: rgba(246, 233, 204, 0.7);
   max-width: 34ch;
 }
 
@@ -373,7 +409,7 @@
 
 .truth {
   position: relative;
-  padding-block: clamp(5rem, 3rem + 9vw, 10rem) clamp(5rem, 3.5rem + 6vw, 8rem);
+  padding-block: clamp(2.5rem, 1rem + 4vw, 5rem) clamp(5rem, 3.5rem + 6vw, 8rem);
 }
 
 .truth-head {
@@ -383,7 +419,7 @@
 
 .truth-head h2 {
   margin: 0.9rem 0 1.25rem;
-  color: var(--field-lit);
+  color: var(--cream);
 }
 
 .truth-columns {
@@ -417,7 +453,7 @@
 }
 
 .truth-col h3 {
-  color: var(--field-lit);
+  color: var(--cream);
   margin-bottom: 1.35rem;
 }
 
@@ -721,7 +757,7 @@
 
 .madhu-copy h2 {
   margin: 0.9rem 0 1.25rem;
-  color: var(--field-lit);
+  color: var(--cream);
 }
 
 .madhu-actions {
@@ -1103,7 +1139,7 @@
 }
 
 .tweak-panel > .icon-btn {
-  background: var(--field-lit);
+  background: var(--surface-raised);
   border-color: var(--rule);
   box-shadow: var(--lift-2);
 }
@@ -1114,7 +1150,7 @@
   padding: 1.1rem;
   min-width: 14rem;
   border-radius: var(--r-cell);
-  background: var(--field-lit);
+  background: var(--surface-raised);
   border: 1px solid var(--rule);
   box-shadow: var(--lift-3);
   font-size: var(--t-sm);
@@ -1132,17 +1168,12 @@
   padding: 0.3rem 0.5rem;
   border: 1px solid var(--rule);
   border-radius: 6px;
-  background: var(--field-light);
+  background: var(--surface-sunk);
 }
 
 /* ------------------------------- responsive ----------------------------- */
 
 @media (max-width: 1080px) {
-  .hero-facts {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    row-gap: 1.75rem;
-  }
-
   .thread-steps {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     row-gap: 2.75rem;
@@ -1177,6 +1208,17 @@
 
   .site-footer-inner {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 980px) and (min-width: 621px) {
+  .hero-facts li {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .hero-fact-icon {
+    grid-row: auto;
+    margin-bottom: 0.55rem;
   }
 }
 
@@ -1231,6 +1273,16 @@
     background: rgba(16, 10, 3, 0.97);
   }
 
+  /* Dims the page under the open panel so the menu is the only thing lit. */
+  .site-header.is-open::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: rgba(8, 5, 1, 0.66);
+    pointer-events: none;
+  }
+
   .truth-columns {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -1251,7 +1303,7 @@
         180deg,
         rgba(14, 9, 2, 0.8) 0%,
         rgba(14, 9, 2, 0.58) 42%,
-        rgba(14, 9, 2, 0.76) 100%
+        rgba(29, 20, 9, 0.7) 100%
       ),
       linear-gradient(100deg, rgba(14, 9, 2, 0.6) 0%, rgba(14, 9, 2, 0.12) 100%);
   }
@@ -1272,14 +1324,14 @@
 
   .hero-facts {
     grid-template-columns: minmax(0, 1fr);
-    gap: 1.4rem;
   }
 
-  .hero-facts li:last-child {
-    grid-column: auto;
+  .hero-facts li + li {
+    border-left: 0;
+    border-top: 1px solid rgba(255, 216, 132, 0.12);
   }
 
-  .hero-facts span {
+  .hero-facts li > span:last-child {
     max-width: none;
   }
 
@@ -1289,6 +1341,10 @@
 
   .hero-actions .btn {
     width: 100%;
+  }
+
+  .hero-actions .link {
+    margin-inline: auto;
   }
 
   .thread-steps {

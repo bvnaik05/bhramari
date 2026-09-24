@@ -69,12 +69,12 @@ export default function HomePage() {
             </Link>
             {/* The header CTA has no room on a phone, so it lives in the panel. */}
             <Link className="btn btn-honey nav-cta" href="/workspace" onClick={() => setMenu(false)}>
-              Open the workspace
+              Sign in
             </Link>
           </nav>
           <div className="site-header-actions">
             <Link className="btn btn-honey btn-sm header-cta" href="/workspace">
-              Open the workspace
+              Sign in
             </Link>
             <button
               className="menu-toggle"
@@ -97,7 +97,7 @@ export default function HomePage() {
           <div className="hero-inner shell">
             <p className="hero-marker" data-hero-step>
               <span className="pulse-cell" />
-              Smart India Hackathon · SIH26021
+              Smart India Hackathon, problem SIH26021
             </p>
             <h1 className="hero-title" data-hero-words>
               <span className="hero-line" data-hero-line>
@@ -123,7 +123,9 @@ export default function HomePage() {
             <ul className="hero-facts" data-hero-step>
               {heroFacts.map(({ icon: Icon, title, copy }) => (
                 <li key={title}>
-                  <Icon size={19} strokeWidth={1.6} />
+                  <span className="hero-fact-icon">
+                    <Icon size={18} strokeWidth={1.7} />
+                  </span>
                   <strong>{title}</strong>
                   <span>{copy}</span>
                 </li>
@@ -133,7 +135,7 @@ export default function HomePage() {
         </section>
 
         {/* ------------------------------ truth ------------------------------ */}
-        <section id="truth" className="truth in-hive">
+        <section id="truth" className="truth">
           <div className="shell">
             <div className="truth-head">
               <p className="marker">The honest part</p>
