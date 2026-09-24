@@ -53,17 +53,26 @@
 }
 
 /* Teeth always rise upward, so every boundary on the page reads the same way.
-   The light section's teeth rise into the dark one above it; a dark section's
-   own teeth rise into the light section above it. */
+   An amber section's teeth rise into the comb above it; a deep section's own
+   teeth rise into the section above it. The tones are close, so the edge
+   reads as texture rather than a break. */
 .edge-to-light {
-  color: var(--field-light);
+  color: var(--amber);
   position: absolute;
   bottom: 0;
   left: 0;
 }
 
 .edge-to-hive {
-  color: var(--propolis);
+  color: var(--propolis-deep);
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+}
+
+/* Teeth in the section's own tone, rising into whatever sits above it. */
+.edge-rise {
+  color: var(--surface);
   position: absolute;
   bottom: 100%;
   left: 0;
@@ -72,7 +81,7 @@
 /* Same teeth, but in normal flow — for a section that clips its overflow and
    so cannot carry the edge as an absolutely positioned child. */
 .edge-before-footer {
-  color: var(--propolis);
+  color: var(--propolis-deep);
   margin-bottom: -1px;
 }
 
@@ -432,7 +441,7 @@
   padding: clamp(1.5rem, 3vw, 2.5rem);
   border-radius: var(--r-cell);
   border: 1px solid var(--rule);
-  background: linear-gradient(180deg, rgba(74, 49, 16, 0.32), rgba(18, 11, 3, 0.4));
+  background: var(--surface-sunk);
   position: relative;
   overflow: hidden;
 }
@@ -440,8 +449,9 @@
 /* The settled column is lit from within; the decided column is not. That is
    the argument of the section, made in light. */
 .truth-col-settled {
-  border-color: rgba(255, 182, 39, 0.34);
-  box-shadow: inset 0 1px 0 rgba(255, 216, 132, 0.18);
+  border-color: rgba(255, 182, 39, 0.3);
+  background: linear-gradient(180deg, rgba(74, 49, 16, 0.55), rgba(42, 29, 12, 0.5));
+  box-shadow: inset 0 1px 0 rgba(255, 216, 132, 0.16), var(--lift-2);
 }
 
 .truth-col-settled::before {
@@ -644,15 +654,21 @@
   clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
 }
 
+/* Lit cells are always honey; the varietal only tints the shaded base, so the
+   three patterns read as one comb rather than three colour schemes. */
 .lattice-cell.is-lit {
-  background: linear-gradient(165deg, var(--nectar), var(--varietal, var(--honey-deep)));
-  box-shadow: 0 0 26px color-mix(in oklab, var(--varietal, var(--honey-deep)) 50%, transparent);
+  background: linear-gradient(
+    165deg,
+    var(--nectar-pale),
+    var(--nectar) 45%,
+    color-mix(in oklab, var(--honey-deep) 72%, var(--varietal, var(--honey-deep)))
+  );
 }
 
 /* -------------------------------- thread -------------------------------- */
 
 .thread {
-  background: var(--surface-sunk);
+  background: var(--surface);
   position: relative;
 }
 
@@ -1358,13 +1374,33 @@
     margin-bottom: 1rem;
   }
 
-  .comb-lattice {
-    grid-template-columns: repeat(5, 2.6rem);
-    gap: 0.28rem 0.3rem;
+  /* Three long labels will not fit in one row on a phone, and a row that
+     scrolls hides the last one. They wrap as pills instead. */
+  .role-tabs {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    border-bottom: 0;
+    overflow: visible;
   }
 
-  .lattice-cell {
-    width: 2.6rem;
+  .role-tab {
+    padding: 0.6rem 0.95rem;
+    border: 1px solid var(--rule);
+    border-radius: var(--r-pill);
+    min-height: 2.75rem;
+  }
+
+  .role-tab.is-active {
+    border-color: color-mix(in oklab, var(--nectar) 55%, transparent);
+    background: rgba(255, 182, 39, 0.12);
+  }
+
+  .role-tab-rule {
+    display: none;
+  }
+
+  .role-art {
+    min-height: 0;
   }
 
   .scan-field {

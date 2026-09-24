@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { useId } from "react";
 
 /* Bhramari is the humming bee — the name is also the bee-breath. The mark
    makes the hum literal: the bee's stripes carry on past its body as sound,
@@ -58,9 +59,10 @@ export function Brand({ light = false, compact = false }: { light?: boolean; com
 
 /* The boundary between sections is a row of comb teeth rather than a rule.
    A pattern tiles at a fixed size, so the teeth keep their shape at any width
-   instead of stretching. */
+   instead of stretching. Each edge needs its own pattern id: a shared one
+   resolves currentColor against the first edge, painting every edge its colour. */
 export function CombEdge({ flip = false, className = "" }: { flip?: boolean; className?: string }) {
-  const id = flip ? "comb-tooth-up" : "comb-tooth-down";
+  const id = `comb-tooth${useId().replace(/:/g, "")}`;
   return (
     <div className={`comb-edge${flip ? " comb-edge-flip" : ""} ${className}`} aria-hidden="true">
       <svg xmlns="http://www.w3.org/2000/svg">

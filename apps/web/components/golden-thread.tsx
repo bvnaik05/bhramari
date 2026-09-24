@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { Fingerprint, PackageCheck, ScanLine, Sprout } from "lucide-react";
+import { CombEdge } from "./brand";
 
 /* The golden thread: one line of honey drawn through the four moments where a
    record changes hands. The line draws itself as you scroll, so the connection
@@ -75,6 +76,7 @@ export function GoldenThread() {
 
   return (
     <section id="thread" className="thread section" ref={sectionRef}>
+      <CombEdge className="edge-rise" />
       <div className="shell">
         <div className="thread-head">
           <div>

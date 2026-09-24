@@ -58,20 +58,20 @@ export function Ecosystem() {
   const role = roles[active];
 
   return (
-    <section id="ecosystem" className="ecosystem section">
+    <section id="ecosystem" className="ecosystem section in-amber">
       <div className="shell">
         <div className="ecosystem-head">
           <div>
             <p className="marker">Who it is for</p>
             <h2 data-reveal="fill">
-              Four kinds of hands
+              Many hands,
               <br />
-              touch the same honey.
+              one record of the honey.
             </h2>
           </div>
           <p className="lede" data-reveal="rise">
-            A beekeeper in a cluster, a collective that aggregates, a laboratory that tests, a buyer
-            who needs certainty. Each sees the part of the record that belongs to them.
+            The beekeeper who harvests it, the collectives, labs and processors who handle it, and
+            whoever finally opens the jar. Each sees the part of the record that belongs to them.
           </p>
         </div>
 
