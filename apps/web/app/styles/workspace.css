@@ -24,37 +24,78 @@
   pointer-events: none;
 }
 
+/* Two routes in, side by side: your own credentials on the left, the demo
+   accounts on a lifted amber panel on the right. */
 .login-inner {
   position: relative;
-  width: min(100%, 60rem);
+  width: min(100%, 72rem);
   display: grid;
-  gap: 2.5rem;
-  justify-items: start;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(2rem, 5vw, 4.5rem);
+  align-items: center;
 }
 
-.login-card {
-  width: 100%;
-  padding: clamp(1.5rem, 4vw, 3rem);
-  border: 1px solid var(--rule);
-  border-radius: var(--r-cell);
-  background: linear-gradient(170deg, rgba(74, 49, 16, 0.36), rgba(18, 11, 3, 0.5));
-  box-shadow: var(--lift-3);
-}
-
-.login-card h1 {
+.login-main h1 {
   font-size: var(--t-3xl);
   color: var(--cream);
-  margin: 0.85rem 0 1.1rem;
-  max-width: 18ch;
+  margin: clamp(2rem, 5vh, 3.25rem) 0 1rem;
+  max-width: 14ch;
 }
 
-.login-card .lede {
-  margin-bottom: 2rem;
+.login-main .lede {
+  max-width: 40ch;
+}
+
+.login-form {
+  display: grid;
+  gap: 1.1rem;
+  margin-top: 2rem;
+  max-width: 26rem;
+}
+
+.login-form .field input {
+  min-height: 3rem;
+  font-size: var(--t-base);
+}
+
+.login-submit {
+  width: 100%;
+  margin-top: 0.35rem;
+}
+
+.login-demo {
+  padding: clamp(1.5rem, 3.5vw, 2.5rem);
+  border: 1px solid var(--rule);
+  border-radius: calc(var(--r-cell) + 4px);
+  box-shadow: var(--lift-3), var(--rim);
+}
+
+.login-demo h2 {
+  font-size: var(--t-2xl);
+  margin: 0.75rem 0 0.6rem;
+}
+
+.login-demo > p {
+  font-size: var(--t-sm);
+  color: var(--ink-soft);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.login-code {
+  padding: 0.1rem 0.45rem;
+  border-radius: 6px;
+  background: var(--surface-sunk);
+  border: 1px solid var(--rule);
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  color: var(--nectar-pale);
+  white-space: nowrap;
 }
 
 .role-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.75rem;
 }
 
@@ -62,11 +103,14 @@
 .role-card {
   position: relative;
   display: grid;
-  gap: 0.3rem;
-  padding: 1.1rem;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 0.8rem;
+  row-gap: 0.15rem;
+  align-content: start;
+  padding: 1rem 1.05rem;
   border: 1px solid var(--rule);
   border-radius: 10px;
-  background: rgba(255, 250, 240, 0.04);
+  background: var(--surface-sunk);
   text-align: left;
   transition: border-color 0.25s, background 0.25s, transform 0.25s var(--ease-comb);
 }
@@ -74,20 +118,22 @@
 .role-card:hover:not(:disabled),
 .role-card:focus-visible {
   border-color: var(--nectar);
-  background: rgba(255, 182, 39, 0.1);
+  background: color-mix(in oklab, var(--surface-sunk) 80%, var(--nectar));
   transform: translateY(-2px);
 }
 
 .role-cell {
-  width: 1.4rem;
-  height: 1.62rem;
-  margin-bottom: 0.4rem;
-  background: var(--comb-wall);
+  grid-row: span 3;
+  width: 1.5rem;
+  height: 1.73rem;
+  margin-top: 0.1rem;
+  background: var(--comb-rim);
   clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
   transition: background 0.25s;
 }
 
-.role-card:hover .role-cell {
+.role-card:hover .role-cell,
+.role-card:focus-visible .role-cell {
   background: linear-gradient(170deg, var(--nectar), var(--honey-deep));
 }
 
@@ -99,8 +145,16 @@
 
 .role-card small {
   font-size: var(--t-xs);
-  color: var(--ink-faint);
+  color: var(--ink-soft);
   line-height: 1.45;
+}
+
+.role-email {
+  margin-top: 0.3rem;
+  font-family: var(--font-mono);
+  font-size: var(--t-xs);
+  color: var(--ink-faint);
+  overflow-wrap: anywhere;
 }
 
 .role-card .spin {
@@ -117,8 +171,24 @@
   color: var(--ink-faint);
 }
 
-.login-card .notice {
-  margin-top: 1.25rem;
+@media (max-width: 900px) {
+  .login {
+    place-items: start center;
+  }
+
+  .login-inner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .login-form {
+    max-width: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .role-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 /* --------------------------------- shell -------------------------------- */
@@ -711,18 +781,30 @@ tbody tr:hover {
   padding: 0.65rem 0.75rem;
   border: 1px solid var(--rule);
   border-radius: 8px;
-  background: var(--surface);
+  /* Inputs sit slightly below the surface, like a cell waiting to be filled. */
+  background: color-mix(in oklab, var(--surface-sunk) 85%, black);
   color: var(--ink);
   min-width: 0;
   transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: color-mix(in oklab, var(--ink-faint) 70%, transparent);
+}
+
+.field input:hover,
+.field select:hover,
+.field textarea:hover {
+  border-color: color-mix(in oklab, var(--rule) 50%, var(--ink-faint));
 }
 
 .field input:focus,
 .field select:focus,
 .field textarea:focus {
   outline: none;
-  border-color: var(--honey-deep);
-  box-shadow: 0 0 0 3px rgba(192, 106, 2, 0.14);
+  border-color: var(--nectar);
+  box-shadow: 0 0 0 3px rgba(255, 182, 39, 0.16);
 }
 
 .field textarea {

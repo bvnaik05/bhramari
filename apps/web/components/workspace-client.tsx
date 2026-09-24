@@ -83,15 +83,33 @@ function renderView(view: string, user: User, navigate: (view: string) => void) 
   return <Overview user={user} navigate={navigate} />;
 }
 
+const DEMO_PASSWORD = "demo-honey-2026";
+
+const roleDuties: Record<string, string> = {
+  beekeeper: "Hives, harvests and offline records", fpo: "Collect lots and accept handovers",
+  processor: "Split, blend and pack lots", lab: "Attach test evidence and holds",
+  buyer: "Post requirements and send enquiries", admin: "Oversee the whole cluster",
+};
+
 function Login({ auth, initialError, onLogin }: { auth?: AuthConfig; initialError: string; onLogin: (user: User) => void }) {
   const [error, setError] = useState(initialError);
   const [busy, setBusy] = useState("");
-  async function login(role: string) {
-    setBusy(role); setError("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  async function signIn(address: string, secret: string, key: string) {
+    setBusy(key); setError("");
     try {
-      const session = await api.post<Session>("/auth/demo", { email: `${role}@bhramari.local`, password: "demo-honey-2026" });
+      const session = await api.post<Session>("/auth/demo", { email: address.trim(), password: secret });
       sessionStorage.setItem("bhramari.token", session.access_token); sessionStorage.setItem("bhramari.user", JSON.stringify(session.user)); onLogin(session.user);
-    } catch (failure) { setError((failure as Error).message); } finally { setBusy(""); }
+    } catch (failure) {
+      const message = (failure as Error).message;
+      setError(message === "Invalid demo credentials" ? "That email and password don’t match a demo account. Check both against the list of demo accounts." : message);
+    } finally { setBusy(""); }
+  }
+  function pickRole(role: string) {
+    const address = `${role}@bhramari.local`;
+    setEmail(address); setPassword(DEMO_PASSWORD);
+    signIn(address, DEMO_PASSWORD, role);
   }
   async function institutionalLogin() {
     if (!auth) return;
@@ -101,22 +119,42 @@ function Login({ auth, initialError, onLogin }: { auth?: AuthConfig; initialErro
   const oidc = auth?.mode === "oidc";
   return <main id="main" className="login in-hive">
     <div className="login-inner">
-      <Brand light />
-      <section className="login-card">
-        <span className="marker marker-plain"><ShieldCheck size={15} /> {oidc ? "Verified participant access" : "Simulated demo, clearly labelled"}</span>
-        <h1>{oidc ? <>Sign in to the hive economy.</> : <>Choose your place in the hive economy.</>}</h1>
-        <p className="lede">{oidc ? "Continue through your institution’s identity provider. Access is limited to enrolled participants and their assigned organisation." : "Every workspace runs real role and organisation checks. The people and records behind them are fictional competition fixtures."}</p>
+      <section className="login-main">
+        <Brand />
+        <h1>{oidc ? "Sign in to the hive economy." : "Sign in to your workspace."}</h1>
+        <p className="lede">{oidc ? "Continue through your institution’s identity provider. Access is limited to enrolled participants and their assigned organisation." : "Each workspace runs real role and organisation checks. The people and records behind them are fictional competition fixtures."}</p>
         {oidc
-          ? <button className="btn btn-honey" onClick={institutionalLogin} disabled={!!busy}>{busy ? "Redirecting…" : "Continue with institutional sign-in"}</button>
-          : <div className="role-grid">{Object.entries(roleLabels).map(([role, label]) => <button key={role} className="role-card" onClick={() => login(role)} disabled={!!busy || !auth}>
-              <span className="role-cell" aria-hidden="true" />
-              <strong>{label}</strong>
-              <small>{role === "beekeeper" ? "Field records and offline capture" : role === "buyer" ? "Requirements and enquiries" : role === "lab" ? "Evidence and restrictions" : "Operations and accountable handoffs"}</small>
-              {busy === role && <Activity className="spin" size={15} />}
-            </button>)}</div>}
-        {error && <div className="notice notice-error" role="alert">{error}</div>}
-        {auth?.mode === "demo" && <small className="login-note">Production mode disables demo sign-in and requires the configured OIDC provider.</small>}
+          ? <button className="btn btn-honey login-submit" onClick={institutionalLogin} disabled={!!busy}>{busy ? "Redirecting…" : "Continue with institutional sign-in"}</button>
+          : <form className="login-form" onSubmit={event => { event.preventDefault(); signIn(email, password, "form"); }}>
+              <label className="field">
+                <span>Email</span>
+                <input type="email" name="email" autoComplete="username" required value={email} onChange={event => setEmail(event.target.value)} placeholder="name@organisation.org" />
+              </label>
+              <label className="field">
+                <span>Password</span>
+                <input type="password" name="password" autoComplete="current-password" required value={password} onChange={event => setPassword(event.target.value)} />
+              </label>
+              {error && <div className="notice notice-error" role="alert">{error}</div>}
+              <button type="submit" className="btn btn-honey login-submit" disabled={!!busy || !auth}>
+                {busy === "form" ? <><Activity className="spin" size={16} /> Signing in…</> : "Sign in"}
+              </button>
+            </form>}
+        {oidc && error && <div className="notice notice-error" role="alert">{error}</div>}
       </section>
+
+      {!oidc && <aside className="login-demo in-amber" aria-labelledby="demo-title">
+        <span className="marker marker-plain"><ShieldCheck size={15} /> Simulated demo, clearly labelled</span>
+        <h2 id="demo-title">Demo accounts</h2>
+        <p>Pick a role to sign in straight away. Every account uses the password <code className="login-code">{DEMO_PASSWORD}</code>.</p>
+        <div className="role-grid">{Object.entries(roleLabels).map(([role, label]) => <button key={role} type="button" className="role-card" onClick={() => pickRole(role)} disabled={!!busy || !auth}>
+            <span className="role-cell" aria-hidden="true" />
+            <strong>{label}</strong>
+            <small>{roleDuties[role]}</small>
+            <span className="role-email">{role}@bhramari.local</span>
+            {busy === role && <Activity className="spin" size={15} />}
+          </button>)}</div>
+        <small className="login-note">Production mode turns demo sign-in off and requires the configured identity provider.</small>
+      </aside>}
     </div>
   </main>;
 }
