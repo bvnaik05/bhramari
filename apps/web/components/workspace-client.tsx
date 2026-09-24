@@ -58,7 +58,7 @@ export function WorkspaceClient() {
   if (!user) return <Login auth={authConfig} initialError={authError} onLogin={setUser} />;
   return <div className="workspace-shell">
     <aside className={menu ? "workspace-sidebar is-open" : "workspace-sidebar"}>
-      <div className="workspace-brand"><Brand light /><button className="sidebar-close" onClick={() => setMenu(false)} aria-label="Close menu"><X /></button></div>
+      <div className="workspace-brand"><Brand /><button className="sidebar-close" onClick={() => setMenu(false)} aria-label="Close menu"><X /></button></div>
       <nav aria-label="Workspace navigation">{navigation.map(([key, label, Icon]) => <button key={key} className={view === key ? "active" : ""} onClick={() => navigate(key)}><Icon size={18} /><span>{label}</span></button>)}</nav>
       <div className="sidebar-profile"><div className="profile-mark">{user.name.slice(0, 1)}</div><div><strong>{user.name}</strong><span>{roleLabels[user.role] || user.role}</span></div><button onClick={signOut} aria-label="Sign out"><LogOut size={16} /></button></div>
     </aside>

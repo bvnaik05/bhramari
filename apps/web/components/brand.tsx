@@ -42,11 +42,11 @@ export function BeeMark({ className = "" }: { className?: string }) {
   );
 }
 
-export function Brand({ light = false, compact = false }: { light?: boolean; compact?: boolean }) {
+export function Brand({ compact = false }: { compact?: boolean }) {
   return (
     <Link
       href="/"
-      className={`brand${light ? " brand-light" : ""}${compact ? " brand-compact" : ""}`}
+      className={`brand${compact ? " brand-compact" : ""}`}
       aria-label="Bhramari, home"
     >
       <span className="brand-mark">

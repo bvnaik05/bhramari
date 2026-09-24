@@ -53,7 +53,7 @@ export default function HomePage() {
     <>
       <header className={`site-header${lifted ? " is-lifted" : ""}${menu ? " is-open" : ""}`}>
         <div className="site-header-inner shell">
-          <Brand light />
+          <Brand />
           <nav className="site-nav" aria-label="Main">
             <a href="#ecosystem" onClick={() => setMenu(false)}>
               Who it is for
@@ -262,7 +262,7 @@ export default function HomePage() {
       <footer className="site-footer in-hive">
         <div className="shell site-footer-inner">
           <div className="footer-brand">
-            <Brand light />
+            <Brand />
             <p>Built for the people who keep India&apos;s hives, and everyone who opens the jar.</p>
           </div>
           <div className="footer-cols">

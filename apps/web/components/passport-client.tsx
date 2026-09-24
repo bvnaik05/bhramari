@@ -108,7 +108,7 @@ export function PassportClient({ serial, certificate }: { serial: string; certif
     <main id="main" className="pp in-hive">
       <header className="pp-header in-hive">
         <div className="shell pp-header-inner">
-          <Brand light />
+          <Brand />
           <span className="pp-header-note">Honey Passport, no login or wallet needed</span>
         </div>
       </header>
