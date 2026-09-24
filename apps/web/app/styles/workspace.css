@@ -204,7 +204,7 @@
 
 .workspace-shell {
   min-height: 100svh;
-  background: var(--field-light);
+  background: var(--propolis);
 }
 
 .workspace-sidebar {
@@ -215,8 +215,8 @@
   display: flex;
   flex-direction: column;
   padding: 1.25rem 0.85rem 1rem;
-  background: var(--propolis);
-  color: #f8ecd2;
+  background: var(--propolis-deep);
+  color: var(--cream);
   border-right: 1px solid #33220b;
 }
 
@@ -234,7 +234,7 @@
 
 .sidebar-close {
   display: none;
-  color: #c2ab82;
+  color: var(--ink-soft);
   padding: 0.35rem;
 }
 
@@ -253,7 +253,7 @@
   padding: 0.65rem 0.7rem;
   border-radius: 8px;
   font-size: var(--t-sm);
-  color: #b7a37c;
+  color: var(--ink-soft);
   text-align: left;
   position: relative;
   transition: background 0.2s, color 0.2s;
@@ -261,7 +261,7 @@
 
 .workspace-sidebar nav button:hover {
   background: rgba(255, 182, 39, 0.08);
-  color: #f8ecd2;
+  color: var(--cream);
 }
 
 .workspace-sidebar nav button.active {
@@ -321,11 +321,11 @@
 
 .sidebar-profile span {
   font-size: var(--t-xs);
-  color: #97825e;
+  color: var(--ink-faint);
 }
 
 .sidebar-profile button {
-  color: #b7a37c;
+  color: var(--ink-soft);
   padding: 0.4rem;
   border-radius: 6px;
 }
@@ -348,7 +348,7 @@
   align-items: center;
   gap: 1.25rem;
   padding: 1.1rem clamp(1rem, 3vw, 2.75rem);
-  background: color-mix(in oklab, var(--field-lit) 88%, transparent);
+  background: color-mix(in oklab, var(--propolis) 86%, transparent);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--rule);
 }
@@ -405,8 +405,12 @@
   gap: 2rem;
   padding: clamp(1.5rem, 4vw, 3rem);
   border-radius: var(--r-cell);
-  background: linear-gradient(120deg, var(--propolis), #3a2609);
-  color: #f8ecd2;
+  background:
+    radial-gradient(ellipse 60% 80% at 85% 20%, rgba(255, 182, 39, 0.12), transparent 70%),
+    linear-gradient(120deg, #2e200d, var(--amber));
+  border: 1px solid #4d3818;
+  box-shadow: var(--rim);
+  color: var(--cream);
   overflow: hidden;
   position: relative;
 }
@@ -420,7 +424,7 @@
 .welcome-banner p,
 .vault-banner p {
   font-size: var(--t-sm);
-  color: #c2ab82;
+  color: var(--ink-soft);
   line-height: 1.6;
   margin: 0.7rem 0 1.4rem;
   max-width: 48ch;
@@ -445,7 +449,7 @@
 .vault-banner .btn-primary::before,
 .next-step-panel .btn-primary::before,
 .madhu-workspace .btn-primary::before {
-  background: var(--field-lit);
+  background: linear-gradient(180deg, var(--nectar-pale), var(--nectar));
 }
 
 .welcome-banner .btn-primary:hover,
@@ -584,8 +588,10 @@
   gap: 0.9rem;
   padding: clamp(1.25rem, 3vw, 2rem);
   border-radius: var(--r-cell);
-  background: linear-gradient(165deg, #33220b, var(--propolis));
-  color: #f8ecd2;
+  background: linear-gradient(165deg, var(--amber), #2e200d);
+  border: 1px solid #4d3818;
+  box-shadow: var(--rim);
+  color: var(--cream);
 }
 
 .next-step-panel .marker {
@@ -602,7 +608,7 @@
 
 .next-step-panel p {
   font-size: var(--t-sm);
-  color: #c2ab82;
+  color: var(--ink-soft);
   line-height: 1.6;
 }
 
@@ -642,7 +648,7 @@
   width: 2.2rem;
   height: 2.54rem;
   flex: none;
-  color: var(--honey-deep);
+  color: var(--nectar);
   background: var(--surface-sunk);
   clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
 }
@@ -682,7 +688,7 @@ tbody tr {
 }
 
 tbody tr:hover {
-  background: var(--surface-sunk);
+  background: rgba(255, 182, 39, 0.05);
 }
 
 .row-actions {
@@ -750,8 +756,11 @@ tbody tr:hover {
   gap: 1rem;
 }
 
+/* Fields in a row can differ in height (one has a hint), so their contents
+   pack to the top instead of stretching the input down. */
 .field {
   display: grid;
+  align-content: start;
   gap: 0.35rem;
   min-width: 0;
 }
@@ -785,6 +794,7 @@ tbody tr:hover {
   background: color-mix(in oklab, var(--surface-sunk) 85%, black);
   color: var(--ink);
   min-width: 0;
+  min-height: 2.9rem;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
@@ -874,8 +884,10 @@ tbody tr:hover {
 .madhu-workspace {
   padding: clamp(1.25rem, 3vw, 2.25rem);
   border-radius: var(--r-cell);
-  background: linear-gradient(140deg, var(--propolis), #3a2609);
-  color: #f8ecd2;
+  background: linear-gradient(140deg, #2e200d, var(--amber));
+  border: 1px solid #4d3818;
+  box-shadow: var(--rim);
+  color: var(--cream);
 }
 
 .madhu-workspace-head {
@@ -891,7 +903,7 @@ tbody tr:hover {
 
 .madhu-workspace-head p {
   font-size: var(--t-sm);
-  color: #c2ab82;
+  color: var(--ink-soft);
   margin-top: 0.4rem;
   max-width: 56ch;
 }
@@ -931,9 +943,8 @@ tbody tr:hover {
 
 .madhu-controls .field input,
 .madhu-controls .field select {
-  background: rgba(255, 250, 240, 0.06);
-  border-color: #4a3110;
-  color: #f8ecd2;
+  background: rgba(19, 12, 5, 0.55);
+  border-color: #5a4220;
 }
 
 .madhu-input {
@@ -948,14 +959,14 @@ tbody tr:hover {
   min-height: 5.5rem;
   padding: 0.8rem 0.9rem;
   border-radius: 10px;
-  border: 1px solid #4a3110;
-  background: rgba(255, 250, 240, 0.06);
-  color: #f8ecd2;
+  border: 1px solid #5a4220;
+  background: rgba(19, 12, 5, 0.55);
+  color: var(--cream);
   resize: vertical;
 }
 
 .madhu-input textarea::placeholder {
-  color: #97825e;
+  color: var(--ink-faint);
 }
 
 .record-button {
@@ -1048,6 +1059,15 @@ tbody tr:hover {
     grid-template-columns: repeat(3, 1fr);
     padding: 8mm;
     background: #fff;
+    color: #1a1005;
+  }
+
+  .bottle-label {
+    border-color: #999;
+  }
+
+  .bottle-label small {
+    color: #444;
   }
 
   .bottle-label .link {
@@ -1077,7 +1097,8 @@ tbody tr:hover {
 
   .workspace-sidebar.is-open {
     transform: translateX(0);
-    box-shadow: 1.5rem 0 3rem rgba(12, 7, 1, 0.35);
+    /* The spread shadow doubles as a scrim over the page behind the drawer. */
+    box-shadow: 1.5rem 0 3rem rgba(6, 3, 0, 0.5), 0 0 0 100vmax rgba(8, 5, 1, 0.6);
   }
 
   .sidebar-close,
@@ -1141,9 +1162,14 @@ tbody tr:hover {
 }
 
 @media (max-width: 520px) {
-  .stats-grid,
   .role-grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Four numbers stay two by two on a phone; stacked, they pushed the
+     records themselves off the first screen. */
+  .metric {
+    padding: 1rem;
   }
 
   .workspace-sidebar {

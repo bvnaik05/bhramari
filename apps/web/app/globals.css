@@ -410,11 +410,13 @@ p {
   transform: scale(0.98);
 }
 
-/* The quieter solid: wax-coloured, turning to honey on hover. */
+/* The working button: amber wax with a honey edge, filling with honey on
+   hover. Calmer than the honey pill, which is kept for the one lead action. */
 .btn-primary {
-  background: var(--cream);
-  color: var(--propolis-deep);
-  box-shadow: var(--lift-1);
+  background: #4a3517;
+  border: 1px solid rgba(255, 182, 39, 0.45);
+  color: var(--nectar-pale);
+  box-shadow: var(--lift-1), var(--rim);
 }
 
 .btn-primary::before {

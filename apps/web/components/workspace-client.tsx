@@ -62,7 +62,7 @@ export function WorkspaceClient() {
       <nav aria-label="Workspace navigation">{navigation.map(([key, label, Icon]) => <button key={key} className={view === key ? "active" : ""} onClick={() => navigate(key)}><Icon size={18} /><span>{label}</span></button>)}</nav>
       <div className="sidebar-profile"><div className="profile-mark">{user.name.slice(0, 1)}</div><div><strong>{user.name}</strong><span>{roleLabels[user.role] || user.role}</span></div><button onClick={signOut} aria-label="Sign out"><LogOut size={16} /></button></div>
     </aside>
-    <div className="workspace-main"><header className="workspace-header"><button className="workspace-menu icon-btn" onClick={() => setMenu(true)} aria-label="Open menu"><Menu size={18} /></button><div><span className="marker">Field and partner network</span><h1>{navigation.find(item => item[0] === view)?.[1] || "Workspace"}</h1></div><div className="connection-state"><span /> Connected · records save locally when offline</div></header>
+    <div className="workspace-main"><header className="workspace-header"><button className="workspace-menu icon-btn" onClick={() => setMenu(true)} aria-label="Open menu"><Menu size={18} /></button><div><span className="marker">Field and partner network</span><h1>{navigation.find(item => item[0] === view)?.[1] || "Workspace"}</h1></div><div className="connection-state"><span /> Connected. Records save locally when offline.</div></header>
       <main id="main" className="workspace-content">{renderView(view, user, navigate)}</main>
     </div>
   </div>;

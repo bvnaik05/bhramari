@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, type ReactNode } from "react";
-import { ArrowRight, Check, ChevronDown, Hexagon, LoaderCircle, RefreshCw, TriangleAlert } from "lucide-react";
+import { ArrowRight, Check, ChevronDown, Hexagon, LoaderCircle, Lock, RefreshCw, TriangleAlert } from "lucide-react";
 import { api, display, type RecordData } from "@/lib/api";
 
 export type Field = { name: string; label: string; type?: string; value?: string | number; required?: boolean; min?: number; max?: number; step?: number; options?: { value: string; label: string }[]; hint?: string };
@@ -22,7 +22,11 @@ export function Status({ value }: { value: unknown }) {
 }
 
 export function Empty({ children = "No records yet. Your next action starts the story." }: { children?: ReactNode }) { return <div className="empty-state"><Hexagon className="empty-hex" /><p>{children}</p></div>; }
-export function ErrorNotice({ message, retry }: { message: string; retry?: () => void }) { return <div className="notice notice-error" role="alert"><TriangleAlert size={18} /><span>{message}</span>{retry && <button className="link" onClick={retry}>Try again <RefreshCw size={14} /></button>}</div>; }
+export function ErrorNotice({ message, retry }: { message: string; retry?: () => void }) {
+  /* A role restriction is not a failure, and retrying cannot fix it. */
+  if (message === "Your role cannot perform this action") return <div className="notice" role="status"><Lock size={18} /><span>This view belongs to another role, so your account can’t open it. Sign out and choose a role that works here, such as the cluster administrator.</span></div>;
+  return <div className="notice notice-error" role="alert"><TriangleAlert size={18} /><span>{message}</span>{retry && <button className="link" onClick={retry}>Try again <RefreshCw size={14} /></button>}</div>;
+}
 
 export function useRecords<T>(path: string, revision = 0) {
   const [data, setData] = useState<T | null>(null);
