@@ -105,11 +105,11 @@ export function PassportClient({ serial, certificate }: { serial: string; certif
   const verified = data.status === "Verified record";
 
   return (
-    <main id="main" className="pp">
+    <main id="main" className="pp in-hive">
       <header className="pp-header in-hive">
         <div className="shell pp-header-inner">
           <Brand light />
-          <span className="pp-header-note">Honey Passport · no login, no wallet</span>
+          <span className="pp-header-note">Honey Passport, no login or wallet needed</span>
         </div>
       </header>
 
@@ -177,6 +177,7 @@ export function PassportClient({ serial, certificate }: { serial: string; certif
         <CombEdge className="edge-to-light" />
       </section>
 
+      <div className="pp-records in-amber">
       {scanMessage && (
         <div className="shell">
           <p className="pp-scan-note" role="status">
@@ -229,9 +230,11 @@ export function PassportClient({ serial, certificate }: { serial: string; certif
           </article>
         </div>
       </section>
+      </div>
 
       {/* ------------------------------ the journey ---------------------------- */}
       <section className="pp-journey">
+        <CombEdge className="edge-rise" />
         <div className="shell">
           <p className="marker">The journey so far</p>
           <h2>Hive to jar, one accountable step at a time.</h2>
@@ -340,7 +343,7 @@ function HoneyJar({ product, amount, serial }: { product: string; amount: string
         />
 
         {/* label */}
-        <rect x="46" y="206" width="148" height="72" rx="5" fill="#fbf3e0" />
+        <rect x="46" y="206" width="148" height="72" rx="5" fill="#dcb877" />
         <path d="M120 218l10 5.8v11.6L120 241l-10-5.8v-11.6L120 218Z" fill="#c06a02" opacity="0.9" />
         <text
           x="120"
@@ -353,7 +356,7 @@ function HoneyJar({ product, amount, serial }: { product: string; amount: string
         >
           {serial}
         </text>
-        <rect x="86" y="266" width="68" height="3.5" rx="1.75" fill="#cdb689" />
+        <rect x="86" y="266" width="68" height="3.5" rx="1.75" fill="#9a7236" />
 
         {/* neck and lid */}
         <rect x="72" y="56" width="96" height="20" rx="4" fill="#33220b" />

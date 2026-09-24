@@ -60,10 +60,16 @@
 
 /* -------------------------------- hero ---------------------------------- */
 
+/* Clipped sideways only: the glow may rise behind the header, which shares
+   the page tone, instead of ending on a hard line at the hero's top. */
 .pp-hero {
   position: relative;
   padding-block: clamp(2.5rem, 2rem + 5vw, 5rem) clamp(5rem, 4rem + 6vw, 8rem);
-  overflow: hidden;
+  overflow-x: clip;
+}
+
+.pp-header {
+  background: transparent;
 }
 
 /* A pool of light behind the jar, as if it were sitting on a lit shelf. */
@@ -104,14 +110,15 @@
   padding: 0.75rem 1.15rem;
   border-radius: var(--r-pill);
   border: 1px solid var(--rule);
-  background: rgba(74, 49, 16, 0.3);
-  color: var(--warn-bg);
+  border-color: color-mix(in oklab, var(--warn) 40%, transparent);
+  background: var(--warn-bg);
+  color: var(--warn);
 }
 
 .pp-verdict.is-verified {
-  border-color: rgba(120, 180, 130, 0.45);
-  background: rgba(63, 107, 69, 0.22);
-  color: #cdeccf;
+  border-color: color-mix(in oklab, var(--ok) 40%, transparent);
+  background: var(--ok-bg);
+  color: var(--ok);
 }
 
 .pp-verdict div {
@@ -126,7 +133,7 @@
 
 .pp-verdict span {
   font-size: var(--t-xs);
-  opacity: 0.75;
+  color: var(--ink-soft);
 }
 
 .pp-facts {
@@ -318,8 +325,15 @@
 
 /* ------------------------------- journey -------------------------------- */
 
+/* The page is deep hive throughout; the evidence is lifted to amber and the
+   journey sits on the comb tone between them. */
+.pp-records {
+  padding-bottom: 1px;
+}
+
 .pp-journey {
-  background: var(--surface-sunk);
+  position: relative;
+  background: var(--propolis);
   padding-block: clamp(3.5rem, 2.5rem + 6vw, 7rem);
 }
 
@@ -367,7 +381,7 @@
   height: 1.73rem;
   background: linear-gradient(170deg, var(--nectar), var(--honey-deep));
   clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
-  box-shadow: 0 0 0 5px var(--surface-sunk);
+  box-shadow: 0 0 0 5px var(--propolis);
 }
 
 .pp-timeline time {
@@ -405,7 +419,8 @@
   max-width: 60rem;
 }
 
-.pp-truth svg {
+/* Only the notice icon: the comb edge in this section is an svg too. */
+.pp-truth-inner > svg {
   color: var(--nectar);
   margin-top: 0.15rem;
 }
