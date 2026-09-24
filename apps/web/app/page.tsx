@@ -214,7 +214,7 @@ export default function HomePage() {
         </section>
 
         {/* ----------------------------- passport ---------------------------- */}
-        <section className="scan">
+        <section className="scan in-amber">
           <div className="shell scan-inner">
             <div className="scan-copy" data-reveal="rise">
               <p className="marker">Try it now</p>
@@ -242,7 +242,7 @@ export default function HomePage() {
                   autoComplete="off"
                   aria-describedby="serial-hint"
                 />
-                <button type="submit" className="btn btn-primary btn-sm">
+                <button type="submit" className="btn btn-honey btn-sm">
                   Open passport
                 </button>
               </div>
@@ -253,11 +253,12 @@ export default function HomePage() {
             </div>
             <ScanLabel serial={serial} />
           </div>
+          {/* The footer clips its own overflow for the watermark, so its teeth
+              are carried here, at the foot of the section they rise into. */}
+          <CombEdge className="edge-before-footer" />
         </section>
       </main>
 
-      {/* Sits outside the footer, which clips its own overflow for the watermark. */}
-      <CombEdge className="edge-before-footer" />
       <footer className="site-footer in-hive">
         <div className="shell site-footer-inner">
           <div className="footer-brand">
