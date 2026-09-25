@@ -92,7 +92,7 @@ export function PassportClient({ serial, certificate }: { serial: string; certif
 
   if (!data)
     return (
-      <main className="pp-loading in-hive">
+      <main className="pp-loading in-gold">
         <span className="pp-loading-cell" />
         <p>Opening the passport for {serial}…</p>
       </main>
@@ -105,8 +105,10 @@ export function PassportClient({ serial, certificate }: { serial: string; certif
   const verified = data.status === "Verified record";
 
   return (
-    <main id="main" className="pp in-hive">
-      <header className="pp-header in-hive">
+    <main id="main" className="pp in-gold">
+      {/* The jar is the page's one dark moment; header and hero share it. */}
+      <div className="pp-top in-hive">
+      <header className="pp-header">
         <div className="shell pp-header-inner">
           <Brand />
           <span className="pp-header-note">Honey Passport, no login or wallet needed</span>
@@ -114,7 +116,7 @@ export function PassportClient({ serial, certificate }: { serial: string; certif
       </header>
 
       {/* --------------------------- the jar itself --------------------------- */}
-      <section className="pp-hero in-hive">
+      <section className="pp-hero">
         <div className="shell pp-hero-inner">
           <div className="pp-state">
             <p className="marker">Bottle {display(data.serial)}</p>
@@ -176,6 +178,7 @@ export function PassportClient({ serial, certificate }: { serial: string; certif
         </div>
         <CombEdge className="edge-to-light" />
       </section>
+      </div>
 
       <div className="pp-records in-gold">
       {scanMessage && (
@@ -233,8 +236,7 @@ export function PassportClient({ serial, certificate }: { serial: string; certif
       </div>
 
       {/* ------------------------------ the journey ---------------------------- */}
-      <section className="pp-journey">
-        <CombEdge className="edge-rise" />
+      <section className="pp-journey in-gold">
         <div className="shell">
           <p className="marker">The journey so far</p>
           <h2>Hive to jar, one accountable step at a time.</h2>
@@ -252,13 +254,14 @@ export function PassportClient({ serial, certificate }: { serial: string; certif
       </section>
 
       {/* ------------------------------ the limits ----------------------------- */}
-      <section className="pp-truth in-hive">
-        <CombEdge className="edge-to-hive" />
-        <div className="shell pp-truth-inner">
-          <CircleAlert size={26} />
-          <div>
-            <strong>Trust has clear boundaries</strong>
-            <p>{display(data.truth_boundary)}</p>
+      <section className="pp-truth">
+        <div className="shell">
+          <div className="pp-truth-inner in-hive wax-card">
+            <CircleAlert size={26} />
+            <div>
+              <strong>Trust has clear boundaries</strong>
+              <p>{display(data.truth_boundary)}</p>
+            </div>
           </div>
         </div>
       </section>
