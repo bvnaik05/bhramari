@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, type ReactNode } from "react";
-import { ArrowRight, Check, ChevronDown, Hexagon, LoaderCircle, RefreshCw, TriangleAlert } from "lucide-react";
+import { ArrowRight, Check, ChevronDown, Hexagon, LoaderCircle, Lock, RefreshCw, TriangleAlert } from "lucide-react";
 import { api, display, type RecordData } from "@/lib/api";
 
 export type Field = { name: string; label: string; type?: string; value?: string | number; required?: boolean; min?: number; max?: number; step?: number; options?: { value: string; label: string }[]; hint?: string };
@@ -13,7 +13,7 @@ export function ActionForm({ title, description, fields, submit, action = "Save 
     event.preventDefault(); setBusy(true); setError(""); setNotice("");
     const values = Object.fromEntries(new FormData(event.currentTarget).entries()) as Record<string, string>;
     try { const result = await submit(values); onSuccess?.(result); setNotice("Record saved successfully."); } catch (failure) { setError(failure instanceof Error ? failure.message : "Unable to save this record."); } finally { setBusy(false); }
-  }}>{fields.map(field => <label key={field.name} className={field.type === "textarea" ? "field full-width" : "field"}><span>{field.label}{field.required !== false && <span className="required"> *</span>}</span>{field.options ? <select name={field.name} defaultValue={field.value} required={field.required !== false}>{field.options.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select> : field.type === "textarea" ? <textarea name={field.name} defaultValue={field.value} required={field.required !== false} rows={3} maxLength={3000} /> : <input name={field.name} type={field.type || "text"} defaultValue={field.value} required={field.required !== false} min={field.min} max={field.max} step={field.step} maxLength={field.type === "password" ? 5000 : 500} />} {field.hint && <small>{field.hint}</small>}</label>)}<div className="form-footer"><button className="button button-dark" type="submit" disabled={busy}>{busy ? <LoaderCircle size={16} className="spin" /> : <ArrowRight size={16} />}{busy ? "Saving…" : action}</button>{notice && <span role="status" className="success-inline"><Check size={15} />{notice}</span>}</div>{error && <div role="alert" className="notice notice-error"><TriangleAlert size={17} />{error}</div>}</form></section>;
+  }}>{fields.map(field => <label key={field.name} className={field.type === "textarea" ? "field full-width" : "field"}><span>{field.label}{field.required !== false && <span className="required"> *</span>}</span>{field.options ? <select name={field.name} defaultValue={field.value} required={field.required !== false}>{field.options.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select> : field.type === "textarea" ? <textarea name={field.name} defaultValue={field.value} required={field.required !== false} rows={3} maxLength={3000} /> : <input name={field.name} type={field.type || "text"} defaultValue={field.value} required={field.required !== false} min={field.min} max={field.max} step={field.step} maxLength={field.type === "password" ? 5000 : 500} />} {field.hint && <small>{field.hint}</small>}</label>)}<div className="form-footer"><button className="btn btn-primary" type="submit" disabled={busy}>{busy ? <LoaderCircle size={16} className="spin" /> : <ArrowRight size={16} />}{busy ? "Saving…" : action}</button>{notice && <span role="status" className="success-inline"><Check size={15} />{notice}</span>}</div>{error && <div role="alert" className="notice notice-error"><TriangleAlert size={17} />{error}</div>}</form></section>;
 }
 
 export function Status({ value }: { value: unknown }) {
@@ -22,7 +22,11 @@ export function Status({ value }: { value: unknown }) {
 }
 
 export function Empty({ children = "No records yet. Your next action starts the story." }: { children?: ReactNode }) { return <div className="empty-state"><Hexagon className="empty-hex" /><p>{children}</p></div>; }
-export function ErrorNotice({ message, retry }: { message: string; retry?: () => void }) { return <div className="notice notice-error" role="alert"><TriangleAlert size={18} /><span>{message}</span>{retry && <button className="text-link" onClick={retry}>Try again <RefreshCw size={14} /></button>}</div>; }
+export function ErrorNotice({ message, retry }: { message: string; retry?: () => void }) {
+  /* A role restriction is not a failure, and retrying cannot fix it. */
+  if (message === "Your role cannot perform this action") return <div className="notice" role="status"><Lock size={18} /><span>This view belongs to another role, so your account can’t open it. Sign out and choose a role that works here, such as the cluster administrator.</span></div>;
+  return <div className="notice notice-error" role="alert"><TriangleAlert size={18} /><span>{message}</span>{retry && <button className="link" onClick={retry}>Try again <RefreshCw size={14} /></button>}</div>;
+}
 
 export function useRecords<T>(path: string, revision = 0) {
   const [data, setData] = useState<T | null>(null);
@@ -40,7 +44,7 @@ export function useRecords<T>(path: string, revision = 0) {
 
 export function RecordList({ title, path, columns, revision = 0, actions }: { title: string; path: string; columns: { key: string; label: string; render?: (value: unknown, row: RecordData) => ReactNode }[]; revision?: number; actions?: (row: RecordData) => ReactNode }) {
   const { data, error, loading, refresh } = useRecords<RecordData[]>(path, revision);
-  return <section className="data-panel"><div className="panel-toolbar"><h3>{title}</h3><button className="icon-button" onClick={refresh} aria-label={`Refresh ${title}`}><RefreshCw size={15} /></button></div>{error ? <ErrorNotice message={error} retry={refresh} /> : loading ? <div className="loading-row"><LoaderCircle className="spin" size={18} />Loading records…</div> : !data?.length ? <Empty /> : <div className="table-scroll"><table><thead><tr>{columns.map(column => <th key={column.key}>{column.label}</th>)}{actions && <th>Actions</th>}</tr></thead><tbody>{data.map((row, index) => <tr key={display(row.id || index)}>{columns.map(column => <td key={column.key}>{column.render ? column.render(row[column.key], row) : display(row[column.key])}</td>)}{actions && <td><div className="row-actions">{actions(row)}</div></td>}</tr>)}</tbody></table></div>}</section>;
+  return <section className="data-panel"><div className="panel-toolbar"><h3>{title}</h3><button className="icon-btn" onClick={refresh} aria-label={`Refresh ${title}`}><RefreshCw size={15} /></button></div>{error ? <ErrorNotice message={error} retry={refresh} /> : loading ? <div className="loading-row"><LoaderCircle className="spin" size={18} />Loading records…</div> : !data?.length ? <Empty /> : <div className="table-scroll"><table><thead><tr>{columns.map(column => <th key={column.key}>{column.label}</th>)}{actions && <th>Actions</th>}</tr></thead><tbody>{data.map((row, index) => <tr key={display(row.id || index)}>{columns.map(column => <td key={column.key}>{column.render ? column.render(row[column.key], row) : display(row[column.key])}</td>)}{actions && <td><div className="row-actions">{actions(row)}</div></td>}</tr>)}</tbody></table></div>}</section>;
 }
 
 export function TechnicalDetails({ data, label = "View record details" }: { data: unknown; label?: string }) { return <details className="technical-details"><summary>{label}<ChevronDown size={15} /></summary><pre>{JSON.stringify(data, null, 2)}</pre></details>; }

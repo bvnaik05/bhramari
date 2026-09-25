@@ -65,7 +65,13 @@ def verify_certificate(signed, bottle):
 
 
 def b64url_decode(value):
-    return base64.urlsafe_b64decode(value + "=" * (-len(value) % 4))
+    raw = base64.urlsafe_b64decode(value + "=" * (-len(value) % 4))
+    # Base64 lets several strings decode to the same bytes (unused trailing
+    # bits); only the canonical spelling is accepted, so an altered label can
+    # never verify as the original.
+    if b64url(raw) != value:
+        raise ValueError("non-canonical base64")
+    return raw
 
 
 @router.get("/trust/issuer-key")

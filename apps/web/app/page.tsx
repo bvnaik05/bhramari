@@ -1,39 +1,369 @@
 "use client";
-import Link from "next/link";
-import { useState } from "react";
-import { ArrowDown, ArrowRight, ArrowUpRight, AudioLines, Check, Fingerprint, Flower2, Globe2, Hexagon, Leaf, Menu, ScanLine, ShieldCheck, Sprout, WifiOff, X } from "lucide-react";
-import { Brand, BeeMark, HoneyArt } from "@/components/brand";
-import { TweakPanel } from "@/components/tweak-panel";
-import { LanguageCloud } from "@/components/language-cloud";
 
-const experiences = [
-  { name: "For beekeepers", icon: Sprout, title: "Small hives.\nLimitless possibilities.", text: "Your field companion, from the first inspection to the next harvest. Capture work offline, get guidance in your language, and find a market for more of what your hives make.", features: ["Signed offline harvest records", "Provider-backed Indian language guidance", "Honey and beeswax inventory"], view: "hives" },
-  { name: "For partners", icon: Hexagon, title: "A connected journey.\nA shared standard.", text: "Bring beekeepers, FPOs, laboratories and processors onto one accountable journey. Reconcile quantities, record custody and put evidence behind every batch.", features: ["Lot genealogy and mass balance", "Laboratory evidence and custody", "Structured buyer requirements"], view: "lots" },
-  { name: "For everyone", icon: Fingerprint, title: "Every jar has\na story to tell.", text: "Meet the origin behind the label. A simple scan opens a Honey Passport with the journey, available evidence and current safety status — no account needed.", features: ["A unique identity for each jar", "Accessible origin and evidence", "Live hold and recall status"], view: "passport" },
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { AudioLines, Check, FileCheck2, ScanLine, UserRound, Users, WifiOff } from "lucide-react";
+import { Brand, CombEdge } from "@/components/brand";
+import { HeroComb } from "@/components/hero-comb";
+import { Ecosystem } from "@/components/ecosystem";
+import { GoldenThread } from "@/components/golden-thread";
+import { LanguageCloud } from "@/components/language-cloud";
+import { DoubleComb } from "@/components/double-comb";
+import { TweakPanel } from "@/components/tweak-panel";
+
+const heroFacts = [
+  { icon: WifiOff, title: "Works with no signal", copy: "Records are signed and queued on the phone, then sync when a tower appears." },
+  { icon: AudioLines, title: "Answers in your language", copy: "Ask Madhu by voice in Hindi, Bangla, Marathi and more." },
+  { icon: ScanLine, title: "Opens with a scan", copy: "No app, account or wallet. Just the serial on the label." },
+];
+
+/* The two halves of trust, written as plainly as a beekeeper would say them. */
+const proofCards = [
+  {
+    id: "record",
+    icon: FileCheck2,
+    mark: Check,
+    title: "The record shows",
+    who: "Checked by Bhramari",
+    items: [
+      "When a harvest was recorded, and who recorded it",
+      "That the weights still add up after a split or a blend",
+      "That nobody changed a record once it was accepted",
+      "Every lot a recall reaches",
+    ],
+  },
+  {
+    id: "people",
+    icon: Users,
+    mark: UserRound,
+    title: "People decide",
+    who: "Checked by a person",
+    items: [
+      "Whether the honey meets its grade. A lab tests it.",
+      "Whether a colony is healthy. The beekeeper judges.",
+      "Whether a batch can ship. The processor signs off.",
+      "Whether a complaint holds up. A reviewer reads it.",
+    ],
+  },
 ];
 
 export default function HomePage() {
-  const [active, setActive] = useState(0);
   const [menu, setMenu] = useState(false);
+  const [lifted, setLifted] = useState(false);
+  /* Past the hero the page is gold, so the header turns to light glass. */
+  const [light, setLight] = useState(false);
   const [serial, setSerial] = useState("BHR-2026-0001");
-  const experience = experiences[active];
-  return <>
-    <header className="site-header"><Brand /><nav className={menu ? "site-nav is-open" : "site-nav"} aria-label="Main navigation"><a href="#ecosystem" onClick={() => setMenu(false)}>The ecosystem</a><a href="#how-it-works" onClick={() => setMenu(false)}>How it works</a><a href="#madhu" onClick={() => setMenu(false)}>Meet Madhu <span className="nav-new">VOICE</span></a><Link href="/passport/BHR-2026-0001">Trace a jar <ArrowUpRight size={14} /></Link></nav><Link className="button button-dark header-cta" href="/workspace">Enter workspace <ArrowUpRight size={15} /></Link><button className="mobile-menu icon-button" onClick={() => setMenu(!menu)} aria-label="Toggle navigation" aria-expanded={menu}>{menu ? <X /> : <Menu />}</button></header>
-    <main id="main">
-      <section className="hero section-shell">
-        <div className="hero-copy"><div className="eyebrow"><span className="tiny-dot" /> THE CONNECTED HIVE ECONOMY</div><h1>A sweeter future.<br />Rooted in <span className="serif-word">trust.</span></h1><p>For the hands that nurture every hive.<br />For the stories behind every jar.<br />A little nature. A lot more certainty.</p><div className="hero-actions"><Link href="/workspace" className="button button-dark">Explore Bhramari <ArrowUpRight size={17} /></Link><Link href="/passport/BHR-2026-0001" className="text-link"><ScanLine size={18} /> Trace your honey <ArrowRight size={16} /></Link></div><div className="hero-footnote"><span className="mini-bee"><BeeMark /></span><span>Made for India&apos;s beekeepers.<br /><strong>Built for everyone who believes in them.</strong></span></div></div>
-        <div className="hero-visual"><HoneyArt /><div className="floating-proof"><div className="proof-icon"><Fingerprint size={23} /></div><div><span className="micro-label">FROM HIVE TO HOME</span><strong>One journey. Accountable proof.</strong><span className="proof-caption">Discover the Honey Passport <ArrowUpRight size={13} /></span></div></div></div>
-        <a className="hero-scroll" href="#ecosystem"><ArrowDown size={15} /> A better world, one hive at a time</a>
-      </section>
-      <div className="promise-strip"><span><Flower2 /> BEEKEEPER FIRST</span><span><WifiOff /> OFFLINE BY NATURE</span><span><ShieldCheck /> EVIDENCE YOU CAN FOLLOW</span><span><Leaf /> MORE FROM EVERY HIVE</span></div>
-      <section id="ecosystem" className="ecosystem section-shell section-pad">
-        <div className="section-heading"><div><span className="eyebrow">A WHOLE WORLD AROUND THE HIVE</span><h2>Better, <span className="serif-word">together.</span></h2></div><p>From the quiet work in the field to the honey on your table.<br />One connected ecosystem. Every participant matters.</p></div>
-        <div className="experience-tabs" role="tablist" aria-label="Explore Bhramari roles">{experiences.map((item, index) => <button key={item.name} role="tab" aria-selected={active === index} aria-controls="experience-panel" id={`experience-tab-${index}`} onClick={() => setActive(index)} className={active === index ? "active" : ""}><item.icon size={19} />{item.name}<ArrowUpRight size={17} /></button>)}</div>
-        <div className="experience-panel" id="experience-panel" role="tabpanel" aria-labelledby={`experience-tab-${active}`}><div className="experience-text" key={active}><span className="chapter-number">0{active + 1} / THE BHRAMARI ECOSYSTEM</span><h3>{experience.title}</h3><p>{experience.text}</p><ul>{experience.features.map(feature => <li key={feature}><Check size={15} />{feature}</li>)}</ul><Link className="text-link" href={active === 2 ? "/passport/BHR-2026-0001" : `/workspace?view=${experience.view}`}>Discover your workspace <ArrowUpRight size={17} /></Link></div><div className={`experience-art experience-art-${active}`}><div className="orbit-ring ring-one" /><div className="orbit-ring ring-two" /><div className="orbit-ring ring-three" /><div className="hive-sculpture"><div className="hive-roof" /><div className="hive-box"><BeeMark /><span>BHRAMARI</span></div><div className="hive-box hive-box-bottom"><span /><span /></div><div className="hive-base" /><div className="hive-feet" /></div><div className="art-note note-one"><span className="status-dot" /><div><strong>{active === 0 ? "Every observation matters" : active === 1 ? "Keep the journey connected" : "A story you can follow"}</strong><span>{active === 0 ? "Inspect · record · care" : active === 1 ? "Harvest · custody · evidence" : "Origin · journey · proof"}</span></div></div><div className="art-note note-two"><Hexagon size={17} /><span>Nature meets a little technology.</span></div></div></div>
-      </section>
-      <section id="how-it-works" className="journey-section section-shell section-pad"><div className="section-heading"><div><span className="eyebrow">FOLLOW THE GOLDEN THREAD</span><h2>Good honey.<br />An even better <span className="serif-word">story.</span></h2></div><p>Capture locally. Verify collaboratively.<br />Anchor permanently. Explain simply.</p></div><div className="journey-steps">{[{ Icon: Sprout, name: "It begins with a hive", copy: "A registered hive, a caring beekeeper, and a harvest recorded — even without a signal." }, { Icon: ShieldCheck, name: "Every hand accountable", copy: "Custody, quantity and laboratory evidence keep the journey connected and reviewable." }, { Icon: Fingerprint, name: "Proof travels with it", copy: "Cryptographic records make accepted events tamper-evident. Your jar carries its own identity." }, { Icon: ScanLine, name: "The story is yours", copy: "Scan. Explore. Listen. See the origin, the evidence and the latest safety status." }].map(({ Icon, name, copy }, i) => <article className="journey-step" key={name}><div className="step-top"><Icon size={27} strokeWidth={1.3} /><span>0{i + 1}</span></div><h3>{name}</h3><p>{copy}</p></article>)}</div><p className="truth-note">Trust has boundaries. Blockchain protects the integrity of records; laboratory evidence and authorised people assess quality and safety.</p></section>
-      <section id="madhu" className="madhu-section section-shell"><div className="madhu-visual"><div className="voice-orb"><AudioLines size={56} strokeWidth={1.1} /></div><div className="soundwave">{Array.from({ length: 47 }, (_, index) => <span key={index} style={{ height: `${Math.round((8 + Math.sin(index * 1.6) ** 2 * (index > 9 && index < 38 ? 55 : 18)) * 100) / 100}px`, animationDelay: `${index * .07}s` }} />)}</div><LanguageCloud compact /></div><div className="madhu-copy"><span className="eyebrow"><AudioLines size={15} /> MEET MADHU, YOUR HIVE COMPANION</span><h2>A familiar voice.<br />A helping <span className="serif-word">hand.</span></h2><p>Speak naturally. Record a harvest. Understand a hive alert. Find your next buyer. Madhu reads current provider capabilities and helps in your selected Indian language.</p><Link href="/workspace?view=madhu" className="button button-dark">Say hello to Madhu <ArrowUpRight size={17} /></Link><span className="subtle-note">Guidance with sources. Actions with your confirmation.</span></div></section>
-      <section className="passport-cta section-shell section-pad"><div><span className="eyebrow">A LITTLE CURIOSITY GOES A LONG WAY</span><h2>What&apos;s in <span className="serif-word">your jar?</span></h2><p>Discover its origin. Follow its journey. Check its evidence.</p></div><form className="serial-form" action={`/passport/${encodeURIComponent(serial.trim())}`}><label htmlFor="serial">Enter your bottle serial</label><div><ScanLine size={21} /><input id="serial" name="serial" value={serial} onChange={e => setSerial(e.target.value)} required maxLength={80} pattern="[A-Za-z0-9-]+" /><button type="submit" aria-label="Open Honey Passport"><ArrowRight size={21} /></button></div><span>No login. No wallet. Just the story.</span></form></section>
-    </main><footer className="site-footer section-shell"><div><Brand /><p>A connected future, rooted in nature.</p></div><div className="footer-links"><Link href="/workspace">The workspace <ArrowUpRight size={14} /></Link><Link href="/passport/BHR-2026-0001">Honey Passport <ArrowUpRight size={14} /></Link><a href="#how-it-works">Our approach <ArrowUpRight size={14} /></a></div><div className="footer-bottom"><span>© {new Date().getFullYear()} Bhramari</span><span><Globe2 size={14} /> Grown with purpose in India</span><span>SIH26021 · Working toward a better hive economy</span></div></footer><TweakPanel />
-  </>;
+
+  useEffect(() => {
+    const onScroll = () => {
+      setLifted(window.scrollY > 40);
+      const hero = document.querySelector(".hero");
+      setLight(!!hero && hero.getBoundingClientRect().bottom < 72);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = menu ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [menu]);
+
+  return (
+    <>
+      <header className={`site-header${lifted ? " is-lifted" : ""}${light ? " is-light" : ""}${menu ? " is-open" : ""}`}>
+        <div className="site-header-inner shell">
+          <Brand />
+          <nav className="site-nav" aria-label="Main">
+            <a href="#ecosystem" onClick={() => setMenu(false)}>
+              Who it is for
+            </a>
+            <a href="#thread" onClick={() => setMenu(false)}>
+              How it works
+            </a>
+            <a href="#madhu" onClick={() => setMenu(false)}>
+              Madhu
+            </a>
+            <Link href="/passport/BHR-2026-0001" onClick={() => setMenu(false)}>
+              Trace a jar
+            </Link>
+            {/* The header CTA has no room on a phone, so it lives in the panel. */}
+            <Link className="btn btn-honey nav-cta" href="/workspace" onClick={() => setMenu(false)}>
+              Sign in
+            </Link>
+          </nav>
+          <div className="site-header-actions">
+            <Link className="btn btn-honey btn-sm header-cta" href="/workspace">
+              Sign in
+            </Link>
+            <button
+              className="menu-toggle"
+              onClick={() => setMenu((open) => !open)}
+              aria-label={menu ? "Close menu" : "Open menu"}
+              aria-expanded={menu}
+            >
+              <span />
+              <span />
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main id="main">
+        {/* ------------------------------- hero ------------------------------ */}
+        <section className="hero in-hive">
+          <HeroComb />
+          <div className="hero-veil" />
+          <div className="hero-inner shell">
+            <h1 className="hero-title" data-hero-words>
+              <span className="hero-line" data-hero-line>
+                Every jar remembers
+              </span>
+              <span className="hero-line" data-hero-line>
+                the hive it came from.
+              </span>
+            </h1>
+            <p className="hero-lede" data-hero-step>
+              Bhramari records a beekeeper&apos;s work where there is no signal, keeps every handover
+              accountable, and opens the whole journey to anyone who scans the label.
+            </p>
+            <div className="hero-actions" data-hero-step>
+              <Link href="/workspace" className="btn btn-honey">
+                Open the workspace
+              </Link>
+              <Link href="/passport/BHR-2026-0001" className="link link-honey">
+                <ScanLine size={17} />
+                Scan a jar
+              </Link>
+            </div>
+            <ul className="hero-facts" data-hero-step>
+              {heroFacts.map(({ icon: Icon, title, copy }) => (
+                <li key={title}>
+                  <span className="hero-fact-icon">
+                    <Icon size={18} strokeWidth={1.7} />
+                  </span>
+                  <strong>{title}</strong>
+                  <span>{copy}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <CombEdge className="edge-to-light" />
+        </section>
+
+        {/* ------------------------------ truth ------------------------------ */}
+        <section id="truth" className="truth in-gold gold-dawn">
+          <div className="shell">
+            <div className="truth-head">
+              <p className="marker">What a record can prove</p>
+              <h2 data-reveal="fill">A ledger can&apos;t taste honey.</h2>
+              <p className="lede" data-reveal="rise">
+                Bhramari can show that nobody changed a harvest record after it was saved. It can&apos;t
+                tell you whether the honey is good. That still takes a lab, a beekeeper and a buyer, so
+                every screen tells you which is which.
+              </p>
+            </div>
+            <div className="truth-columns" data-reveal="settle">
+              {proofCards.map(({ id, icon: Icon, mark: Mark, title, who, items }) => (
+                <article key={id} className="truth-col in-hive">
+                  <div className="truth-col-head">
+                    <span className="truth-col-icon">
+                      <Icon size={20} strokeWidth={1.6} />
+                    </span>
+                    <div>
+                      <h3>{title}</h3>
+                      <span>{who}</span>
+                    </div>
+                  </div>
+                  <ul>
+                    {items.map((item) => (
+                      <li key={item}>
+                        <Mark size={16} strokeWidth={2.2} />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+              ))}
+            </div>
+          </div>
+          <CombEdge className="edge-to-light" />
+        </section>
+
+        {/* ---------------------------- ecosystem ---------------------------- */}
+        <Ecosystem />
+
+        {/* ------------------------- the golden thread ----------------------- */}
+        <GoldenThread />
+
+        {/* ------------------------------ madhu ------------------------------ */}
+        <section id="madhu" className="madhu in-hive">
+          <CombEdge className="edge-to-hive" />
+          <DoubleComb />
+          <div className="shell madhu-inner">
+            <div className="madhu-copy">
+              <p className="marker">The assistant</p>
+              <h2 data-reveal="fill">
+                Madhu listens in the
+                <br />
+                language you already speak.
+              </h2>
+              <p className="lede" data-reveal="rise">
+                Ask about a hive, record a harvest by voice, or hear a passport read aloud. When Madhu
+                can&apos;t do something yet, it tells you so instead of guessing.
+              </p>
+              <div className="madhu-actions" data-reveal="rise">
+                <Link href="/workspace?view=madhu" className="btn btn-honey">
+                  Say hello to Madhu
+                </Link>
+                <span className="madhu-note">
+                  Every answer cites its source. Nothing is saved until you confirm.
+                </span>
+              </div>
+            </div>
+            <div className="madhu-visual" data-reveal="rise">
+              <HumOrb />
+              <LanguageCloud compact />
+              <span className="madhu-note">Tap a language to talk to Madhu in it.</span>
+            </div>
+          </div>
+          <CombEdge className="edge-to-light" />
+        </section>
+
+        {/* ----------------------------- passport ---------------------------- */}
+        <section className="scan in-gold">
+          <div className="shell scan-inner">
+            <div className="scan-copy" data-reveal="rise">
+              <p className="marker">Try it now</p>
+              <h2 data-reveal="fill">Find out what your jar knows.</h2>
+              <p className="lede" data-reveal="rise">
+                Every bottle carries a serial. Type one in and the passport opens: where the honey came
+                from, what evidence supports it, and whether anything has been held or recalled since.
+              </p>
+            <form
+              className="scan-form"
+              action={`/passport/${encodeURIComponent(serial.trim() || "BHR-2026-0001")}`}
+            >
+              <label htmlFor="serial">Bottle serial</label>
+              <div className="scan-field">
+                <ScanLine size={20} aria-hidden="true" />
+                <input
+                  id="serial"
+                  name="serial"
+                  value={serial}
+                  onChange={(event) => setSerial(event.target.value)}
+                  required
+                  maxLength={80}
+                  pattern="[A-Za-z0-9\-]+"
+                  spellCheck={false}
+                  autoComplete="off"
+                  aria-describedby="serial-hint"
+                />
+                <button type="submit" className="btn btn-wax btn-sm">
+                  Open passport
+                </button>
+              </div>
+              <span id="serial-hint" className="scan-hint">
+                Letters, numbers and dashes. No login and no wallet needed.
+              </span>
+            </form>
+            </div>
+            <ScanLabel serial={serial} />
+          </div>
+          {/* The footer clips its own overflow for the watermark, so its teeth
+              are carried here, at the foot of the section they rise into. */}
+          <CombEdge className="edge-before-footer" />
+        </section>
+      </main>
+
+      <footer className="site-footer in-gold gold-deep">
+        <div className="shell site-footer-inner">
+          <div className="footer-brand">
+            <Brand />
+            <p>Built for the people who keep India&apos;s hives, and everyone who opens the jar.</p>
+          </div>
+          <div className="footer-cols">
+            <nav aria-labelledby="footer-explore">
+              <h2 id="footer-explore">Explore</h2>
+              <Link href="/workspace">Workspace</Link>
+              <Link href="/passport/BHR-2026-0001">Honey Passport</Link>
+              <a href="#ecosystem">Who it is for</a>
+            </nav>
+            <nav aria-labelledby="footer-understand">
+              <h2 id="footer-understand">Understand</h2>
+              <a href="#thread">How it works</a>
+              <a href="#truth">What a record proves</a>
+              <a href="#madhu">Madhu, the assistant</a>
+            </nav>
+          </div>
+          <div className="footer-base">
+            <span>© {new Date().getFullYear()} Bhramari</span>
+            <span>Made in India, for India&apos;s beekeeping clusters</span>
+          </div>
+        </div>
+      </footer>
+      <TweakPanel />
+    </>
+  );
+}
+
+/* The label as it appears on the jar, with a scan line passing over it. The
+   cell pattern is derived from the serial, so it genuinely changes as you
+   type — the thing on screen is the thing on the bottle. */
+function ScanLabel({ serial }: { serial: string }) {
+  const seed = serial.trim().toUpperCase() || "BHR";
+  let hash = 2166136261;
+  for (const char of seed) {
+    hash ^= char.charCodeAt(0);
+    hash = Math.imul(hash, 16777619) >>> 0;
+  }
+  const cells = Array.from({ length: 30 }, (_, index) => {
+    const bit = (hash >>> index % 32) ^ (hash * (index + 7));
+    return ((bit >>> 3) & 1) === 1;
+  });
+
+  return (
+    <figure className="scan-label" data-reveal="rise" aria-hidden="true">
+      <div className="scan-label-card">
+        <span className="scan-label-brand">bhramari</span>
+        <div className="scan-label-code">
+          {cells.map((filled, index) => (
+            <span key={index} className={filled ? "is-filled" : undefined} />
+          ))}
+        </div>
+        <span className="scan-label-serial num">{seed}</span>
+        <span className="scan-label-note">Scan to open the passport</span>
+        <span className="scan-label-beam" />
+      </div>
+    </figure>
+  );
+}
+
+/* The hum made visible: the sound leaves the cell as hexagons, travelling out
+   through the comb rather than as generic circular ripples. */
+function HumOrb() {
+  return (
+    <div className="hum-orb" aria-hidden="true">
+      <span className="hum-glow" />
+      {/* Stroked polygons, not clipped borders — a clip-path would cut a
+          border down to slivers where the hexagon meets the box edge. */}
+      <svg className="hum-rings" viewBox="0 0 200 200" fill="none">
+        {[0, 1, 2, 3, 4].map((ring) => (
+          <polygon
+            key={ring}
+            points="100,8 180,54 180,146 100,192 20,146 20,54"
+            stroke="var(--nectar-ink)"
+            strokeWidth="1.6"
+            style={{ animationDelay: `${ring * 0.74}s` }}
+          />
+        ))}
+      </svg>
+      <span className="hum-core">
+        <AudioLines size={38} strokeWidth={1.4} />
+      </span>
+    </div>
+  );
 }

@@ -10,6 +10,8 @@ on:
 permissions:
   contents: read
   security-events: write
+  # CodeQL reads the workflow run it belongs to; private repos must grant it.
+  actions: read
 
 jobs:
   dependency-audit:
@@ -30,6 +32,8 @@ jobs:
   codeql:
     runs-on: ubuntu-latest
     strategy:
+      # One language failing should not cancel the other's analysis.
+      fail-fast: false
       matrix: {language: [javascript-typescript, python]}
     steps:
       - uses: actions/checkout@v4
@@ -41,7 +45,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: aquasecurity/trivy-action@0.28.0
+      # Pinned by commit: the old un-prefixed tags were removed upstream.
+      - uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         with:
           scan-type: fs
           scan-ref: .
