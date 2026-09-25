@@ -39,7 +39,16 @@ jobs:
       - uses: actions/checkout@v4
       - uses: github/codeql-action/init@v3
         with: {languages: "${{ matrix.language }}"}
+      # Code scanning is not enabled on this private repository, so results
+      # are kept as an artifact instead of uploaded. Enable code scanning in
+      # the repository settings and drop "upload: never" to see them in the
+      # Security tab.
       - uses: github/codeql-action/analyze@v3
+        with: {upload: never, output: codeql-results}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: codeql-${{ matrix.language }}
+          path: codeql-results
 
   filesystem-scan:
     runs-on: ubuntu-latest
@@ -55,9 +64,13 @@ jobs:
           severity: HIGH,CRITICAL
           ignore-unfixed: true
           exit-code: "1"
-      - uses: github/codeql-action/upload-sarif@v3
+      # The scan step above fails the job on HIGH/CRITICAL findings; the
+      # report is kept as an artifact while code scanning is disabled.
+      - uses: actions/upload-artifact@v4
         if: always()
-        with: {sarif_file: trivy-results.sarif}
+        with:
+          name: trivy-results
+          path: trivy-results.sarif
 
   sbom:
     runs-on: ubuntu-latest
