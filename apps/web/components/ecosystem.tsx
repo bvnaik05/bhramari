@@ -42,7 +42,7 @@ const roles = [
     tab: "Anyone with a jar",
     icon: Fingerprint,
     title: "The label answers back.",
-    copy: "Meet the origin behind the honey. One scan opens a passport with the journey so far, the evidence that supports it, and the current safety status — with no account and nothing to install.",
+    copy: "Meet the origin behind the honey. One scan opens a passport with the journey so far, the evidence that supports it, and the current safety status. No account, nothing to install.",
     points: [
       "A unique identity for every bottle",
       "Origin and evidence in plain words",
@@ -58,7 +58,7 @@ export function Ecosystem() {
   const role = roles[active];
 
   return (
-    <section id="ecosystem" className="ecosystem section in-gold">
+    <section id="ecosystem" className="ecosystem section in-gold gold-noon">
       <div className="shell">
         <div className="ecosystem-head">
           <div>
@@ -138,34 +138,44 @@ export function Ecosystem() {
   );
 }
 
-/* A patch of comb where the lit cells move with the selected role. The same
-   network each time — a different part of it is yours.
-   Each pattern says something: one colony, then a connected network, then a
-   single jar traced back to where it started. */
-const patterns = [
-  ["..X...", ".XX..", "..XX..", ".XX..", "..X..."],
-  [".X.X..", "XXXX.", ".XX.X.", "XX.X.", ".X.X.."],
-  ["....X.", "...X.", "..X...", ".X...", "X....."],
+/* One comb, three territories. Each role owns its own patch and they never
+   overlap, so switching tabs shows a different part of the same comb: a
+   single colony on the left, a connected chain of partners through the
+   middle, and one jar's trail down the right-hand edge. Rows alternate six
+   and five cells; odd rows sit half a cell to the right. */
+const zones = [
+  ["......", "XX...", "XXX...", "XX...", "......"],
+  ["..XX..", "..X..", "...X..", "..X..", "..XX.."],
+  [".....X", "....X", ".....X", "....X", ".....X"],
 ];
 
+const ROW_LENGTHS = [6, 5, 6, 5, 6];
+
+function zoneOf(row: number, cell: number) {
+  return zones.findIndex((zone) => zone[row][cell] === "X");
+}
+
 function CombLattice({ active }: { active: number }) {
-  const rows = patterns[active];
   return (
     <div className="comb-lattice" aria-hidden="true">
-      {rows.map((row, rowIndex) => (
+      {ROW_LENGTHS.map((length, rowIndex) => (
         <div className="lattice-row" key={rowIndex} data-offset={rowIndex % 2 === 1 || undefined}>
-          {row.split("").map((cell, cellIndex) => (
-            <motion.span
-              key={cellIndex}
-              className={`lattice-cell${cell === "X" ? " is-lit" : ""}`}
-              animate={{ opacity: cell === "X" ? 1 : 0.55, scale: cell === "X" ? 1 : 0.97 }}
-              transition={{
-                duration: 0.45,
-                delay: (rowIndex + cellIndex) * 0.03,
-                ease: [0.22, 1, 0.36, 1],
-              }}
-            />
-          ))}
+          {Array.from({ length }, (_, cellIndex) => {
+            const zone = zoneOf(rowIndex, cellIndex);
+            const lit = zone === active;
+            return (
+              <motion.span
+                key={cellIndex}
+                className={`lattice-cell${lit ? " is-lit" : zone >= 0 ? " is-zone" : ""}`}
+                animate={{ scale: lit ? 1 : 0.985 }}
+                transition={{
+                  duration: 0.45,
+                  delay: lit ? (rowIndex + cellIndex) * 0.035 : 0,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+              />
+            );
+          })}
         </div>
       ))}
     </div>

@@ -627,10 +627,12 @@
 
 /* Real comb shares walls between cells, so rows interlock rather than sit in a
    grid: each row rises a quarter of a cell into the one above it, and every
-   other row steps across by half a cell. */
+   other row steps across by half a cell. Cells butt up against each other
+   with no gap, so neighbouring walls merge into one thin brown line. */
 .comb-lattice {
-  --hex-w: clamp(2.4rem, 5.5vw, 3.9rem);
+  --hex-w: clamp(2.6rem, 5.5vw, 4rem);
   --hex-h: calc(var(--hex-w) * 1.1547);
+  --wall: 1.25px;
   display: flex;
   flex-direction: column;
   transform: rotate(-3deg);
@@ -638,29 +640,48 @@
 
 .lattice-row {
   display: flex;
-  gap: 2px;
 }
 
 .lattice-row + .lattice-row {
-  margin-top: calc(var(--hex-h) * -0.25 + 1px);
+  margin-top: calc(var(--hex-h) * -0.25);
 }
 
 .lattice-row[data-offset] {
-  margin-left: calc(var(--hex-w) * 0.5 + 1px);
+  margin-left: calc(var(--hex-w) * 0.5);
 }
 
+/* Two layers per cell: the element is the dark wax wall, and ::after is the
+   cell's inside, inset by the wall's thickness. */
 .lattice-cell {
+  position: relative;
   width: var(--hex-w);
   height: var(--hex-h);
   flex: none;
-  background: var(--surface-sunk);
-  box-shadow: inset 0 0 0 1px var(--rule);
+  background: #6b4a17;
   clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
 }
 
-/* Lit cells are always honey; the varietal only tints the shaded base, so the
-   three patterns read as one comb rather than three colour schemes. */
+.lattice-cell::after {
+  content: "";
+  position: absolute;
+  inset: var(--wall);
+  background: linear-gradient(170deg, #fff6d2, #ffe9a6);
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
+  transition: opacity 0.4s var(--ease-comb);
+}
+
+/* The other roles' territories keep a faint honey tint, so the comb reads as
+   shared rather than as one lit patch on an empty grid. */
+.lattice-cell.is-zone::after {
+  background: linear-gradient(170deg, #fff0c0, #ffe49c);
+}
+
+/* The active role's cells are full honey. */
 .lattice-cell.is-lit {
+  background: #4a3110;
+}
+
+.lattice-cell.is-lit::after {
   background: linear-gradient(
     165deg,
     var(--nectar-pale),
