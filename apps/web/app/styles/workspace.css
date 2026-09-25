@@ -977,6 +977,12 @@ tbody tr:hover {
   animation: cell-pulse 1.4s ease-in-out infinite;
 }
 
+.madhu-reply > .madhu-fallback {
+  margin-top: 0.75rem;
+  font-size: var(--t-sm);
+  color: var(--ink-faint);
+}
+
 .madhu-reply > p {
   font-size: var(--t-md);
   line-height: 1.65;

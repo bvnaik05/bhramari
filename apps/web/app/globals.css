@@ -160,9 +160,11 @@
     var(--gold-pale);
 }
 
+/* Ends on a flat #ffecb0 (the glow stays clear of the bottom edge) so the
+   next section can pick up exactly where it leaves off. */
 .in-gold.gold-dusk {
   background:
-    radial-gradient(ellipse 70% 70% at 50% 110%, rgba(255, 175, 69, 0.45), transparent 70%),
+    radial-gradient(ellipse 60% 45% at 50% 72%, rgba(255, 175, 69, 0.32), transparent 70%),
     linear-gradient(180deg, var(--gold-pale) 0%, #ffecb0 100%);
 }
 
@@ -240,7 +242,9 @@ html.lenis body {
 
 body {
   margin: 0;
-  background: var(--propolis);
+  /* Gold is the page's ground; anything that shows through (a pin spacer,
+     overscroll) should be gold too. Dark surfaces set their own. */
+  background: var(--gold-pale);
   color: var(--ink);
   color-scheme: dark;
   font-family: var(--font-text);
@@ -531,6 +535,23 @@ p {
 .btn-honey:hover,
 .btn-honey:focus-visible {
   box-shadow: var(--lift-2), var(--glow-honey);
+}
+
+/* Dark wax: the lead action on a gold section, where a honey button would
+   sit too close to its background. */
+.btn-wax {
+  background: var(--propolis-deep);
+  color: var(--nectar);
+  box-shadow: 0 2px 6px rgba(90, 58, 10, 0.2), 0 12px 26px rgba(90, 58, 10, 0.22);
+}
+
+.btn-wax::before {
+  background: linear-gradient(180deg, var(--nectar), var(--honey-deep));
+}
+
+.btn-wax:hover,
+.btn-wax:focus-visible {
+  color: var(--propolis-deep);
 }
 
 .btn-ghost {

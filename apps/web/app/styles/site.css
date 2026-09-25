@@ -80,7 +80,7 @@
 
 /* The footer's teeth, carried by the section above it. */
 .edge-before-footer {
-  color: var(--propolis-deep);
+  color: #ffe38a;
   position: absolute;
   bottom: -1px;
   left: 0;
@@ -794,9 +794,82 @@
 
 /* --------------------------------- madhu -------------------------------- */
 
+/* Picks up the dusk section's last gold and hands pale gold to the next. */
 .madhu {
   position: relative;
   padding-block: clamp(4.5rem, 3rem + 7vw, 8rem);
+  overflow: hidden;
+  isolation: isolate;
+  background: linear-gradient(180deg, #ffecb0 0%, var(--gold-pale) 100%);
+}
+
+/* The double-walled comb fills the section, strongest around the orb and
+   fading to a whisper behind the copy so the text stays easy to read. */
+.double-comb {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  /* Two masks intersected: a pool around the orb, and a fade at the top and
+     bottom so the comb never ends on a hard line against its neighbours. */
+  -webkit-mask-image:
+    radial-gradient(ellipse 58% 85% at 76% 50%, #000 25%, rgba(0, 0, 0, 0.1) 78%),
+    linear-gradient(180deg, transparent, #000 16%, #000 84%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    radial-gradient(ellipse 58% 85% at 76% 50%, #000 25%, rgba(0, 0, 0, 0.1) 78%),
+    linear-gradient(180deg, transparent, #000 16%, #000 84%, transparent);
+  mask-composite: intersect;
+}
+
+/* The chips and the note sit on the busiest part of the comb, so they are
+   solid gold pills with a lift rather than outlines. */
+.madhu .language-cloud a,
+.madhu .language-cloud span {
+  background: var(--gold-pale);
+  border-color: rgba(107, 74, 23, 0.45);
+  color: #3d2a0c;
+  box-shadow: 0 2px 8px rgba(90, 58, 10, 0.14);
+}
+
+.madhu-visual > .madhu-note {
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--r-pill);
+  background: color-mix(in oklab, var(--gold-pale) 88%, transparent);
+  color: var(--ink-soft);
+}
+
+/* Stacked layouts put the orb below the copy, centred, so the pool follows. */
+@media (max-width: 1080px) {
+  .double-comb {
+    -webkit-mask-image:
+      radial-gradient(ellipse 80% 45% at 50% 74%, #000 30%, rgba(0, 0, 0, 0.1) 80%),
+      linear-gradient(180deg, transparent, #000 16%, #000 84%, transparent);
+    mask-image:
+      radial-gradient(ellipse 80% 45% at 50% 74%, #000 30%, rgba(0, 0, 0, 0.1) 80%),
+      linear-gradient(180deg, transparent, #000 16%, #000 84%, transparent);
+  }
+}
+
+.dc-wall {
+  fill: #6b4a17;
+}
+
+.dc-pale .dc-inside {
+  fill: #fff4cc;
+}
+
+.dc-deep .dc-inside {
+  fill: #ffe39a;
+}
+
+.dc-honey .dc-inside {
+  fill: #ffd46a;
+}
+
+.dc-glow {
+  opacity: 0.8;
 }
 
 .madhu-inner {
@@ -808,7 +881,6 @@
 
 .madhu-copy h2 {
   margin: 0.9rem 0 1.25rem;
-  color: var(--cream);
 }
 
 .madhu-actions {
@@ -899,9 +971,13 @@
 
 /* --------------------------------- scan --------------------------------- */
 
+/* Starts on the pale gold Madhu hands over, and deepens toward the label. */
 .scan {
   position: relative;
   padding-block: clamp(5rem, 3.5rem + 8vw, 9rem);
+  background:
+    radial-gradient(ellipse 50% 60% at 82% 55%, rgba(255, 201, 74, 0.5), transparent 70%),
+    linear-gradient(180deg, var(--gold-pale) 0%, #fff1c2 100%);
 }
 
 .scan-inner {
@@ -1085,7 +1161,7 @@
   bottom: -9rem;
   width: 26rem;
   height: 30rem;
-  background: rgba(255, 182, 39, 0.045);
+  background: rgba(122, 80, 0, 0.07);
   clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
   pointer-events: none;
 }
@@ -1097,6 +1173,14 @@
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
   gap: clamp(2rem, 5vw, 4rem);
   align-items: start;
+}
+
+.site-footer .brand-mark {
+  color: var(--gold-ink);
+}
+
+.site-footer .brand {
+  --stripe: var(--gold-soft);
 }
 
 .footer-brand p {
@@ -1163,6 +1247,7 @@
 
 /* Indic scripts need a little more size and leading than Latin to stay
    legible at the same optical weight. */
+.language-cloud a,
 .language-cloud span {
   padding: 0.4rem 0.85rem;
   border-radius: var(--r-pill);
@@ -1174,9 +1259,12 @@
   transition: border-color 0.3s, color 0.3s, transform 0.3s var(--ease-comb);
 }
 
-.language-cloud span:hover {
-  border-color: var(--nectar-ink);
-  color: var(--nectar-ink);
+/* On hover a chip turns to dark wax, the page's accent for "this is live". */
+.language-cloud a:hover,
+.language-cloud a:focus-visible {
+  border-color: var(--propolis-deep);
+  background: var(--propolis-deep);
+  color: var(--nectar);
   transform: translateY(-2px);
 }
 

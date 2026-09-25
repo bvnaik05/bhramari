@@ -8,6 +8,7 @@ import { HeroComb } from "@/components/hero-comb";
 import { Ecosystem } from "@/components/ecosystem";
 import { GoldenThread } from "@/components/golden-thread";
 import { LanguageCloud } from "@/components/language-cloud";
+import { DoubleComb } from "@/components/double-comb";
 import { TweakPanel } from "@/components/tweak-panel";
 
 const heroFacts = [
@@ -199,8 +200,8 @@ export default function HomePage() {
         <GoldenThread />
 
         {/* ------------------------------ madhu ------------------------------ */}
-        <section id="madhu" className="madhu in-hive">
-          <CombEdge className="edge-to-hive" />
+        <section id="madhu" className="madhu in-gold">
+          <DoubleComb />
           <div className="shell madhu-inner">
             <div className="madhu-copy">
               <p className="marker">The assistant</p>
@@ -210,25 +211,24 @@ export default function HomePage() {
                 language you already speak.
               </h2>
               <p className="lede" data-reveal="rise">
-                Ask about a hive. Record a harvest by voice. Hear a passport read aloud. Madhu works
-                from what the connected provider can actually do today, and tells you plainly when
-                something is out of reach.
+                Ask about a hive, record a harvest by voice, or hear a passport read aloud. When Madhu
+                can&apos;t do something yet, it tells you so instead of guessing.
               </p>
               <div className="madhu-actions" data-reveal="rise">
-                <Link href="/workspace?view=madhu" className="btn btn-honey">
+                <Link href="/workspace?view=madhu" className="btn btn-wax">
                   Say hello to Madhu
                 </Link>
                 <span className="madhu-note">
-                  Guidance cites its source. Actions wait for your confirmation.
+                  Every answer cites its source. Nothing is saved until you confirm.
                 </span>
               </div>
             </div>
             <div className="madhu-visual" data-reveal="rise">
               <HumOrb />
               <LanguageCloud compact />
+              <span className="madhu-note">Tap a language to talk to Madhu in it.</span>
             </div>
           </div>
-          <CombEdge className="edge-to-light" />
         </section>
 
         {/* ----------------------------- passport ---------------------------- */}
@@ -260,7 +260,7 @@ export default function HomePage() {
                   autoComplete="off"
                   aria-describedby="serial-hint"
                 />
-                <button type="submit" className="btn btn-honey btn-sm">
+                <button type="submit" className="btn btn-wax btn-sm">
                   Open passport
                 </button>
               </div>
@@ -277,7 +277,7 @@ export default function HomePage() {
         </section>
       </main>
 
-      <footer className="site-footer in-hive">
+      <footer className="site-footer in-gold gold-deep">
         <div className="shell site-footer-inner">
           <div className="footer-brand">
             <Brand />
@@ -300,7 +300,6 @@ export default function HomePage() {
           <div className="footer-base">
             <span>© {new Date().getFullYear()} Bhramari</span>
             <span>Made in India, for India&apos;s beekeeping clusters</span>
-            <span>SIH26021</span>
           </div>
         </div>
       </footer>
@@ -354,8 +353,8 @@ function HumOrb() {
           <polygon
             key={ring}
             points="100,8 180,54 180,146 100,192 20,146 20,54"
-            stroke="var(--nectar)"
-            strokeWidth="2"
+            stroke="var(--nectar-ink)"
+            strokeWidth="1.6"
             style={{ animationDelay: `${ring * 0.74}s` }}
           />
         ))}
