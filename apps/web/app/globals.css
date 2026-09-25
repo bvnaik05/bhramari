@@ -120,16 +120,64 @@
   --rim: inset 0 1px 0 rgba(255, 216, 132, 0.07);
 }
 
-/* Section tones. Text colour is shared, so moving between them changes the
-   depth of the comb, never the reading mode. */
+/* The dark wax scope. It resets every ink token as well as the surfaces, so
+   it works both as the hero's background and as a dark card set inside a
+   gold section — the main way dark is used on the page now. */
 .in-hive {
   --surface: var(--propolis-deep);
   --surface-raised: #1f160a;
   --surface-sunk: #0d0803;
   --rule: #33240f;
   --rule-soft: #251a0a;
+  --ink: var(--cream);
+  --ink-soft: #d4c29b;
+  --ink-faint: #bfab82;
+  --focus: var(--nectar);
+  --nectar-ink: var(--nectar);
+  --nectar-ink-pale: var(--nectar-pale);
+  --ok: #8ed69a;
+  --ok-bg: rgba(142, 214, 154, 0.12);
+  --warn: #f2c86e;
+  --warn-bg: rgba(242, 200, 110, 0.12);
+  --stop: #f4a095;
+  --stop-bg: rgba(244, 160, 149, 0.12);
   color: var(--ink);
   background: var(--surface);
+}
+
+/* Gold variations, so no two gold sections read the same. Each keeps the
+   top edge at --gold-pale, where the comb teeth of the section above land. */
+.in-gold.gold-dawn {
+  background:
+    radial-gradient(ellipse 55% 60% at 0% 70%, rgba(255, 175, 69, 0.32), transparent 70%),
+    linear-gradient(180deg, var(--gold-pale) 0%, var(--gold-raised) 100%);
+}
+
+.in-gold.gold-noon {
+  background:
+    radial-gradient(ellipse 60% 55% at 92% 35%, rgba(255, 201, 74, 0.5), transparent 70%),
+    radial-gradient(ellipse 50% 45% at 8% 95%, rgba(252, 180, 84, 0.35), transparent 70%),
+    var(--gold-pale);
+}
+
+.in-gold.gold-dusk {
+  background:
+    radial-gradient(ellipse 70% 70% at 50% 110%, rgba(255, 175, 69, 0.45), transparent 70%),
+    linear-gradient(180deg, var(--gold-pale) 0%, #ffecb0 100%);
+}
+
+/* The deepest gold, for the page's foot: honey at the bottom of the jar. */
+.in-gold.gold-deep {
+  --surface: var(--gold-soft);
+  --surface-raised: #ffe27a;
+  --surface-sunk: #ffcf3f;
+  --ink-soft: #4d3818;
+  --ink-faint: #5e4418;
+  --rule: rgba(90, 58, 0, 0.28);
+  --rule-soft: rgba(90, 58, 0, 0.18);
+  background:
+    radial-gradient(ellipse 60% 80% at 100% 100%, rgba(252, 180, 84, 0.6), transparent 70%),
+    linear-gradient(180deg, #ffe38a 0%, var(--gold-soft) 100%);
 }
 
 /* The lifted tone: comb held up into full daylight, where the wax turns to

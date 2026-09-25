@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { AudioLines, Check, Minus, ScanLine, WifiOff } from "lucide-react";
+import { AudioLines, Check, FileCheck2, ScanLine, UserRound, Users, WifiOff } from "lucide-react";
 import { Brand, CombEdge } from "@/components/brand";
 import { HeroComb } from "@/components/hero-comb";
 import { Ecosystem } from "@/components/ecosystem";
@@ -13,30 +13,52 @@ import { TweakPanel } from "@/components/tweak-panel";
 const heroFacts = [
   { icon: WifiOff, title: "Works with no signal", copy: "Records are signed and queued on the phone, then sync when a tower appears." },
   { icon: AudioLines, title: "Answers in your language", copy: "Ask Madhu by voice in Hindi, Bangla, Marathi and more." },
-  { icon: ScanLine, title: "Opens with a scan", copy: "No app, no account, no wallet — just the serial on the label." },
+  { icon: ScanLine, title: "Opens with a scan", copy: "No app, account or wallet. Just the serial on the label." },
 ];
 
-const settled = [
-  "That a harvest record existed at the time it claims",
-  "That quantities still add up across a split or a blend",
-  "That no accepted event was quietly edited afterwards",
-  "That a recall reached every lot it touches",
-];
-
-const decided = [
-  "Whether the honey meets a grade — a laboratory tests it",
-  "Whether a colony is healthy — a beekeeper judges it",
-  "Whether a batch may ship — a processor signs it off",
-  "Whether a reported concern holds — a reviewer reads it",
+/* The two halves of trust, written as plainly as a beekeeper would say them. */
+const proofCards = [
+  {
+    id: "record",
+    icon: FileCheck2,
+    mark: Check,
+    title: "The record shows",
+    who: "Checked by Bhramari",
+    items: [
+      "When a harvest was recorded, and who recorded it",
+      "That the weights still add up after a split or a blend",
+      "That nobody changed a record once it was accepted",
+      "Every lot a recall reaches",
+    ],
+  },
+  {
+    id: "people",
+    icon: Users,
+    mark: UserRound,
+    title: "People decide",
+    who: "Checked by a person",
+    items: [
+      "Whether the honey meets its grade. A lab tests it.",
+      "Whether a colony is healthy. The beekeeper judges.",
+      "Whether a batch can ship. The processor signs off.",
+      "Whether a complaint holds up. A reviewer reads it.",
+    ],
+  },
 ];
 
 export default function HomePage() {
   const [menu, setMenu] = useState(false);
   const [lifted, setLifted] = useState(false);
+  /* Past the hero the page is gold, so the header turns to light glass. */
+  const [light, setLight] = useState(false);
   const [serial, setSerial] = useState("BHR-2026-0001");
 
   useEffect(() => {
-    const onScroll = () => setLifted(window.scrollY > 40);
+    const onScroll = () => {
+      setLifted(window.scrollY > 40);
+      const hero = document.querySelector(".hero");
+      setLight(!!hero && hero.getBoundingClientRect().bottom < 72);
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -51,7 +73,7 @@ export default function HomePage() {
 
   return (
     <>
-      <header className={`site-header${lifted ? " is-lifted" : ""}${menu ? " is-open" : ""}`}>
+      <header className={`site-header${lifted ? " is-lifted" : ""}${light ? " is-light" : ""}${menu ? " is-open" : ""}`}>
         <div className="site-header-inner shell">
           <Brand />
           <nav className="site-nav" aria-label="Main">
@@ -95,10 +117,6 @@ export default function HomePage() {
           <HeroComb />
           <div className="hero-veil" />
           <div className="hero-inner shell">
-            <p className="hero-marker" data-hero-step>
-              <span className="pulse-cell" />
-              Smart India Hackathon, problem SIH26021
-            </p>
             <h1 className="hero-title" data-hero-words>
               <span className="hero-line" data-hero-line>
                 Every jar remembers
@@ -132,43 +150,43 @@ export default function HomePage() {
               ))}
             </ul>
           </div>
+          <CombEdge className="edge-to-light" />
         </section>
 
         {/* ------------------------------ truth ------------------------------ */}
-        <section id="truth" className="truth">
+        <section id="truth" className="truth in-gold gold-dawn">
           <div className="shell">
             <div className="truth-head">
-              <p className="marker">The honest part</p>
-              <h2 data-reveal="fill">Proof has edges.</h2>
+              <p className="marker">What a record can prove</p>
+              <h2 data-reveal="fill">A ledger can&apos;t taste honey.</h2>
               <p className="lede" data-reveal="rise">
-                A ledger can show that a record has not changed since it was accepted. It cannot taste
-                the honey. Bhramari keeps those two jobs apart, deliberately — and says which is which
-                on every screen.
+                Bhramari can show that nobody changed a harvest record after it was saved. It can&apos;t
+                tell you whether the honey is good. That still takes a lab, a beekeeper and a buyer, so
+                every screen tells you which is which.
               </p>
             </div>
             <div className="truth-columns" data-reveal="settle">
-              <article className="truth-col truth-col-settled">
-                <h3>What the record settles</h3>
-                <ul>
-                  {settled.map((item) => (
-                    <li key={item}>
-                      <Check size={16} strokeWidth={2.4} />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </article>
-              <article className="truth-col truth-col-decided">
-                <h3>What people still decide</h3>
-                <ul>
-                  {decided.map((item) => (
-                    <li key={item}>
-                      <Minus size={16} strokeWidth={2.4} />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </article>
+              {proofCards.map(({ id, icon: Icon, mark: Mark, title, who, items }) => (
+                <article key={id} className="truth-col in-hive">
+                  <div className="truth-col-head">
+                    <span className="truth-col-icon">
+                      <Icon size={20} strokeWidth={1.6} />
+                    </span>
+                    <div>
+                      <h3>{title}</h3>
+                      <span>{who}</span>
+                    </div>
+                  </div>
+                  <ul>
+                    {items.map((item) => (
+                      <li key={item}>
+                        <Mark size={16} strokeWidth={2.2} />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </article>
+              ))}
             </div>
           </div>
           <CombEdge className="edge-to-light" />

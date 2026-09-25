@@ -57,7 +57,7 @@
    teeth rise into the section above it. The tones are close, so the edge
    reads as texture rather than a break. */
 .edge-to-light {
-  color: var(--amber);
+  color: var(--gold-pale);
   position: absolute;
   bottom: 0;
   left: 0;
@@ -117,6 +117,44 @@
   background: rgba(19, 12, 4, 0.82);
   backdrop-filter: blur(14px) saturate(1.3);
   box-shadow: 0 1px 0 rgba(255, 182, 39, 0.16), 0 14px 40px rgba(12, 7, 1, 0.34);
+}
+
+/* Over the gold sections the header becomes light glass with dark ink, so a
+   dark bar never trails down a light page. The open phone menu keeps its
+   own dark panel, so these rules stand down while it is open. */
+.site-header.is-light:not(.is-open) {
+  background: rgba(255, 247, 212, 0.86);
+  backdrop-filter: blur(14px) saturate(1.2);
+  box-shadow: 0 1px 0 rgba(122, 80, 0, 0.18), 0 12px 32px rgba(122, 80, 0, 0.1);
+}
+
+.site-header.is-light:not(.is-open) .brand {
+  color: #2a1a07;
+  --stripe: var(--gold-pale);
+}
+
+.site-header.is-light:not(.is-open) .brand-mark {
+  color: var(--gold-ink);
+}
+
+.site-header.is-light:not(.is-open) .site-nav {
+  color: #5a4220;
+}
+
+.site-header.is-light:not(.is-open) .site-nav a:hover {
+  color: #2a1a07;
+}
+
+.site-header.is-light:not(.is-open) .site-nav a::after {
+  background: var(--gold-ink);
+}
+
+.site-header.is-light:not(.is-open) .menu-toggle {
+  border-color: rgba(122, 80, 0, 0.35);
+}
+
+.site-header.is-light:not(.is-open) .menu-toggle span {
+  background: var(--gold-ink);
 }
 
 .site-header-inner {
@@ -263,46 +301,9 @@
     linear-gradient(180deg, rgba(14, 9, 2, 0.66) 0%, transparent 26%, rgba(29, 20, 9, 0.5) 100%);
 }
 
-/* The comb sinks into the next section's tone instead of ending on a seam.
-   The veil above must never go darker than that tone near the bottom, or the
-   fade has to brighten again at the very end and reads as a line. */
-.hero::after {
-  content: "";
-  position: absolute;
-  inset: auto 0 0 0;
-  height: clamp(7rem, 20vh, 13rem);
-  z-index: -1;
-  background: linear-gradient(
-    180deg,
-    rgba(29, 20, 9, 0) 0%,
-    rgba(29, 20, 9, 0.45) 35%,
-    rgba(29, 20, 9, 0.85) 70%,
-    var(--propolis) 100%
-  );
-  pointer-events: none;
-}
-
 .hero-inner {
   position: relative;
   width: 100%;
-}
-
-.hero-marker {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  font-size: var(--t-sm);
-  font-weight: 500;
-  color: var(--nectar-ink-pale);
-  margin-bottom: clamp(1.25rem, 2vw, 2rem);
-}
-
-.pulse-cell {
-  width: 10px;
-  height: 11px;
-  background: var(--nectar);
-  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
-  animation: cell-pulse 2.6s var(--ease-honey) infinite;
 }
 
 @keyframes cell-pulse {
@@ -419,7 +420,7 @@
 
 .truth {
   position: relative;
-  padding-block: clamp(2.5rem, 1rem + 4vw, 5rem) clamp(5rem, 3.5rem + 6vw, 8rem);
+  padding-block: clamp(4rem, 2.5rem + 5vw, 7rem) clamp(5rem, 3.5rem + 6vw, 8rem);
 }
 
 .truth-head {
@@ -429,52 +430,61 @@
 
 .truth-head h2 {
   margin: 0.9rem 0 1.25rem;
-  color: var(--cream);
 }
 
 .truth-columns {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(1rem, 2.5vw, 2.5rem);
+  gap: clamp(1rem, 2.5vw, 2rem);
 }
 
+/* Both cards share one shell: dark wax set into the gold, so the two halves
+   of the argument read as equals. Only the icon and the words differ. */
 .truth-col {
-  padding: clamp(1.5rem, 3vw, 2.5rem);
-  border-radius: var(--r-cell);
-  border: 1px solid var(--rule);
-  background: var(--surface-sunk);
   position: relative;
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+  border-radius: calc(var(--r-cell) + 4px);
+  border: 1px solid rgba(255, 182, 39, 0.22);
+  background:
+    radial-gradient(ellipse 70% 55% at 0% 0%, rgba(255, 182, 39, 0.12), transparent 70%),
+    linear-gradient(165deg, #2a1d0c, var(--propolis-deep));
+  box-shadow: 0 2px 6px rgba(90, 58, 10, 0.18), 0 22px 44px rgba(90, 58, 10, 0.22), var(--rim);
   overflow: hidden;
 }
 
-/* The settled column is lit from within; the decided column is not. That is
-   the argument of the section, made in light. */
-.truth-col-settled {
-  border-color: rgba(255, 182, 39, 0.3);
-  background: linear-gradient(180deg, rgba(74, 49, 16, 0.55), rgba(42, 29, 12, 0.5));
-  box-shadow: inset 0 1px 0 rgba(255, 216, 132, 0.16), var(--lift-2);
+.truth-col-head {
+  display: flex;
+  align-items: center;
+  gap: 0.95rem;
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid var(--rule);
 }
 
-.truth-col-settled::before {
-  content: "";
-  position: absolute;
-  inset: -40% 40% 50% -20%;
-  background: radial-gradient(ellipse at center, rgba(255, 182, 39, 0.16), transparent 70%);
-  pointer-events: none;
+.truth-col-icon {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  aspect-ratio: 1 / 1.1547;
+  flex: none;
+  color: var(--propolis-deep);
+  background: linear-gradient(170deg, var(--nectar-pale), var(--nectar) 55%, var(--honey-deep));
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
 }
 
 .truth-col h3 {
+  font-size: var(--t-lg);
   color: var(--cream);
-  margin-bottom: 1.35rem;
 }
 
-.truth-col-settled h3 {
-  color: var(--nectar-ink);
+.truth-col-head div > span {
+  font-size: var(--t-xs);
+  color: var(--ink-faint);
 }
 
 .truth-col ul {
   display: grid;
-  gap: 0.9rem;
+  gap: 0.85rem;
 }
 
 .truth-col li {
@@ -489,14 +499,7 @@
 
 .truth-col li svg {
   margin-top: 0.15rem;
-}
-
-.truth-col-settled li svg {
-  color: var(--nectar-ink);
-}
-
-.truth-col-decided li svg {
-  color: var(--ink-faint);
+  color: var(--nectar);
 }
 
 /* ------------------------------- ecosystem ------------------------------ */
