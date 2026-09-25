@@ -200,9 +200,14 @@
   color: var(--ink-soft);
 }
 
+/* Gold ground for the app; cards sit on it a shade lighter, never white. */
 .workspace-shell {
   min-height: 100svh;
-  background: var(--propolis);
+  background: var(--surface);
+}
+
+.workspace-shell.in-gold {
+  --surface-raised: #fff9e0;
 }
 
 .workspace-sidebar {
@@ -346,7 +351,7 @@
   align-items: center;
   gap: 1.25rem;
   padding: 1.1rem clamp(1rem, 3vw, 2.75rem);
-  background: color-mix(in oklab, var(--propolis) 86%, transparent);
+  background: color-mix(in oklab, var(--surface) 88%, transparent);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--rule);
 }
@@ -405,7 +410,6 @@
   gap: 2rem;
   padding: clamp(1.5rem, 4vw, 3rem);
   border-radius: var(--r-cell);
-  box-shadow: var(--lift-2);
   overflow: hidden;
   position: relative;
 }
@@ -585,7 +589,6 @@
   gap: 0.9rem;
   padding: clamp(1.25rem, 3vw, 2rem);
   border-radius: var(--r-cell);
-  box-shadow: var(--lift-2);
 }
 
 .next-step-panel .marker {
@@ -875,7 +878,6 @@ tbody tr:hover {
 .madhu-workspace {
   padding: clamp(1.25rem, 3vw, 2.25rem);
   border-radius: var(--r-cell);
-  box-shadow: var(--lift-2);
 }
 
 .madhu-workspace-head {

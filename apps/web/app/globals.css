@@ -232,6 +232,11 @@ input:-webkit-autofill:focus {
   --input-bg: #fffcec;
   /* Native controls (autofill, dropdowns, scrollbars) render light here. */
   color-scheme: light;
+  /* Shadows on gold are warm and soft; near-black ones read as grime. */
+  --lift-1: 0 1px 2px rgba(90, 58, 10, 0.08), 0 6px 18px rgba(90, 58, 10, 0.08);
+  --lift-2: 0 2px 6px rgba(90, 58, 10, 0.1), 0 14px 34px rgba(90, 58, 10, 0.14);
+  --lift-3: 0 6px 16px rgba(90, 58, 10, 0.14), 0 30px 60px rgba(90, 58, 10, 0.2);
+  --rim: inset 0 1px 0 rgba(255, 253, 240, 0.8);
   color: var(--ink);
   background:
     radial-gradient(ellipse 70% 60% at 85% 20%, rgba(255, 201, 74, 0.55), transparent 70%),
@@ -455,7 +460,7 @@ p {
   z-index: 200;
   padding: 0.85rem 1.2rem;
   background: var(--propolis);
-  color: var(--nectar-ink);
+  color: var(--nectar);
   border-radius: 0 0 10px 10px;
   font-size: var(--t-sm);
   font-weight: 600;
@@ -532,7 +537,8 @@ p {
 .btn-primary {
   background: #4a3517;
   border: 1px solid rgba(255, 182, 39, 0.45);
-  color: var(--nectar-ink-pale);
+  /* A fixed dark fill, so a fixed light label: section ink would vanish. */
+  color: var(--nectar-pale);
   box-shadow: var(--lift-1), var(--rim);
 }
 

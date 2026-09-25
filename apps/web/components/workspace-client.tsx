@@ -54,10 +54,10 @@ export function WorkspaceClient() {
     setView(next); setMenu(false); window.history.replaceState({}, "", `/workspace?view=${next}`);
   }
   function signOut() { sessionStorage.removeItem("bhramari.token"); sessionStorage.removeItem("bhramari.user"); setUser(null); }
-  if (loading) return <main className="workspace-loading in-hive"><span className="pp-loading-cell" /><p>Opening Bhramari…</p></main>;
+  if (loading) return <main className="workspace-loading in-gold"><span className="pp-loading-cell" /><p>Opening Bhramari…</p></main>;
   if (!user) return <Login auth={authConfig} initialError={authError} onLogin={setUser} />;
-  return <div className="workspace-shell">
-    <aside className={menu ? "workspace-sidebar is-open" : "workspace-sidebar"}>
+  return <div className="workspace-shell in-gold">
+    <aside className={menu ? "workspace-sidebar in-hive is-open" : "workspace-sidebar in-hive"}>
       <div className="workspace-brand"><Brand /><button className="sidebar-close" onClick={() => setMenu(false)} aria-label="Close menu"><X /></button></div>
       <nav aria-label="Workspace navigation">{navigation.map(([key, label, Icon]) => <button key={key} className={view === key ? "active" : ""} onClick={() => navigate(key)}><Icon size={18} /><span>{label}</span></button>)}</nav>
       <div className="sidebar-profile"><div className="profile-mark">{user.name.slice(0, 1)}</div><div><strong>{user.name}</strong><span>{roleLabels[user.role] || user.role}</span></div><button onClick={signOut} aria-label="Sign out"><LogOut size={16} /></button></div>

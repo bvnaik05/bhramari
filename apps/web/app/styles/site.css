@@ -1183,6 +1183,16 @@
   --stripe: var(--gold-pale);
 }
 
+/* A dark scope nested inside a gold one (the workspace sidebar) takes the
+   honey mark back. */
+.in-gold .in-hive .brand-mark {
+  color: var(--nectar);
+}
+
+.in-gold .in-hive .brand {
+  --stripe: var(--propolis-deep);
+}
+
 .site-footer .brand {
   --stripe: var(--gold-soft);
 }
