@@ -1,13 +1,15 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Fingerprint, PackageCheck, ScanLine, Sprout } from "lucide-react";
-import { CombEdge } from "./brand";
 
 /* The golden thread: one line of honey drawn through the four moments where a
-   record changes hands. The line draws itself as you scroll, so the connection
-   is shown rather than asserted. These steps are numbered because the content
-   genuinely is a sequence. */
+   record changes hands. On wide screens the section pins in place and the
+   line draws with the scroll itself, filling each node as it reaches it, and
+   the page only moves on once the thread has arrived at the last step. These
+   steps are numbered because the content genuinely is a sequence. */
 
 const steps = [
   {
@@ -44,39 +46,53 @@ export function GoldenThread() {
     const path = pathRef.current;
     const section = sectionRef.current;
     if (!path || !section) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      path.style.strokeDasharray = "none";
-      return;
-    }
+    /* This effect runs before the page-level motion provider's, so it
+       registers the plugin itself; registering twice is harmless. */
+    gsap.registerPlugin(ScrollTrigger);
 
-    let cancelled = false;
-    let stop: (() => void) | undefined;
+    const mm = gsap.matchMedia();
+    /* The line only exists as a horizontal wave on wide screens; phones get
+       the vertical thread and no pin. */
+    mm.add("(min-width: 1081px) and (prefers-reduced-motion: no-preference)", () => {
+      const length = path.getTotalLength();
+      const line = path.ownerSVGElement!.getBoundingClientRect();
+      const nodes = Array.from(section.querySelectorAll<HTMLElement>(".thread-node"));
+      gsap.set(path, { strokeDasharray: length, strokeDashoffset: length });
+      gsap.set(nodes, { "--lit": 0 });
 
-    import("animejs").then(({ animate, createDrawable, onScroll }) => {
-      if (cancelled) return;
-      const [drawable] = createDrawable(path);
-      const animation = animate(drawable, {
-        draw: "0 1",
-        ease: "linear",
-        autoplay: onScroll({
-          target: section,
-          enter: "bottom-=10% top",
-          leave: "top+=15% bottom",
-          sync: 0.55,
-        }),
+      const timeline = gsap.timeline({
+        defaults: { ease: "none" },
+        scrollTrigger: {
+          trigger: section,
+          /* Pin with the whole section on screen; a section taller than the
+             window pins by its foot instead so nothing is cut off. */
+          start: () => (section.offsetHeight > window.innerHeight ? "bottom bottom" : "center center"),
+          end: "+=150%",
+          pin: true,
+          scrub: 0.5,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+        },
       });
-      stop = () => animation.revert();
+      /* Explicit start values: invalidateOnRefresh re-reads a plain .to()'s
+         start on every refresh, and would pick up the finished state. */
+      timeline.fromTo(path, { strokeDashoffset: length }, { strokeDashoffset: 0, duration: 1 }, 0);
+      /* Each node fills as the line passes its centre. */
+      nodes.forEach((node) => {
+        const box = node.getBoundingClientRect();
+        const at = Math.min(0.97, Math.max(0, (box.left + box.width / 2 - line.left) / line.width));
+        timeline.fromTo(node, { "--lit": 0 }, { "--lit": 1, duration: 0.06 }, Math.max(0, at - 0.03));
+      });
+      /* A short hold at the end, so the last node is seen lit before the
+         section releases. */
+      timeline.to({}, { duration: 0.3 });
     });
 
-    return () => {
-      cancelled = true;
-      stop?.();
-    };
+    return () => mm.revert();
   }, []);
 
   return (
-    <section id="thread" className="thread section" ref={sectionRef}>
-      <CombEdge className="edge-rise" />
+    <section id="thread" className="thread section in-gold gold-dusk" ref={sectionRef}>
       <div className="shell">
         <div className="thread-head">
           <div>
@@ -101,7 +117,7 @@ export function GoldenThread() {
             preserveAspectRatio="none"
             aria-hidden="true"
           >
-            <path d={THREAD_PATH} stroke="var(--rule)" strokeWidth="2" strokeLinecap="round" />
+            <path d={THREAD_PATH} stroke="rgba(122, 80, 0, 0.25)" strokeWidth="2" strokeDasharray="2 7" strokeLinecap="round" />
             <path
               ref={pathRef}
               d={THREAD_PATH}
@@ -112,8 +128,8 @@ export function GoldenThread() {
             <defs>
               <linearGradient id="thread-honey" x1="0" y1="0" x2="1200" y2="0" gradientUnits="userSpaceOnUse">
                 <stop stopColor="var(--honey-deep)" />
-                <stop offset="0.5" stopColor="var(--nectar)" />
-                <stop offset="1" stopColor="var(--honey-deep)" />
+                <stop offset="0.5" stopColor="#e08a00" />
+                <stop offset="1" stopColor="var(--gold-ink)" />
               </linearGradient>
             </defs>
           </svg>

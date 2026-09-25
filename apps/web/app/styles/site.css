@@ -693,7 +693,6 @@
 /* -------------------------------- thread -------------------------------- */
 
 .thread {
-  background: var(--surface);
   position: relative;
 }
 
@@ -742,27 +741,39 @@
   align-content: start;
 }
 
-/* The node has to be opaque where the thread passes under it. */
+/* Each node is a dark wax cell that fills with honey as the thread reaches
+   it. --lit runs 0 to 1; the scroll timeline drives it on wide screens, and
+   everywhere else it simply rests full. The node is opaque, so the thread
+   reads as passing behind it. */
 .thread-node {
+  --lit: 1;
   position: relative;
   z-index: 1;
-}
-
-.thread-node {
   display: grid;
   place-items: center;
   width: 4.25rem;
   height: 4.75rem;
   margin-bottom: 1.5rem;
-  color: var(--nectar-ink);
-  background: linear-gradient(180deg, #3a2912, var(--surface-raised) 60%);
+  color: color-mix(in oklab, var(--propolis-deep) calc(var(--lit) * 100%), var(--nectar));
+  background: linear-gradient(180deg, #3a2912, var(--propolis-deep));
   clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
-  transition: transform 0.45s var(--ease-comb), color 0.3s;
+  transition: transform 0.45s var(--ease-comb);
+}
+
+.thread-node::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(170deg, var(--nectar-pale), var(--nectar) 50%, var(--honey-deep));
+  opacity: var(--lit);
+}
+
+.thread-node svg {
+  position: relative;
 }
 
 .thread-step:hover .thread-node {
   transform: translateY(-4px) rotate(-5deg);
-  color: var(--ink);
 }
 
 .thread-index {
@@ -1410,7 +1421,7 @@
     top: 3.9rem;
     bottom: -2rem;
     width: 2px;
-    background: linear-gradient(180deg, var(--nectar), rgba(255, 182, 39, 0.3));
+    background: linear-gradient(180deg, var(--honey-deep), rgba(192, 106, 2, 0.25));
   }
 
   .thread-step {
