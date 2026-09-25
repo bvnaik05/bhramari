@@ -8,5 +8,5 @@
     "test": "node --test test/*.test.mjs"
   },
   "engines": { "node": ">=22.13.0" },
-  "dependencies": { "ethers": "6.15.0" }
+  "dependencies": { "ethers": "6.17.0" }
 }

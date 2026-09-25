@@ -37,6 +37,8 @@ jobs:
         with: {node-version: 22, cache: npm, cache-dependency-path: contracts/package-lock.json}
       - run: npm ci
       - run: npm test
+      # The integration test deploys compiled artifacts, which are not committed.
+      - run: npm run compile
       - run: npm run test:integration
 
   ledger:
@@ -45,8 +47,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: {node-version: 22, cache: npm, cache-dependency-path: services/ledger/package-lock.json}
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            services/ledger/package-lock.json
+            contracts/package-lock.json
       - run: npm ci
+      # The chain test runs the relayer against a real Anvil node and the real
+      # contracts, both of which come from the contracts package.
+      - run: npm ci --prefix ../../contracts
+      - run: npm run compile --prefix ../../contracts
       - run: npm test
 
   field:
