@@ -117,7 +117,7 @@ function Login({ auth, initialError, onLogin }: { auth?: AuthConfig; initialErro
     try { await beginOidc(auth); } catch (failure) { setError((failure as Error).message); setBusy(""); }
   }
   const oidc = auth?.mode === "oidc";
-  return <main id="main" className="login in-hive">
+  return <main id="main" className="login in-gold gold-noon">
     <div className="login-inner">
       <section className="login-main">
         <Brand />
@@ -135,14 +135,14 @@ function Login({ auth, initialError, onLogin }: { auth?: AuthConfig; initialErro
                 <input type="password" name="password" autoComplete="current-password" required value={password} onChange={event => setPassword(event.target.value)} />
               </label>
               {error && <div className="notice notice-error" role="alert">{error}</div>}
-              <button type="submit" className="btn btn-honey login-submit" disabled={!!busy || !auth}>
+              <button type="submit" className="btn btn-wax login-submit" disabled={!!busy || !auth}>
                 {busy === "form" ? <><Activity className="spin" size={16} /> Signing in…</> : "Sign in"}
               </button>
             </form>}
         {oidc && error && <div className="notice notice-error" role="alert">{error}</div>}
       </section>
 
-      {!oidc && <aside className="login-demo in-gold" aria-labelledby="demo-title">
+      {!oidc && <aside className="login-demo in-hive wax-card" aria-labelledby="demo-title">
         <span className="marker marker-plain"><ShieldCheck size={15} /> Simulated demo, clearly labelled</span>
         <h2 id="demo-title">Demo accounts</h2>
         <p>Pick a role to sign in straight away. Every account uses the password <code className="login-code">{DEMO_PASSWORD}</code>.</p>

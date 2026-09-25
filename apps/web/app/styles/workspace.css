@@ -37,7 +37,6 @@
 
 .login-main h1 {
   font-size: var(--t-3xl);
-  color: var(--cream);
   margin: clamp(2rem, 5vh, 3.25rem) 0 1rem;
   max-width: 14ch;
 }
@@ -63,11 +62,11 @@
   margin-top: 0.35rem;
 }
 
+/* The dark wax card on the gold sign-in page; its colour comes from
+   .in-hive.wax-card in markup. */
 .login-demo {
   padding: clamp(1.5rem, 3.5vw, 2.5rem);
-  border: 1px solid var(--rule);
   border-radius: calc(var(--r-cell) + 4px);
-  box-shadow: var(--lift-3), var(--rim);
 }
 
 .login-demo h2 {
@@ -782,7 +781,7 @@ tbody tr:hover {
   border: 1px solid var(--rule);
   border-radius: 8px;
   /* Inputs sit slightly below the surface, like a cell waiting to be filled. */
-  background: color-mix(in oklab, var(--surface-sunk) 85%, black);
+  background: var(--input-bg);
   color: var(--ink);
   min-width: 0;
   min-height: 2.9rem;

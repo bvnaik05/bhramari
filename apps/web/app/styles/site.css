@@ -1175,8 +1175,12 @@
   align-items: start;
 }
 
-.site-footer .brand-mark {
+.in-gold .brand-mark {
   color: var(--gold-ink);
+}
+
+.in-gold .brand {
+  --stripe: var(--gold-pale);
 }
 
 .site-footer .brand {

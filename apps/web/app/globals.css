@@ -62,6 +62,9 @@
   --rule: #3b2b14;
   --rule-soft: #2c200e;
   --focus: var(--nectar);
+  /* Form fields sit a step below their surface: near-black on wax, a lighter
+     cream on gold. */
+  --input-bg: #0f0a04;
 
   /* Status — bright marks on low tints, so state reads without glare */
   --ok: #8ed69a;
@@ -141,8 +144,28 @@
   --warn-bg: rgba(242, 200, 110, 0.12);
   --stop: #f4a095;
   --stop-bg: rgba(244, 160, 149, 0.12);
+  --input-bg: #0f0a04;
+  color-scheme: dark;
   color: var(--ink);
   background: var(--surface);
+}
+
+/* Browser autofill paints its own background; keep fields on the theme. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 100px var(--input-bg) inset;
+  -webkit-text-fill-color: var(--ink);
+  caret-color: var(--ink);
+}
+
+/* A dark wax card set into a gold page: the main way dark is used now. */
+.wax-card {
+  border: 1px solid rgba(255, 182, 39, 0.22);
+  background:
+    radial-gradient(ellipse 70% 55% at 0% 0%, rgba(255, 182, 39, 0.12), transparent 70%),
+    linear-gradient(165deg, #2a1d0c, var(--propolis-deep));
+  box-shadow: 0 2px 6px rgba(90, 58, 10, 0.18), 0 22px 44px rgba(90, 58, 10, 0.22), var(--rim);
 }
 
 /* Gold variations, so no two gold sections read the same. Each keeps the
@@ -206,6 +229,9 @@
   --warn-bg: rgba(143, 80, 0, 0.14);
   --stop: #a8362a;
   --stop-bg: rgba(168, 54, 42, 0.14);
+  --input-bg: #fffcec;
+  /* Native controls (autofill, dropdowns, scrollbars) render light here. */
+  color-scheme: light;
   color: var(--ink);
   background:
     radial-gradient(ellipse 70% 60% at 85% 20%, rgba(255, 201, 74, 0.55), transparent 70%),
