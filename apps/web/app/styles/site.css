@@ -794,13 +794,12 @@
 
 /* --------------------------------- madhu -------------------------------- */
 
-/* Picks up the dusk section's last gold and hands pale gold to the next. */
+/* Madhu is a dark wax section; the comb teeth at its top and bottom carry
+   the page in and out of the gold around it. */
 .madhu {
   position: relative;
   padding-block: clamp(4.5rem, 3rem + 7vw, 8rem);
-  overflow: hidden;
   isolation: isolate;
-  background: linear-gradient(180deg, #ffecb0 0%, var(--gold-pale) 100%);
 }
 
 /* The double-walled comb fills the section, strongest around the orb and
@@ -823,20 +822,27 @@
   mask-composite: intersect;
 }
 
-/* The chips and the note sit on the busiest part of the comb, so they are
-   solid gold pills with a lift rather than outlines. */
+/* The chips and the note sit over the comb, so they are solid wax pills
+   rather than outlines. */
 .madhu .language-cloud a,
 .madhu .language-cloud span {
-  background: var(--gold-pale);
-  border-color: rgba(107, 74, 23, 0.45);
-  color: #3d2a0c;
-  box-shadow: 0 2px 8px rgba(90, 58, 10, 0.14);
+  background: #1f160a;
+  border-color: #4a3517;
+  color: var(--ink-soft);
+  box-shadow: 0 2px 10px rgba(6, 3, 0, 0.5);
+}
+
+.madhu .language-cloud a:hover,
+.madhu .language-cloud a:focus-visible {
+  border-color: var(--nectar);
+  background: #2a1d0c;
+  color: var(--nectar);
 }
 
 .madhu-visual > .madhu-note {
   padding: 0.35rem 0.85rem;
   border-radius: var(--r-pill);
-  background: color-mix(in oklab, var(--gold-pale) 88%, transparent);
+  background: rgba(19, 12, 5, 0.85);
   color: var(--ink-soft);
 }
 
@@ -852,20 +858,22 @@
   }
 }
 
+/* On wax the comb is drawn in wax: a near-black outer wall around a warm
+   brown inside, with a few cells holding glowing honey. */
 .dc-wall {
-  fill: #6b4a17;
+  fill: #0b0702;
 }
 
 .dc-pale .dc-inside {
-  fill: #fff4cc;
+  fill: #221709;
 }
 
 .dc-deep .dc-inside {
-  fill: #ffe39a;
+  fill: #2e200d;
 }
 
 .dc-honey .dc-inside {
-  fill: #ffd46a;
+  fill: #3a2912;
 }
 
 .dc-glow {

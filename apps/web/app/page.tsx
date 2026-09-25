@@ -200,7 +200,8 @@ export default function HomePage() {
         <GoldenThread />
 
         {/* ------------------------------ madhu ------------------------------ */}
-        <section id="madhu" className="madhu in-gold">
+        <section id="madhu" className="madhu in-hive">
+          <CombEdge className="edge-to-hive" />
           <DoubleComb />
           <div className="shell madhu-inner">
             <div className="madhu-copy">
@@ -215,7 +216,7 @@ export default function HomePage() {
                 can&apos;t do something yet, it tells you so instead of guessing.
               </p>
               <div className="madhu-actions" data-reveal="rise">
-                <Link href="/workspace?view=madhu" className="btn btn-wax">
+                <Link href="/workspace?view=madhu" className="btn btn-honey">
                   Say hello to Madhu
                 </Link>
                 <span className="madhu-note">
@@ -229,6 +230,7 @@ export default function HomePage() {
               <span className="madhu-note">Tap a language to talk to Madhu in it.</span>
             </div>
           </div>
+          <CombEdge className="edge-to-light" />
         </section>
 
         {/* ----------------------------- passport ---------------------------- */}
