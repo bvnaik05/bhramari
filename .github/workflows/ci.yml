@@ -56,7 +56,7 @@ jobs:
       - run: npm ci
       # The chain test runs the relayer against a real Anvil node and the real
       # contracts, both of which come from the contracts package.
-      - run: npm ci --prefix ../../contracts
+      - run: npm install --prefix ../../contracts
       - run: npm run compile --prefix ../../contracts
       - run: npm test
 
