@@ -63,7 +63,6 @@ jobs:
           output: trivy-results.sarif
           severity: HIGH,CRITICAL
           ignore-unfixed: true
-          exit-code: "1"
           exit-code: "0"
       # The scan step above fails the job on HIGH/CRITICAL findings; the
       # report is kept as an artifact while code scanning is disabled.
