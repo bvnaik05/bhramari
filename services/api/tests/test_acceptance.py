@@ -2,7 +2,6 @@ import base64
 import secrets
 import time
 from datetime import timedelta
-from pathlib import Path
 from uuid import UUID
 
 from cryptography.hazmat.primitives import serialization
@@ -130,9 +129,11 @@ def test_encrypted_evidence_detects_mutation(client, auth):
     })
     assert response.status_code == 201, response.text
     evidence_id = response.json()["id"]
-    with SessionLocal() as db:
-        path = Path(db.get(Evidence, evidence_id).object_path)
-    path.write_bytes(path.read_bytes() + b"tampered")
+    assert client.get(f"/api/v1/evidence/{evidence_id}/content", headers=headers).content == content
+    with SessionLocal.begin() as db:
+        evidence = db.get(Evidence, evidence_id)
+        assert evidence.object_path.startswith("db:")
+        evidence.object_path += "tampered"
     assert client.get(f"/api/v1/evidence/{evidence_id}/content", headers=headers).status_code == 409
 
 

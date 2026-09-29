@@ -55,7 +55,7 @@ def generate_speech(text, language_code):
         result = request_json("POST", f"{config.sarvam_api_url}/text-to-speech",
             headers={"api-subscription-key": config.sarvam_api_key},
             json={"text": text, "language_code": language_code, "model": "bulbul:v3",
-                  "speaker": "shubh", "output_audio_codec": "mp3"})
+                  "speaker": "priya", "output_audio_codec": "mp3"})
         import base64
         return base64.b64decode(result["audios"][0]), "audio/mpeg", "sarvam"
     if "elevenlabs" in item["tts"] and config.elevenlabs_api_key and config.elevenlabs_voice_id:

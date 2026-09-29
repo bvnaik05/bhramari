@@ -1,12 +1,13 @@
 from pathlib import Path
 from functools import lru_cache
+from os import getenv
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="BHRAMARI_", env_file=".env", extra="ignore")
-    database_url: str = "sqlite:///./data/bhramari.db"
+    database_url: str = getenv("DATABASE_URL", "sqlite:///./data/bhramari.db")
     demo: bool = False
     jwt_secret: str = ""
     oidc_issuer: str = ""

@@ -62,11 +62,17 @@ def add_evidence(body: EvidenceInput, user: User = Depends(require_roles("lab", 
     content = validate_content(body)
     scan_content(content)
     identifier = uid()
-    directory = settings().data_dir / "evidence"
-    directory.mkdir(parents=True, exist_ok=True)
-    path = directory / f"{identifier}.enc"
-    path.write_bytes(evidence_cipher().encrypt(content))
-    evidence = Evidence(id=identifier, lot_id=lot.id, issuer_org_id=user.org_id, kind=body.kind, title=body.title, sha256=hashlib.sha256(content).hexdigest(), content_type=body.content_type, object_path=str(path.resolve()), expires_at=body.expires_at.isoformat(), summary=body.summary)
+    encrypted = evidence_cipher().encrypt(content)
+    if settings().demo:
+        # ponytail: keep demo evidence in Postgres; use object storage for larger evidence volumes.
+        object_path = f"db:{encrypted.decode('ascii')}"
+    else:
+        directory = settings().data_dir / "evidence"
+        directory.mkdir(parents=True, exist_ok=True)
+        path = directory / f"{identifier}.enc"
+        path.write_bytes(encrypted)
+        object_path = str(path.resolve())
+    evidence = Evidence(id=identifier, lot_id=lot.id, issuer_org_id=user.org_id, kind=body.kind, title=body.title, sha256=hashlib.sha256(content).hexdigest(), content_type=body.content_type, object_path=object_path, expires_at=body.expires_at.isoformat(), summary=body.summary)
     db.add(evidence)
     db.flush()
     emit(db, user, "evidence.issued", lot.id, {"evidence_id": evidence.id, "sha256": evidence.sha256, "kind": evidence.kind, "expires_at": evidence.expires_at})
@@ -128,7 +134,8 @@ def content(evidence_id: str, user: User = Depends(current_user), db: Session = 
         raise HTTPException(403, "Evidence access is restricted to its issuer and lot owner")
     try:
         from pathlib import Path
-        encrypted = Path(evidence.object_path).read_bytes()
+        encrypted = (evidence.object_path[3:].encode("ascii") if evidence.object_path.startswith("db:")
+                     else Path(evidence.object_path).read_bytes())
         decoded = base64.b64decode(encrypted, altchars=b"-_", validate=True)
         if len(decoded) < 73 or (len(decoded) - 57) % 16:
             raise ValueError("invalid encrypted object length")
