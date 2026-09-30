@@ -420,12 +420,12 @@
   position: relative;
   width: min(100%, 76rem);
   min-height: min(52vw, 38rem);
-  margin-top: clamp(2rem, 4vw, 4rem);
+  margin: clamp(2rem, 4vw, 4rem) auto 0;
   overflow: hidden;
-  border: 1px solid rgba(255, 216, 132, 0.3);
+  border: 1px solid rgba(255, 216, 132, 0.58);
   border-radius: calc(var(--r-cell) + 4px);
   background: #120b04;
-  box-shadow: var(--lift-3);
+  box-shadow: 0 0 0 5px rgba(255, 182, 39, 0.12), var(--lift-3), inset 0 0 0 1px rgba(255, 248, 215, 0.08);
   isolation: isolate;
 }
 
