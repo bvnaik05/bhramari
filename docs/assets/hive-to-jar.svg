@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 600" role="img" aria-labelledby="title description">
+  <title id="title">From hive to Honey Passport</title>
+  <desc id="description">A six-step user journey from an offline beekeeper harvest record through reconciliation, accepted custody, laboratory evidence, bottle serialisation, and a public Honey Passport.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff9e7"/>
+      <stop offset="1" stop-color="#f6e9cc"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0 0 10 5 0 10Z" fill="#b96e12"/>
+    </marker>
+    <style>
+      text { fill: #1d1409; font-family: Arial, sans-serif; }
+      .eyebrow { fill: #8a4d0b; font-size: 15px; font-weight: 700; letter-spacing: 2.2px; }
+      .heading { font-family: Georgia, serif; font-size: 34px; font-weight: 700; }
+      .step { fill: #8a4d0b; font-size: 13px; font-weight: 700; letter-spacing: 1.4px; }
+      .card-title { font-family: Georgia, serif; font-size: 22px; font-weight: 700; }
+      .actor { fill: #8a4d0b; font-size: 13px; font-weight: 700; }
+      .copy { fill: #5e4b31; font-size: 15px; }
+      .note { fill: #5e4b31; font-size: 15px; }
+    </style>
+  </defs>
+  <rect width="1400" height="600" rx="28" fill="url(#background)"/>
+  <rect x="32" y="32" width="1336" height="536" rx="20" fill="none" stroke="#e6d4ae" stroke-width="2"/>
+  <text x="64" y="82" class="eyebrow">BHRAMARI · THE PRODUCT JOURNEY</text>
+  <text x="64" y="128" class="heading">One harvest. A record people can follow.</text>
+
+  <g fill="none" stroke="#b96e12" stroke-width="3" marker-end="url(#arrow)">
+    <path d="M250 316h27"/><path d="M472 316h27"/><path d="M694 316h27"/>
+    <path d="M916 316h27"/><path d="M1138 316h27"/>
+  </g>
+
+  <g>
+    <rect x="54" y="178" width="196" height="274" rx="18" fill="#fffdf7" stroke="#e6d4ae" stroke-width="2"/>
+    <text x="76" y="214" class="step">01 · CAPTURE</text>
+    <text x="76" y="260" class="card-title">At the hive</text>
+    <text x="76" y="289" class="actor">BEEKEEPER</text>
+    <text x="76" y="333" class="copy"><tspan x="76">Record a harvest or</tspan><tspan x="76" dy="23">inspection offline.</tspan><tspan x="76" dy="23">Keep a signed event</tspan><tspan x="76" dy="23">in the device queue.</tspan></text>
+
+    <rect x="276" y="178" width="196" height="274" rx="18" fill="#fffdf7" stroke="#e6d4ae" stroke-width="2"/>
+    <text x="298" y="214" class="step">02 · SYNC</text>
+    <text x="298" y="260" class="card-title">Reconcile</text>
+    <text x="298" y="289" class="actor">BHRAMARI API</text>
+    <text x="298" y="333" class="copy"><tspan x="298">Check identity, role,</tspan><tspan x="298" dy="23">sequence and signature.</tspan><tspan x="298" dy="23">Keep conflicts for</tspan><tspan x="298" dy="23">human review.</tspan></text>
+
+    <rect x="498" y="178" width="196" height="274" rx="18" fill="#fffdf7" stroke="#e6d4ae" stroke-width="2"/>
+    <text x="520" y="214" class="step">03 · HAND OVER</text>
+    <text x="520" y="260" class="card-title">Move the lot</text>
+    <text x="520" y="289" class="actor">FPO + PROCESSOR</text>
+    <text x="520" y="333" class="copy"><tspan x="520">The recipient accepts</tspan><tspan x="520" dy="23">custody. Splits and</tspan><tspan x="520" dy="23">processing keep a</tspan><tspan x="520" dy="23">balanced lineage.</tspan></text>
+
+    <rect x="720" y="178" width="196" height="274" rx="18" fill="#fffdf7" stroke="#e6d4ae" stroke-width="2"/>
+    <text x="742" y="214" class="step">04 · ADD EVIDENCE</text>
+    <text x="742" y="260" class="card-title">Check the lot</text>
+    <text x="742" y="289" class="actor">LABORATORY</text>
+    <text x="742" y="333" class="copy"><tspan x="742">Link a report to the</tspan><tspan x="742" dy="23">lot. Show its scope,</tspan><tspan x="742" dy="23">content hash and</tspan><tspan x="742" dy="23">expiry date.</tspan></text>
+
+    <rect x="942" y="178" width="196" height="274" rx="18" fill="#fffdf7" stroke="#e6d4ae" stroke-width="2"/>
+    <text x="964" y="214" class="step">05 · SERIALISE</text>
+    <text x="964" y="260" class="card-title">Pack the jar</text>
+    <text x="964" y="289" class="actor">FPO / PROCESSOR</text>
+    <text x="964" y="333" class="copy"><tspan x="964">Reserve stock and</tspan><tspan x="964" dy="23">create a signed bottle</tspan><tspan x="964" dy="23">serial with a QR</tspan><tspan x="964" dy="23">resolver.</tspan></text>
+
+    <rect x="1164" y="178" width="196" height="274" rx="18" fill="#fffdf7" stroke="#e6d4ae" stroke-width="2"/>
+    <text x="1186" y="214" class="step">06 · OPEN</text>
+    <text x="1186" y="260" class="card-title">Scan the jar</text>
+    <text x="1186" y="289" class="actor">CONSUMER</text>
+    <text x="1186" y="333" class="copy"><tspan x="1186">Open a no-login</tspan><tspan x="1186" dy="23">Passport for origin,</tspan><tspan x="1186" dy="23">evidence, journey and</tspan><tspan x="1186" dy="23">current safety status.</tspan></text>
+  </g>
+
+  <rect x="54" y="484" width="1306" height="52" rx="14" fill="#f4dfaf"/>
+  <text x="76" y="516" class="note">Accepted event hashes can anchor in a Merkle checkpoint. A ledger does not certify chemical purity.</text>
+</svg>
