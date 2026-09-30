@@ -416,6 +416,130 @@
   max-width: 34ch;
 }
 
+.hero-video {
+  position: relative;
+  width: min(100%, 76rem);
+  min-height: min(52vw, 38rem);
+  margin-top: clamp(2rem, 4vw, 4rem);
+  overflow: hidden;
+  border: 1px solid rgba(255, 216, 132, 0.3);
+  border-radius: calc(var(--r-cell) + 4px);
+  background: #120b04;
+  box-shadow: var(--lift-3);
+  isolation: isolate;
+}
+
+.hero-video:fullscreen {
+  display: grid;
+  place-items: center;
+  width: 100vw;
+  height: 100vh;
+  min-height: 0;
+  border: 0;
+  border-radius: 0;
+}
+
+.hero-video video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #120b04;
+}
+
+.hero-video-poster {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  cursor: pointer;
+  border: 0;
+  background: #120b04;
+}
+
+.hero-video-poster:focus-visible,
+.hero-video-controls button:focus-visible {
+  outline: 2px solid var(--nectar);
+  outline-offset: 4px;
+}
+
+.hero-video-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.28em;
+  width: min(48%, 24rem);
+  color: var(--cream);
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 4.8rem);
+  font-weight: 700;
+  letter-spacing: -0.045em;
+  line-height: 1;
+  filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.65));
+}
+
+.hero-video-logo-mark {
+  display: block;
+  width: 1.05em;
+  height: 1.05em;
+  flex: none;
+  color: var(--nectar);
+}
+
+.hero-video-logo-mark svg {
+  width: 100%;
+  height: 100%;
+}
+
+.hero-video-poster-play {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 4rem;
+  aspect-ratio: 1;
+  color: var(--propolis);
+  border-radius: 50%;
+  background: var(--nectar);
+  box-shadow: 0 0 0 0.65rem rgba(255, 182, 39, 0.15), var(--lift-2);
+}
+
+.hero-video-controls {
+  position: absolute;
+  z-index: 2;
+  right: 1rem;
+  bottom: 1rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.hero-video-controls button {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  aspect-ratio: 1;
+  padding: 0;
+  cursor: pointer;
+  color: var(--propolis);
+  border: 0;
+  border-radius: 50%;
+  background: var(--nectar);
+}
+
+.hero-video-caption {
+  position: absolute;
+  z-index: 2;
+  left: 0.8rem;
+  bottom: 1.25rem;
+  max-width: calc(100% - 3.2rem);
+  color: var(--cream);
+  font-size: var(--t-xs);
+  letter-spacing: 0.02em;
+}
+
 /* --------------------------------- truth -------------------------------- */
 
 .truth {
@@ -1476,6 +1600,10 @@
       ),
       linear-gradient(100deg, rgba(14, 9, 2, 0.6) 0%, rgba(14, 9, 2, 0.12) 100%);
   }
+
+  .hero-video {
+    min-height: min(58vw, 28rem);
+  }
 }
 
 @media (max-width: 620px) {
@@ -1514,6 +1642,16 @@
 
   .hero-actions .link {
     margin-inline: auto;
+  }
+
+  .hero-video {
+    min-height: min(72vw, 25rem);
+    margin-inline: auto;
+  }
+
+  .hero-video-logo {
+    width: min(82%, 24rem);
+    font-size: clamp(2rem, 10vw, 3.5rem);
   }
 
   /* The thread turns vertical on a phone and runs down through the nodes,

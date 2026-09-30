@@ -255,6 +255,11 @@ input:-webkit-autofill:focus {
 html {
   -webkit-text-size-adjust: 100%;
   scroll-padding-top: 6rem;
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar {
+  display: none;
 }
 
 /* Lenis drives scrolling; native smooth is a fallback when JS is absent. */

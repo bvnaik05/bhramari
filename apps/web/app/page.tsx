@@ -10,6 +10,7 @@ import { GoldenThread } from "@/components/golden-thread";
 import { LanguageCloud } from "@/components/language-cloud";
 import { DoubleComb } from "@/components/double-comb";
 import { TweakPanel } from "@/components/tweak-panel";
+import { HeroVideo } from "@/components/hero-video";
 
 const heroFacts = [
   { icon: WifiOff, title: "Works with no signal", copy: "Records are signed and queued on the phone, then sync when a tower appears." },
@@ -150,6 +151,7 @@ export default function HomePage() {
                 </li>
               ))}
             </ul>
+            <HeroVideo />
           </div>
           <CombEdge className="edge-to-light" />
         </section>
